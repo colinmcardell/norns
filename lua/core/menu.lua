@@ -23,7 +23,7 @@ local KEY1_HOLD_TIME = 0.25
 _menu.mode = false
 _menu.page = "HOME"
 _menu.panel = 3
-_menu.panels = {"MIX", "TAPE", "HOME", "PARAMS"}
+_menu.panels = { "MIX", "TAPE", "HOME", "PARAMS" }
 _menu.alt = false
 _menu.scripterror = false
 _menu.locked = false
@@ -31,7 +31,7 @@ _menu.errormsg = ""
 _menu.shownav = false
 _menu.showstats = false
 _menu.previewfile = ""
-_menu.binarystates = {triggered = {}, on = {}}
+_menu.binarystates = { triggered = {}, on = {} }
 
 -- menu pages
 local m = {}
@@ -45,7 +45,7 @@ local t = metro[31]
 t.time = KEY1_HOLD_TIME
 t.count = 1
 t.event = function(_)
-  _menu.key(1,1)
+  _menu.key(1, 1)
   pending = false
   if _menu.mode == true then _menu.redraw() end
 end
@@ -80,10 +80,10 @@ norns.menu.toggle = function(status) _menu.set_mode(status) end
 
 norns.scripterror = function(msg)
   if msg == nil then msg = "" end
-  print("### SCRIPT ERROR: "..msg)
-  if util.string_starts(msg,"missing") then
+  print("### SCRIPT ERROR: " .. msg)
+  if util.string_starts(msg, "missing") then
     print("### try 'SYSTEM > RESTART'")
-  elseif util.string_starts(msg,"version") then
+  elseif util.string_starts(msg, "version") then
     print("### try 'SYSTEM > UPDATE'")
     print("### or check for new disk image")
   end
@@ -112,16 +112,18 @@ end
 -- input redirection
 
 _menu.enc = function(n, delta)
-  if n==1 and _menu.alt == false then
+  if n == 1 and _menu.alt == false then
     --mix:delta("output",delta)
-    local c = util.clamp(_menu.panel+delta,1,4)
+    local c = util.clamp(_menu.panel + delta, 1, 4)
     if c ~= _menu.panel then
       _menu.shownav = true
       _menu.panel = c
       _menu.set_page(_menu.panels[_menu.panel])
       nav_vanish:start()
     end
-  else _menu.penc(n, delta) end
+  else
+    _menu.penc(n, delta)
+  end
 end
 
 
@@ -136,19 +138,21 @@ _norns.key = function(n, z)
       _menu.alt = false
       if _menu.mode == true and _menu.locked == false then
         _menu.set_mode(false)
-      else _menu.set_mode(true) end
+      else
+        _menu.set_mode(true)
+      end
       t:stop()
       pending = false
     elseif z == 0 then
       _menu.alt = false
-      _menu.key(n,z) -- always 1,0
+      _menu.key(n, z) -- always 1,0
       if _menu.mode == true then _menu.redraw() end
     else
-      _menu.key(n,z) -- always 1,1
+      _menu.key(n, z) -- always 1,1
     end
     -- key 2/3 pass
   else
-    _menu.key(n,z)
+    _menu.key(n, z)
   end
   screen.ping()
 end
@@ -177,12 +181,12 @@ _menu.set_mode = function(mode)
     screen.font_size(8)
     screen.line_width(1)
     norns.encoders.callback = _menu.enc
-    norns.encoders.set_accel(1,false)
-    norns.encoders.set_sens(1,8)
-    norns.encoders.set_accel(2,false)
-    norns.encoders.set_sens(2,2)
-    norns.encoders.set_accel(3,true)
-    norns.encoders.set_sens(3,2)
+    norns.encoders.set_accel(1, false)
+    norns.encoders.set_sens(1, 8)
+    norns.encoders.set_accel(2, false)
+    norns.encoders.set_sens(2, 2)
+    norns.encoders.set_accel(3, true)
+    norns.encoders.set_sens(3, 2)
     _menu.set_page(_menu.page)
   end
 end
@@ -210,29 +214,29 @@ function _menu.draw_panel()
   if _menu.shownav then
     screen.aa(1)
     screen.line_width(1)
-    for i = 1,4 do
+    for i = 1, 4 do
       screen.level(i == _menu.panel and 8 or 2)
-      screen.move((i-1)*33,0)
-      screen.line_rel(30,0)
+      screen.move((i - 1) * 33, 0)
+      screen.line_rel(30, 0)
       screen.stroke()
     end
   end
 end
 
 -- global menu keys
-function _menu.keycode(c,value)
+function _menu.keycode(c, value)
   -- those are globals and can't be overriden by a sub-menu
-  if value>0 then
-    if c=="F1" then
+  if value > 0 then
+    if c == "F1" then
       _menu.set_page("MIX")
       return
-    elseif c=="F2" then
+    elseif c == "F2" then
       _menu.set_page("TAPE")
       return
-    elseif c=="F3" then
+    elseif c == "F3" then
       _menu.set_page("HOME")
       return
-    elseif c=="F4" then
+    elseif c == "F4" then
       _menu.set_page("PARAMS")
       return
     end
@@ -240,39 +244,39 @@ function _menu.keycode(c,value)
 
   -- if a sub-menu defines its own handler, it takes precedence...
   if _menu.keyboardcode then
-    _menu.keyboardcode(c,value)
+    _menu.keyboardcode(c, value)
     return
   end
 
   -- ... otherwise we use those default bindings in most places
 
   -- E2 emu (scolling)
-  if value>0 then
-    if c=="DOWN" then
-      _menu.penc(2,1)
-    elseif c=="UP" then
-      _menu.penc(2,-1)
-    elseif c=="PAGEDOWN" then
-      _menu.penc(2,6)
-    elseif c=="PAGEUP" then
-      _menu.penc(2,-6)
+  if value > 0 then
+    if c == "DOWN" then
+      _menu.penc(2, 1)
+    elseif c == "UP" then
+      _menu.penc(2, -1)
+    elseif c == "PAGEDOWN" then
+      _menu.penc(2, 6)
+    elseif c == "PAGEUP" then
+      _menu.penc(2, -6)
     end
   end
 
   -- K2/K3 emu
-  if value==1 or value==0 then
-    if c=="LEFT" then
-      _menu.key(2,value)
-    elseif c=="RIGHT" then
-      _menu.key(3,value)
+  if value == 1 or value == 0 then
+    if c == "LEFT" then
+      _menu.key(2, value)
+    elseif c == "RIGHT" then
+      _menu.key(3, value)
     end
   end
 
   -- parameter change with +/-
-  if c=="MINUS" then
-    _menu.penc(3,value*-1)
-  elseif c=="EQUAL" then
-    _menu.penc(3,value)
+  if c == "MINUS" then
+    _menu.penc(3, value * -1)
+  elseif c == "EQUAL" then
+    _menu.penc(3, value)
   end
 end
 
@@ -280,30 +284,28 @@ function _menu.keychar(c)
   if _menu.keyboardchar then _menu.keyboardchar(c) end
 end
 
-function _menu.gamepad_axis(_sensor_axis,_value)
-
+function _menu.gamepad_axis(_sensor_axis, _value)
   -- if a sub-menu defines its own handler, it takes precedence...
   if _menu.custom_gamepad_axis then
-    _menu.custom_gamepad_axis(_sensor_axis,_value)
+    _menu.custom_gamepad_axis(_sensor_axis, _value)
     return
   end
 
   if gamepad.down() then
-    _menu.penc(2,1)
+    _menu.penc(2, 1)
   elseif gamepad.up() then
-    _menu.penc(2,-1)
+    _menu.penc(2, -1)
   elseif gamepad.left() then
-    _menu.key(2,1)
+    _menu.key(2, 1)
   elseif gamepad.right() then
-    _menu.key(3,1)
+    _menu.key(3, 1)
   end
 end
 
-function _menu.gamepad_button(b,value)
-
+function _menu.gamepad_button(b, value)
   if value == 1 and (b == "L1" or b == "R1") then
     local delta = b == "R1" and 1 or -1
-    local c = util.clamp(_menu.panel+delta,1,4)
+    local c = util.clamp(_menu.panel + delta, 1, 4)
     if c ~= _menu.panel then
       _menu.shownav = true
       _menu.panel = c
@@ -314,15 +316,15 @@ function _menu.gamepad_button(b,value)
 
   -- if a sub-menu defines its own handler, it takes precedence...
   if _menu.custom_gamepad_button then
-    _menu.custom_gamepad_button(b,value)
+    _menu.custom_gamepad_button(b, value)
     return
   end
 
-  if value==1 or value==0 then
+  if value == 1 or value == 0 then
     if b == "B" then
-      _menu.key(2,value)
+      _menu.key(2, value)
     elseif b == "A" then
-      _menu.key(3,value)
+      _menu.key(3, value)
     end
   end
 end

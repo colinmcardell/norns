@@ -50,9 +50,9 @@ function Binary:delta(d)
     self:set(d)
   elseif self.behavior == 'toggle' then
     if d ~= 0 then self:set((self.value == 0) and 1 or 0) end
-  elseif d~=0 then 
-    self:bang() 
-  end  
+  elseif d ~= 0 then
+    self:bang()
+  end
 end
 
 function Binary:set_default()
@@ -67,11 +67,11 @@ function Binary:bang()
 end
 
 function Binary:string()
-   return self.value
+  return self.value
 end
 
 function Binary:get_range()
-   return {0,1}
+  return { 0, 1 }
 end
 
 return Binary

@@ -34,7 +34,7 @@ local ParamSet = {
 
 
 -- utility hack
-local system_param_ids  =  {
+local system_param_ids = {
   comp_release = true,
   monitor_level = true,
   cut_input_eng = true,
@@ -122,7 +122,7 @@ function ParamSet:add(args)
     local id = args.id
     local name = args.name or id
 
-    if args.type == "number"  then
+    if args.type == "number" then
       param = number.new(id, name, args.min, args.max, args.default, args.formatter, args.wrap, args.allow_pmap)
     elseif args.type == "option" then
       param = option.new(id, name, args.options, args.default, args.allow_pmap)
@@ -151,7 +151,7 @@ function ParamSet:add(args)
   local overwrite = true
   if self.lookup[param.id] ~= nil and param.t ~= 0 and param.t ~= 7 then
     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    print("!!!!! ERROR: parameter ID collision: ".. param.id)
+    print("!!!!! ERROR: parameter ID collision: " .. param.id)
     print("! please contact the script maintainer - this will cause a load failure in future updates")
     if system_param_ids[param.id] ~= nil then
       print("! since this is a system param ID, i am refusing to clobber it")
@@ -161,18 +161,18 @@ function ParamSet:add(args)
     end
   elseif self.lookup[param.id] ~= nil and param.t == 0 then
     if params:lookup_param(param.id).t ~= 0 then
-      print("! separator ID <"..param.id.."> collides with a non-separator parameter, will not overwrite")
+      print("! separator ID <" .. param.id .. "> collides with a non-separator parameter, will not overwrite")
       overwrite = false
     elseif param.id ~= "separator" then
-      print("! stealing separator ID <"..param.id.."> from earlier separator")
+      print("! stealing separator ID <" .. param.id .. "> from earlier separator")
       overwrite = true
     end
   elseif self.lookup[param.id] ~= nil and param.t == 7 then
     if params:lookup_param(param.id).t ~= 7 then
-      print("! group ID <"..param.id.."> collides with a non-group parameter, will not overwrite")
+      print("! group ID <" .. param.id .. "> collides with a non-group parameter, will not overwrite")
       overwrite = false
     elseif param.id ~= "group" then
-      print("! stealing group ID <"..param.id.."> from earlier group")
+      print("! stealing group ID <" .. param.id .. "> from earlier group")
       overwrite = true
     end
   end
@@ -204,7 +204,6 @@ function ParamSet:add(args)
       midi.vports[port]:cc(midi_prm.cc, midi_prm.value, midi_prm.ch)
     end
   end
-
 end
 
 --- add number.
@@ -216,7 +215,7 @@ end
 -- @tparam function formatter function accepting a value and returning a string
 -- @tparam boolean wrap if true, value wraps on delta; otherwise saturates
 function ParamSet:add_number(id, name, min, max, default, formatter, wrap)
-  self:add { param=number.new(id, name, min, max, default, formatter, wrap) }
+  self:add { param = number.new(id, name, min, max, default, formatter, wrap) }
 end
 
 --- add option.
@@ -225,7 +224,7 @@ end
 -- @param options
 -- @param default
 function ParamSet:add_option(id, name, options, default)
-  self:add { param=option.new(id, name, options, default) }
+  self:add { param = option.new(id, name, options, default) }
 end
 
 --- add control.
@@ -234,7 +233,7 @@ end
 -- @tparam controlspec controlspec
 -- @param formatter
 function ParamSet:add_control(id, name, controlspec, formatter)
-  self:add { param=control.new(id, name, controlspec, formatter) }
+  self:add { param = control.new(id, name, controlspec, formatter) }
 end
 
 --- add file.
@@ -242,12 +241,12 @@ end
 -- @tparam string name (can contain spaces)
 -- @tparam string path
 function ParamSet:add_file(id, name, path)
-  self:add { param=file.new(id, name, path) }
+  self:add { param = file.new(id, name, path) }
 end
 
 --- add text.
 function ParamSet:add_text(id, name, txt)
-  self:add { param=text.new(id, name, txt) }
+  self:add { param = text.new(id, name, txt) }
 end
 
 --- add taper.
@@ -259,14 +258,14 @@ end
 -- @tparam number k
 -- @tparam string units
 function ParamSet:add_taper(id, name, min, max, default, k, units)
-  self:add { param=taper.new(id, name, min, max, default, k, units) }
+  self:add { param = taper.new(id, name, min, max, default, k, units) }
 end
 
 --- add trigger.
 -- @tparam string id (no spaces)
 -- @tparam string name (can contain spaces)
 function ParamSet:add_trigger(id, name)
-  self:add { param=trigger.new(id, name) }
+  self:add { param = trigger.new(id, name) }
 end
 
 --- add binary
@@ -275,7 +274,7 @@ end
 -- @tparam string behavior
 -- @tparam number default
 function ParamSet:add_binary(id, name, behavior, default)
-  self:add { param=binary.new(id, name, behavior, default) }
+  self:add { param = binary.new(id, name, behavior, default) }
 end
 
 --- add separator.
@@ -288,7 +287,7 @@ end
 -- @tparam string id (no spaces)
 -- @tparam string name (can contain spaces)
 function ParamSet:add_separator(id, name)
-  self:add { param=separator.new(id, name) }
+  self:add { param = separator.new(id, name) }
 end
 
 --- add parameter group.
@@ -307,7 +306,7 @@ function ParamSet:add_group(id, name, n)
   if id == nil then id = "group" end
   n = type(name) == "number" and name or (n or 1)
   if self.group < 1 then
-    self:add { param=group.new(id, name, n) }
+    self:add { param = group.new(id, name, n) }
     self.group = type(name) == "number" and name or n
   else
     print("ERROR: paramset cannot nest GROUPs")
@@ -316,18 +315,18 @@ end
 
 --- print.
 function ParamSet:print()
-  print("paramset ["..self.name.."]")
-  for k,v in pairs(self.params) do
+  print("paramset [" .. self.name .. "]")
+  for k, v in pairs(self.params) do
     local name = v.name or 'unnamed' -- e.g., separators
-    print(k.." "..name.." = "..v:string())
+    print(k .. " " .. name .. " = " .. v:string())
   end
 end
 
 --- list.
 -- lists param id's
 function ParamSet:list()
-  print("paramset ["..self.name.."]")
-  for k,v in pairs(self.params) do
+  print("paramset [" .. self.name .. "]")
+  for k, v in pairs(self.params) do
     if v.id then
       print(v.id)
     end
@@ -452,14 +451,14 @@ end
 --- set visibility to hidden.
 -- @param index
 function ParamSet:hide(index)
-  if type(index)=="string" then index = self.lookup[index] end
+  if type(index) == "string" then index = self.lookup[index] end
   self.hidden[index] = true
 end
 
 --- set visiblility to show.
 -- @param index
 function ParamSet:show(index)
-  if type(index)=="string" then index = self.lookup[index] end
+  if type(index) == "string" then index = self.lookup[index] end
   self.hidden[index] = false
 end
 
@@ -467,13 +466,12 @@ end
 -- parameters are visible by default.
 -- @param index
 function ParamSet:visible(index)
-  if type(index)=="string" then index = self.lookup[index] end
+  if type(index) == "string" then index = self.lookup[index] end
   return not self.hidden[index]
 end
 
-
 local function quote(s)
-  return '"'..s:gsub('"', '\\"')..'"'
+  return '"' .. s:gsub('"', '\\"') .. '"'
 end
 
 local function unquote(s)
@@ -488,7 +486,7 @@ function ParamSet:lookup_param(index)
   elseif self.params[index] then
     return self.params[index]
   else
-    error("invalid paramset index: "..index)
+    error("invalid paramset index: " .. index)
   end
 end
 
@@ -501,24 +499,26 @@ function ParamSet:write(filename, name)
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
-    pset_number = string.format("%02d",n)
+    pset_number = string.format("%02d", n)
     filename = filename .. "-" .. pset_number .. ".pset"
   end
-  print("pset >> write: "..filename)
+  print("pset >> write: " .. filename)
   local fd = io.open(filename, "w+")
   if fd then
     io.output(fd)
-    if name then io.write("-- "..name.."\n") end
-    for _,param in ipairs(self.params) do
+    if name then io.write("-- " .. name .. "\n") end
+    for _, param in ipairs(self.params) do
       if param.id and param.save and param.t ~= self.tTRIGGER and param.t ~= self.tSEPARATOR then
         io.write(string.format("%s: %s\n", quote(param.id), param:get()))
       end
     end
     io.close(fd)
     if self.action_write ~= nil then
-      self.action_write(filename,name,pset_number)
+      self.action_write(filename, name, pset_number)
     end
-  else print("pset: BAD FILENAME") end
+  else
+    print("pset: BAD FILENAME")
+  end
 end
 
 --- read from disk.
@@ -530,7 +530,7 @@ function ParamSet:read(filename, silent)
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
-    pset_number = string.format("%02d",n)
+    pset_number = string.format("%02d", n)
     filename = filename .. "-" .. pset_number .. ".pset"
   end
   print("pset >> read: " .. filename)
@@ -569,11 +569,11 @@ function ParamSet:read(filename, silent)
         end
       end
     end
-    if self.action_read ~= nil then 
-      self.action_read(filename,silent,pset_number)
+    if self.action_read ~= nil then
+      self.action_read(filename, silent, pset_number)
     end
   else
-    print("pset :: "..filename.." not read.")
+    print("pset :: " .. filename .. " not read.")
   end
 end
 
@@ -585,10 +585,10 @@ function ParamSet:delete(filename, name, pset_number)
   if type(filename) == "number" then
     local n = filename
     filename = norns.state.data .. norns.state.shortname
-    filename = filename .. "-" .. string.format("%02d",n) .. ".pset"
+    filename = filename .. "-" .. string.format("%02d", n) .. ".pset"
   end
-  print("pset >> delete: "..filename, name, pset_number)
-  norns.system_cmd("rm "..filename)
+  print("pset >> delete: " .. filename, name, pset_number)
+  norns.system_cmd("rm " .. filename)
   if self.action_delete ~= nil then
     self.action_delete(filename, name, pset_number)
   end
@@ -602,7 +602,7 @@ end
 
 --- bang all params.
 function ParamSet:bang()
-  for _,v in pairs(self.params) do
+  for _, v in pairs(self.params) do
     if v.t ~= self.tTRIGGER and not (v.t == self.tBINARY and v.behavior == 'trigger' and v.value == 0) then
       v:bang()
     end
@@ -614,11 +614,10 @@ function ParamSet:clear()
   self.name = ""
   self.params = {}
   self.count = 0
-  self.action_read = nil 
+  self.action_read = nil
   self.action_write = nil
   self.action_delete = nil
   self.lookup = {}
 end
-
 
 return ParamSet

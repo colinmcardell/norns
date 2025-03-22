@@ -25,7 +25,7 @@ function Mods.scan(root, pattern)
     -- strip off path root and trailing .lua
     local relative = string.gsub(string.gsub(path, r, ""), ".lua", "")
     local _, _, mod_name = string.find(relative, "^([%w_-]+)/")
-    mods[mod_name] = {relative, path}
+    mods[mod_name] = { relative, path }
   end
 
   return mods
@@ -52,7 +52,7 @@ end
 function Mods.load(scan, only_enabled)
   local _load = function(name, package_path)
     Mods.this_name = name
-    print('loading mod: ' .. name .. ' (' .. package_path ..')')
+    print('loading mod: ' .. name .. ' (' .. package_path .. ')')
     require(package_path)
     Mods.this_name = nil
     loaded_mods[name] = true

@@ -98,7 +98,7 @@ end
 -- @tparam string source "internal", "midi", or "link"
 clock.set_source = function(source)
   if type(source) == "number" then
-    _norns.clock_set_source(util.clamp(source-1,0,3)) -- lua list is 1-indexed
+    _norns.clock_set_source(util.clamp(source - 1, 0, 3)) -- lua list is 1-indexed
   elseif source == "internal" then
     _norns.clock_set_source(0)
   elseif source == "midi" then
@@ -106,7 +106,7 @@ clock.set_source = function(source)
   elseif source == "link" then
     _norns.clock_set_source(2)
   else
-    error("unknown clock source: "..source)
+    error("unknown clock source: " .. source)
   end
 end
 
@@ -207,25 +207,28 @@ function clock.add_params()
   local send_midi_clock = {}
   params:add_group("CLOCK", 29)
 
-  params:add_option("clock_source", "source", {"internal", "midi", "link", "crow"},
+  params:add_option("clock_source", "source", { "internal", "midi", "link", "crow" },
     norns.state.clock.source)
   params:set_action("clock_source",
     function(x)
-      if x==3 then clock.link.set_tempo(params:get("clock_tempo")) end -- for link, apply tempo before setting source
+      if x == 3 then clock.link.set_tempo(params:get("clock_tempo")) end -- for link, apply tempo before setting source
       clock.set_source(x)
-      if x==4 then
+      if x == 4 then
         norns.crow.clock_enable()
       end
       norns.state.clock.source = x
-      if x==1 then clock.internal.set_tempo(params:get("clock_tempo")) end
+      if x == 1 then clock.internal.set_tempo(params:get("clock_tempo")) end
     end)
   params:set_save("clock_source", false)
   params:add_number("clock_tempo", "tempo", 1, 300, norns.state.clock.tempo)
   params:set_action("clock_tempo",
     function(bpm)
       local source = params:string("clock_source")
-      if source == "internal" then clock.internal.set_tempo(bpm)
-      elseif source == "link" then clock.link.set_tempo(bpm) end
+      if source == "internal" then
+        clock.internal.set_tempo(bpm)
+      elseif source == "link" then
+        clock.link.set_tempo(bpm)
+      end
       norns.state.clock.tempo = bpm
       if clock.tempo_change_handler ~= nil then
         clock.tempo_change_handler(bpm)
@@ -236,8 +239,11 @@ function clock.add_params()
   params:set_action("clock_reset",
     function()
       local source = params:string("clock_source")
-      if source == "internal" then clock.internal.start()
-      elseif source == "link" then print("link reset not supported") end
+      if source == "internal" then
+        clock.internal.start()
+      elseif source == "link" then
+        print("link reset not supported")
+      end
     end)
   params:add_separator("link_separator", "link")
   params:add_number("link_quantum", "link quantum", 1, 32, norns.state.clock.link_quantum)
@@ -247,7 +253,8 @@ function clock.add_params()
       norns.state.clock.link_quantum = x
     end)
   params:set_save("link_quantum", false)
-  params:add_option("link_start_stop_sync", "link start/stop sync", {"disabled", "enabled"}, norns.state.clock.link_start_stop_sync)
+  params:add_option("link_start_stop_sync", "link start/stop sync", { "disabled", "enabled" },
+    norns.state.clock.link_start_stop_sync)
   params:set_action("link_start_stop_sync",
     function(x)
       clock.link.set_start_stop_sync(x == 2)
@@ -255,38 +262,38 @@ function clock.add_params()
     end)
   params:set_save("link_start_stop_sync", false)
   params:add_separator("midi_clock_out_separator", "midi clock out")
-  for i = 1,16 do
+  for i = 1, 16 do
     local short_name = string.len(midi.vports[i].name) <= 20 and midi.vports[i].name or util.acronym(midi.vports[i].name)
-    params:add_binary("clock_midi_out_"..i, i..". "..short_name, "toggle", norns.state.clock.midi_out[i])
-    params:set_action("clock_midi_out_"..i,
+    params:add_binary("clock_midi_out_" .. i, i .. ". " .. short_name, "toggle", norns.state.clock.midi_out[i])
+    params:set_action("clock_midi_out_" .. i,
       function(x)
         if x == 1 then
-          if not tab.contains(send_midi_clock,i) then
-            table.insert(send_midi_clock,i)
+          if not tab.contains(send_midi_clock, i) then
+            table.insert(send_midi_clock, i)
           end
         else
-          if tab.contains(send_midi_clock,i) then
-            table.remove(send_midi_clock,tab.key(send_midi_clock, i))
+          if tab.contains(send_midi_clock, i) then
+            table.remove(send_midi_clock, tab.key(send_midi_clock, i))
           end
         end
         norns.state.clock.midi_out[i] = x
       end
     )
     if short_name ~= "none" and midi.vports[i].connected then
-      params:show("clock_midi_out_"..i)
+      params:show("clock_midi_out_" .. i)
     else
-      params:hide("clock_midi_out_"..i)
+      params:hide("clock_midi_out_" .. i)
     end
-    params:set_save("clock_midi_out_"..i, false)
+    params:set_save("clock_midi_out_" .. i, false)
   end
 
   params:add_separator("midi_clock_in_separator", "midi clock in")
-  local midi_clock_in_options = { "all", "none"}
-  for i=1,16 do 
+  local midi_clock_in_options = { "all", "none" }
+  for i = 1, 16 do
     table.insert(midi_clock_in_options, tostring(i))
   end
   params:add_option("clock_midi_in", "midi clock in",
-		midi_clock_in_options, norns.state.clock.midi_in)
+    midi_clock_in_options, norns.state.clock.midi_in)
   params:set_action("clock_midi_in", function(x)
     norns.state.clock.midi_in = x
     midi.update_clock_receive()
@@ -295,11 +302,11 @@ function clock.add_params()
 
   params:add_separator("crow_clock_separator", "crow")
   params:add_option("clock_crow_out", "crow out",
-      {"off", "output 1", "output 2", "output 3", "output 4"}, norns.state.clock.crow_out)
+    { "off", "output 1", "output 2", "output 3", "output 4" }, norns.state.clock.crow_out)
   params:set_action("clock_crow_out", function(x)
-      --if x>1 then crow.output[x-1].action = "pulse(0.01,8)" end
-      norns.state.clock.crow_out = x
-    end)
+    --if x>1 then crow.output[x-1].action = "pulse(0.01,8)" end
+    norns.state.clock.crow_out = x
+  end)
   params:set_save("clock_crow_out", false)
   params:add_number("clock_crow_out_div", "crow out div", 1, 32,
     norns.state.clock.crow_out_div)
@@ -316,18 +323,18 @@ function clock.add_params()
   params:set_save("clock_crow_in_div", false)
   --params:add_trigger("crow_clear", "crow clear")
   --params:set_action("crow_clear",
-    --function() crow.reset() crow.clear() end)
+  --function() crow.reset() crow.clear() end)
 
   params:bang("clock_tempo")
 
   -- executes crow sync
   clock.run(function()
     while true do
-      clock.sync(1/params:get("clock_crow_out_div"))
-      local crow_out = params:get("clock_crow_out")-1
+      clock.sync(1 / params:get("clock_crow_out_div"))
+      local crow_out = params:get("clock_crow_out") - 1
       if crow_out > 0 then
         crow.output[crow_out].volts = 10
-        clock.sleep(60/(2*clock.get_tempo()*params:get("clock_crow_out_div")))
+        clock.sleep(60 / (2 * clock.get_tempo() * params:get("clock_crow_out_div")))
         crow.output[crow_out].volts = 0
       end
     end
@@ -336,8 +343,8 @@ function clock.add_params()
   -- executes midi out (needs a subtick)
   clock.run(function()
     while true do
-      clock.sync(1/24)
-      for i = 1,#send_midi_clock do
+      clock.sync(1 / 24)
+      for i = 1, #send_midi_clock do
         local port = send_midi_clock[i]
         midi.vports[port]:clock()
       end
@@ -359,9 +366,7 @@ function clock.add_params()
       clock.sleep(1)
     end
   end)
-
 end
-
 
 clock.help = [[
 -- -----------------------------------------------------------------------------
@@ -383,7 +388,7 @@ function init()
   clock.run(loop)
 end
 
--- this function loops forever, printing at 1 second intervals 
+-- this function loops forever, printing at 1 second intervals
 function loop()
   while true do
     print("so true")

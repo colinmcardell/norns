@@ -42,7 +42,7 @@ function Object:extend()
 end
 
 function Object:implement(...)
-  for _, cls in pairs({...}) do
+  for _, cls in pairs({ ... }) do
     for k, v in pairs(cls) do
       if self[k] == nil and type(v) == "function" then
         self[k] = v

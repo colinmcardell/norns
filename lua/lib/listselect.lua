@@ -49,26 +49,28 @@ function ls.exit()
   else
     norns.menu.set(ls.enc_restore, ls.key_restore, ls.redraw_restore, ls.refresh_restore)
   end
-  if ls.selection then ls.callback(ls.selection)
-  else ls.callback("cancel") end
+  if ls.selection then
+    ls.callback(ls.selection)
+  else
+    ls.callback("cancel")
+  end
 end
 
-
-ls.key = function(n,z)
+ls.key = function(n, z)
   -- back
-  if n==2 and z==1 then
+  if n == 2 and z == 1 then
     ls.done = true
-  -- select
-  elseif n==3 and z==1 then
-    ls.selection = ls.list[ls.pos+1]
+    -- select
+  elseif n == 3 and z == 1 then
+    ls.selection = ls.list[ls.pos + 1]
     ls.done = true
   elseif z == 0 and ls.done == true then
     ls.exit()
   end
 end
 
-ls.enc = function(n,d)
-  if n==2 then
+ls.enc = function(n, d)
+  if n == 2 then
     ls.pos = util.clamp(ls.pos + d, 0, ls.len - 1)
     ls.redraw()
   end
@@ -78,16 +80,16 @@ end
 ls.redraw = function()
   local i
   screen.clear()
-  screen.move(0,10)
+  screen.move(0, 10)
   screen.level(15)
   screen.font_face(1)
   screen.font_size(8)
   if ls.len > 0 then
-    for i=1,6 do
+    for i = 1, 6 do
       if (i > 2 - ls.pos) and (i < ls.len - ls.pos + 3) then
-        screen.move(0,10*i)
-        local line = ls.list[i+ls.pos-2]
-        if(i==3) then
+        screen.move(0, 10 * i)
+        local line = ls.list[i + ls.pos - 2]
+        if (i == 3) then
           screen.level(15)
         else
           screen.level(4)
@@ -97,7 +99,7 @@ ls.redraw = function()
       end
     end
   else
-    screen.move(0,40)
+    screen.move(0, 40)
     screen.level(4)
     screen.text("none")
   end

@@ -72,7 +72,7 @@ function Taper:set_raw(v, silent)
   local silent = silent or false
   if self.value ~= v then
     self.value = util.clamp(v, 0, 1)
-    if silent==false then self:bang() end
+    if silent == false then self:bang() end
   end
 end
 
@@ -102,15 +102,15 @@ function Taper:string()
   local absv = math.abs(v)
 
   if absv >= 100 then
-    format = "%.0f "..string.gsub(self.units, "%%", "%%%%")
+    format = "%.0f " .. string.gsub(self.units, "%%", "%%%%")
   elseif absv >= 10 then
-    format = "%.1f "..string.gsub(self.units, "%%", "%%%%")
+    format = "%.1f " .. string.gsub(self.units, "%%", "%%%%")
   elseif absv >= 1 then
-    format = "%.2f "..string.gsub(self.units, "%%", "%%%%")
+    format = "%.2f " .. string.gsub(self.units, "%%", "%%%%")
   elseif absv >= 0.001 then
-    format = "%.3f "..string.gsub(self.units, "%%", "%%%%")
+    format = "%.3f " .. string.gsub(self.units, "%%", "%%%%")
   else
-    format = "%.0f "..string.gsub(self.units, "%%", "%%%%")
+    format = "%.0f " .. string.gsub(self.units, "%%", "%%%%")
   end
 
   return string.format(format, v)

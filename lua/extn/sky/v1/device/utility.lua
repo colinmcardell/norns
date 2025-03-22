@@ -1,4 +1,3 @@
-
 --
 -- Func class
 --
@@ -17,7 +16,6 @@ function Func:process(event, output, state)
     self.f(event, output, state)
   end
 end
-
 
 --
 -- Thru class

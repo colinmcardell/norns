@@ -18,7 +18,7 @@ function vport.get_unique_device_name(name, devices)
   local suffix = 2
 
   while names[result] ~= nil do
-    result = name.." "..suffix
+    result = name .. " " .. suffix
     suffix = suffix + 1
   end
 

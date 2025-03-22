@@ -117,7 +117,7 @@ fs.getlist = function()
         if fs.filter == "all" or fs.filter == "audio" or fs.filter == fulldir:match("^.+(%..+)$") then
           display_length = util.s_to_hms(math.floor(samples / rate))
           max_line_length = 97
-        else         -- otherwise, do not display audio file:
+        else -- otherwise, do not display audio file:
           fs.visible[k] = false
           display_length = nil
         end

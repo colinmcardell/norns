@@ -11,7 +11,7 @@ Separator.__index = Separator
 
 local tSEPARATOR = 0
 
-function Separator.new(id,name)
+function Separator.new(id, name)
   local s = setmetatable({}, Separator)
   s.name = name or (id or "separator")
   s.id = id or s.name
@@ -25,8 +25,11 @@ function Separator:get()
 end
 
 function Separator:set(v) end
+
 function Separator:delta(d) end
+
 function Separator:set_default() end
+
 function Separator:bang() end
 
 function Separator:string()

@@ -67,23 +67,23 @@ local function func(fun, args, as_table)
 end
 
 function ar(attack, release, level)
-  return func('ar', {attack, release, level})
+  return func('ar', { attack, release, level })
 end
 
 function pulse(time, level, polarity)
-  return func('pulse', {time, level, polarity})
+  return func('pulse', { time, level, polarity })
 end
 
 function ramp(time, skew, level)
-  return func('ramp', {time, skew, level})
+  return func('ramp', { time, skew, level })
 end
 
 function to(dest, time, shape)
-  return func('to', {dest, time, shape})
+  return func('to', { dest, time, shape })
 end
 
 function lfo(hz, amp)
-  return func('lfo', {hz, amp})
+  return func('lfo', { hz, amp })
 end
 
 function loop(asl)
@@ -91,27 +91,27 @@ function loop(asl)
 end
 
 function adsr(attack, decay, sustain, release)
-  return func('adsr', {attack, decay, sustain, release})
+  return func('adsr', { attack, decay, sustain, release })
 end
 
 function note(noteNum, duration)
-  return func('note', {noteNum, duration})
+  return func('note', { noteNum, duration })
 end
 
 function n2v(n)
-  return func('n2v', {n})
+  return func('n2v', { n })
 end
 
 function negate(v)
-  return func('negate', {v})
+  return func('negate', { v })
 end
 
 function boundgz(n)
-  return func('boundgz', {n})
+  return func('boundgz', { n })
 end
 
 function div(n, d)
-  return func('div', {n, d})
+  return func('div', { n, d })
 end
 
 function times(count, asl)

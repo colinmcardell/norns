@@ -64,7 +64,7 @@ function Input:new(props)
   if d == nil then
     if props.name then
       -- attempt to find the midi device by name
-      for i,v in ipairs(midi.vports) do
+      for i, v in ipairs(midi.vports) do
         if sky.starts_with(v.name, props.name) then
           d = midi.connect(i)
           self.name = props.name
@@ -135,7 +135,6 @@ function Input:_pair_note_correlation(event)
   event.correlation = sky.note_cid(event, instance)
 end
 
-
 -- allow this input to invoke callbacks
 function Input:enable()
   self.enabled = true
@@ -167,7 +166,7 @@ function Output:new(props)
   if d == nil then
     if props.name then
       -- attempt to find the midi device by name
-      for i,v in ipairs(midi.vports) do
+      for i, v in ipairs(midi.vports) do
         if sky.starts_with(v.name, props.name) then
           d = midi.connect(i)
           self.name = props.name
@@ -198,7 +197,7 @@ function Output:process(event, output)
   local t = event.type
   if self.enabled and self.device and (t ~= nil) then
     -- filter out non-midi events
-    if sky.type_names[t] ~= nil then  -- FIXME: find a better test than this
+    if sky.type_names[t] ~= nil then -- FIXME: find a better test than this
       self.device:send(event)
     end
   end
@@ -334,7 +333,6 @@ function Chain._process(event, state, devices, source, sink, from_device, parent
   source:push_back(event)
 
   for i, processor in ipairs_from(devices, from_device) do
-
     event = source:pop()
     while event do
       -- print("\ndevice:", i, "event:", event, "processor:", processor)

@@ -25,7 +25,7 @@ function Lattice:new(args)
   l.superclock_id = nil
   l.sprocket_id_counter = 100
   l.sprockets = {}
-  l.sprocket_ordering = {{}, {}, {}, {}, {}}
+  l.sprocket_ordering = { {}, {}, {}, {}, {} }
   return l
 end
 
@@ -46,7 +46,8 @@ function Lattice:reset()
     self.superclock_id = nil
   end
   for i, sprocket in pairs(self.sprockets) do
-    sprocket.phase = sprocket.division * self.ppqn * 4 * (1 - sprocket.delay) -- "4" because in music a "quarter note" == "1/4"
+    sprocket.phase = sprocket.division * self.ppqn * 4 *
+    (1 - sprocket.delay)                                                      -- "4" because in music a "quarter note" == "1/4"
     sprocket.downbeat = false
   end
   self.transport = 0
@@ -89,7 +90,7 @@ end
 function Lattice.auto_pulse(s)
   while true do
     s:pulse()
-    clock.sync(1/s.ppqn)
+    clock.sync(1 / s.ppqn)
   end
 end
 
@@ -97,7 +98,7 @@ end
 function Lattice:pulse()
   if self.enabled then
     local ppc = self.ppqn * 4 -- pulses per cycle; "4" because in music a "quarter note" == "1/4"
-    local flagged=false
+    local flagged = false
     for i = 1, 5 do
       for _, id in ipairs(self.sprocket_ordering[i]) do
         local sprocket = self.sprockets[id]
@@ -146,11 +147,11 @@ function Lattice:new_sprocket(args)
   args.id = self.sprocket_id_counter
   args.order = args.order == nil and 3 or util.clamp(args.order, 1, 5)
   args.action = args.action == nil and function(t) return end or args.action
-  args.division = args.division == nil and 1/4 or args.division
+  args.division = args.division == nil and 1 / 4 or args.division
   args.enabled = args.enabled == nil and true or args.enabled
   args.phase = args.division * self.ppqn * 4 -- "4" because in music a "quarter note" == "1/4"
-  args.swing = args.swing == nil and 50 or util.clamp(args.swing,0,100)
-  args.delay = args.delay == nil and 0 or util.clamp(args.delay,0,1)
+  args.swing = args.swing == nil and 50 or util.clamp(args.swing, 0, 100)
+  args.delay = args.delay == nil and 0 or util.clamp(args.delay, 0, 1)
   local sprocket = Sprocket:new(args)
   self.sprockets[self.sprocket_id_counter] = sprocket
   self:order_sprockets()
@@ -166,9 +167,9 @@ end
 --- "private" method to keep numerical order of the sprocket ids
 -- for use when pulsing
 function Lattice:order_sprockets()
-  self.sprocket_ordering = {{}, {}, {}, {}, {}}
+  self.sprocket_ordering = { {}, {}, {}, {}, {} }
   for id, sprocket in pairs(self.sprockets) do
-    table.insert(self.sprocket_ordering[sprocket.order],id)
+    table.insert(self.sprocket_ordering[sprocket.order], id)
   end
   for i = 1, 5 do
     table.sort(self.sprocket_ordering[i])
@@ -188,7 +189,7 @@ function Sprocket:new(args)
   p.swing = args.swing
   p.downbeat = false
   p.delay = args.delay
-  p.phase = args.phase * (1-args.delay)
+  p.phase = args.phase * (1 - args.delay)
   return p
 end
 
@@ -216,7 +217,7 @@ end
 --- set the division of the sprocket
 -- @tparam number n the division of the sprocket
 function Sprocket:set_division(n)
-   self.division = n
+  self.division = n
 end
 
 --- set the action for this sprocket
@@ -228,13 +229,13 @@ end
 --- set the swing of the sprocket
 -- @param swing number the swing value 0-100%
 function Sprocket:set_swing(swing)
-  self.swing = util.clamp(swing,0,100)
+  self.swing = util.clamp(swing, 0, 100)
 end
 
 --- set the delay for this sprocket
 -- @param delay fraction of the time between beats to delay (0-1)
 function Sprocket:set_delay(delay)
-  self.delay_new = util.clamp(delay,0,1)
+  self.delay_new = util.clamp(delay, 0, 1)
 end
 
 return Lattice

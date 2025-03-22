@@ -4,7 +4,7 @@
 
 local WeakTable = {}
 WeakTable.__index = WeakTable
-WeakTable.__mode = "k"  --  invoke dark magic: https://www.lua.org/pil/17.html
+WeakTable.__mode = "k" --  invoke dark magic: https://www.lua.org/pil/17.html
 
 --- Create a table with weakly held keys
 --

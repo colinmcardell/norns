@@ -15,15 +15,15 @@ function er.gen(k, n, w)
    w = w or 0
    -- results array, intially all zero
    local r = {}
-   for i=1,n do r[i] = false end
+   for i = 1, n do r[i] = false end
 
-   if k<1 then return r end
+   if k < 1 then return r end
 
    -- using the "bucket method"
    -- for each step in the output, add K to the bucket.
    -- if the bucket overflows, this step contains a pulse.
    local b = n
-   for i=1,n do
+   for i = 1, n do
       if b >= n then
          b = b - n
          local j = i + w

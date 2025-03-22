@@ -21,9 +21,9 @@ local hook = require 'core/hook'
 -- individual modules will redefine them as needed.
 
 -- key callback
-_norns.key = function(n,z) end
+_norns.key = function(n, z) end
 -- enc callback
-_norns.enc = function(n,delta) end
+_norns.enc = function(n, delta) end
 
 -- grid device callbacks.
 _norns.grid = {}
@@ -51,15 +51,15 @@ _norns.clock = {}
 -- report callbacks
 _norns.report = {}
 _norns.report.engines = function(names, count)
-   engine.register(names, count)
+  engine.register(names, count)
 end
 _norns.report.commands = function(commands, count)
-   engine.register_commands(commands, count)
-   engine.list_commands()
+  engine.register_commands(commands, count)
+  engine.list_commands()
 end
 _norns.report.polls = function(names, count)
-   poll.register(names, count)
-   poll.list_names()
+  poll.register(names, count)
+  poll.list_names()
 end
 
 
@@ -73,13 +73,13 @@ _norns.startup_status.timeout = function() print(">>> startup timeout") end
 
 -- poll callback; used by C interface.
 _norns.poll = function(id, value)
-   local name = poll.poll_names[id]
-   local p = poll.polls[name]
-   if p then
+  local name = poll.poll_names[id]
+  local p = poll.polls[name]
+  if p then
     p:perform(value)
-   else
-    print ("warning: norns.poll callback couldn't find poll")
-   end
+  else
+    print("warning: norns.poll callback couldn't find poll")
+  end
 end
 
 -- i/o level callback.
@@ -88,7 +88,7 @@ _norns.vu = function(in1, in2, out1, out2) end
 _norns.softcut_phase = function(id, value) end
 
 _norns.softcut_render = function(ch, start, sec_per_sample, samples) end
-_norns.softcut_position = function(i,pos) end
+_norns.softcut_position = function(i, pos) end
 
 -- default readings for battery
 norns.battery_percent = 0
@@ -96,7 +96,7 @@ norns.battery_current = 0
 
 -- battery percent handler
 _norns.battery = function(percent, current)
-  if current < 0 and percent < 5 and norns.state.battery_warning==1 then
+  if current < 0 and percent < 5 and norns.state.battery_warning == 1 then
     screen.update = screen.update_low_battery
   elseif current > 0 and norns.battery_current < 0 then
     screen.update = screen.update_default
@@ -130,21 +130,21 @@ norns.script = require 'core/script'
 norns.state = require 'core/state'
 norns.encoders = require 'core/encoders'
 
-_norns.enc = _norns.adc_rev()==1 and norns.encoders.process or norns.encoders.process_with_accel
+_norns.enc = _norns.adc_rev() == 1 and norns.encoders.process or norns.encoders.process_with_accel
 --_norns.enc = norns.encoders.process_with_accel
 
 -- extend paths config table
 local p = _path
-p.this = tab.readonly{
+p.this = tab.readonly {
   table = norns.state,
-  expose = {'data', 'path', 'lib'}
+  expose = { 'data', 'path', 'lib' }
 }
-paths = tab.readonly{ table = p }
+paths = tab.readonly { table = p }
 
 -- Error handling.
 norns.scripterror = function(msg) print(msg) end
-norns.try = function(f,msg)
-  local handler = function (err) return err .. "\n" .. debug.traceback() end
+norns.try = function(f, msg)
+  local handler = function(err) return err .. "\n" .. debug.traceback() end
   local status, err = xpcall(f, handler)
   if not status then
     norns.scripterror(msg)
@@ -166,7 +166,7 @@ end
 -- Version
 norns.version = {}
 -- import update version number
-local fd = io.open(os.getenv("HOME").."/version.txt","r")
+local fd = io.open(os.getenv("HOME") .. "/version.txt", "r")
 if fd then
   io.input(fd)
   norns.version.update = io.read()
@@ -211,7 +211,7 @@ local system_cmd_busy = false
 -- command after it completes. if the callback is nil, then print the output
 -- instead.
 norns.system_cmd = function(cmd, callback)
-  table.insert(system_cmd_q, {cmd=cmd, callback=callback})
+  table.insert(system_cmd_q, { cmd = cmd, callback = callback })
   if system_cmd_busy == false then
     system_cmd_busy = true
     _norns.system_cmd(cmd)
@@ -220,9 +220,12 @@ end
 
 -- callback management from c
 _norns.system_cmd_capture = function(cap)
-  if system_cmd_q[1].callback == nil then print(cap)
-  else system_cmd_q[1].callback(cap) end
-  table.remove(system_cmd_q,1)
+  if system_cmd_q[1].callback == nil then
+    print(cap)
+  else
+    system_cmd_q[1].callback(cap)
+  end
+  table.remove(system_cmd_q, 1)
   if #system_cmd_q > 0 then
     _norns.system_cmd(system_cmd_q[1].cmd)
   else
@@ -264,8 +267,8 @@ _startup = function()
 end
 
 _post_startup = function()
-   print('_norns._post_startup')
-   hook.system_post_startup()
+  print('_norns._post_startup')
+  hook.system_post_startup()
 end
 
 --- rerun the current script

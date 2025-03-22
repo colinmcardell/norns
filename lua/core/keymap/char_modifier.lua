@@ -1,4 +1,3 @@
-
 -- modifier keys that can be use to access additional characters when held down
 local char_modifier = {
   NONE = 0,

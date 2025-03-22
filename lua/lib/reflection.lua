@@ -94,7 +94,7 @@ function reflection:set_rec(rec, dur, beat_sync)
   -- if standard rec flag is enabled but play isn't,
   --   then we should start playing, yeah?
   if rec == 1 and self.play == 0 then
-    self:start(beat_sync, -1/96)
+    self:start(beat_sync, -1 / 96)
   end
   if rec == 1 and self.count > 0 then
     self.event_prev = {}
@@ -150,7 +150,7 @@ end
 -- @tparam string filepath
 function reflection:save(filepath)
   if self.count > 0 then
-    local pattern_data = {} -- create a temp container
+    local pattern_data = {}                  -- create a temp container
     pattern_data.event = self.event
     pattern_data.length = self.endpoint / 96 -- 96 ppqn
     pattern_data.count = self.count
@@ -205,7 +205,7 @@ function reflection:watch(event)
   local offset = 0
   if self.queued_rec ~= nil then
     if self.queued_rec.state then
-      self:set_rec(1, self.queued_rec.duration, 1/96)
+      self:set_rec(1, self.queued_rec.duration, 1 / 96)
       self.queued_rec.state = false
       step_one = true
     end
@@ -251,7 +251,7 @@ function reflection:begin_playback()
       -- don't process on first pass
       if self.rec_dur then
         self.rec_dur.count = self.rec_dur.count - 1 / 96
-        if self.rec_dur.count <= (self.queued_rec ~= nil and 1/96 or 0) then
+        if self.rec_dur.count <= (self.queued_rec ~= nil and 1 / 96 or 0) then
           self.endpoint = self.rec_dur.length * 96
           self:set_rec(0)
           self.rec_dur = nil

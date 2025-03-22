@@ -37,7 +37,7 @@ function File:set(v, silent)
       self.dirfiles = nil
       self.dirpos = nil
     end
-    if silent==false then self:bang() end
+    if silent == false then self:bang() end
   end
 end
 
@@ -89,6 +89,5 @@ function File:loaddir()
     end
   end
 end
-
 
 return File

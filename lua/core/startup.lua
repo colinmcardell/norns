@@ -22,7 +22,7 @@ osc = require 'core/osc'
 keyboard = require 'core/keyboard'
 gamepad = require 'core/gamepad'
 poll = require 'core/poll'
-engine = tab.readonly{table = require 'core/engine', except = {'name'}}
+engine = tab.readonly { table = require 'core/engine', except = { 'name' } }
 softcut = require 'core/softcut'
 wifi = require 'core/wifi'
 controlspec = require 'core/controlspec'
@@ -35,18 +35,18 @@ require 'core/menu'
 
 -- global include function
 function include(file)
-  local dirs = {norns.state.path, _path.code, _path.extn}
+  local dirs = { norns.state.path, _path.code, _path.extn }
   for _, dir in ipairs(dirs) do
-    local p = dir..file..'.lua'
+    local p = dir .. file .. '.lua'
     if util.file_exists(p) then
-      print("including "..p)
+      print("including " .. p)
       return dofile(p)
     end
   end
 
   -- didn't find anything
-  print("### MISSING INCLUDE: "..file)
-  error("MISSING INCLUDE: "..file,2)
+  print("### MISSING INCLUDE: " .. file)
+  error("MISSING INCLUDE: " .. file, 2)
 end
 
 -- monome device management
@@ -54,11 +54,16 @@ _norns.monome = {}
 _norns.monome.add = function(id, serial, name, dev)
   if util.string_starts(name, "monome arc") then
     _norns.arc.add(id, serial, name, dev)
-  else _norns.grid.add(id, serial, name, dev) end
+  else
+    _norns.grid.add(id, serial, name, dev)
+  end
 end
 _norns.monome.remove = function(id)
-  if arc.devices[id] then _norns.arc.remove(id)
-  else _norns.grid.remove(id) end
+  if arc.devices[id] then
+    _norns.arc.remove(id)
+  else
+    _norns.grid.remove(id)
+  end
 end
 
 -- sc init callbacks
@@ -76,8 +81,8 @@ end
 _norns.startup_status.timeout = function()
   norns.script.clear()
   print("norns.startup_status.timeout")
-  local cmd="find ~/dust -name *.sc -type f -printf '%p %f\n' | sort -k2 | uniq -f1 --all-repeated=separate"
-  local results = util.os_capture(cmd,true)
+  local cmd = "find ~/dust -name *.sc -type f -printf '%p %f\n' | sort -k2 | uniq -f1 --all-repeated=separate"
+  local results = util.os_capture(cmd, true)
   if results ~= "" then
     print("DUPLICATE ENGINES:\n" .. results)
     norns.scripterror("DUPLICATE ENGINES")

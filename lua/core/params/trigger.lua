@@ -46,5 +46,4 @@ function Trigger:string()
   return ""
 end
 
-
 return Trigger

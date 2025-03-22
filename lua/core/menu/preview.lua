@@ -16,20 +16,20 @@ end
 
 m.deinit = norns.none
 
-m.key = function(n,z)
-  if n==3 and m.state == 1 then
+m.key = function(n, z)
+  if n == 3 and m.state == 1 then
     m.wait = 1
     _menu.redraw()
     norns.script.load(_menu.previewfile)
-  elseif n ==3 and z == 1 then
+  elseif n == 3 and z == 1 then
     m.state = 1
   elseif n == 2 and z == 1 then
     _menu.set_page("SELECT")
   end
 end
 
-m.enc = function(n,d)
-  if n==2 then
+m.enc = function(n, d)
+  if n == 2 then
     m.pos = util.clamp(m.pos + d, 0, m.posmax)
     _menu.redraw()
   end
@@ -39,14 +39,14 @@ m.redraw = function()
   screen.clear()
   screen.level(15)
   if m.wait == 0 then
-    for i=1,8 do
+    for i = 1, 8 do
       if i <= m.len then
-        screen.move(0,i*8-2)
-        screen.text(m.meta[i+m.pos])
+        screen.move(0, i * 8 - 2)
+        screen.text(m.meta[i + m.pos])
       end
     end
   else
-    screen.move(64,32)
+    screen.move(64, 32)
     screen.text_center("loading...")
   end
   screen.update()

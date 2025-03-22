@@ -29,7 +29,7 @@ function Text:set(v, silent)
   local silent = silent or false
   if self.text ~= v then
     self.text = v
-    if silent==false then self:bang() end
+    if silent == false then self:bang() end
   end
 end
 
@@ -49,6 +49,5 @@ function Text:string()
   -- any formatting here? concat?
   return self.text
 end
-
 
 return Text

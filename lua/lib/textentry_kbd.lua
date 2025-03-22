@@ -1,4 +1,3 @@
-
 --- just a separate module to store textentry keyboard callbacks
 --- prevents having to deal w/ a circular dependency
 --- @module lib.textentry_kbd

@@ -40,4 +40,4 @@ local hooks = {
   system_pre_shutdown = Hook.new(),
 }
 
-return tab.readonly{table = hooks}
+return tab.readonly { table = hooks }

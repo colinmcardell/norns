@@ -31,7 +31,7 @@ local function collect_info(cmd)
   for line in output:gmatch('([^\n]*)\n?') do
     for k, v in line:gmatch('([^:]*):(.+)') do
       if k == "Error" then
-	return nil
+        return nil
       end
       info[k] = v
     end
@@ -268,7 +268,7 @@ end
 function Wifi.ensure_radio_is_on()
   if Wifi.radio_state() ~= "enabled" then
     os.execute("nmcli radio wifi on")
-    os.execute("sleep 1.5")  -- various operations fail if called right after radio on
+    os.execute("sleep 1.5") -- various operations fail if called right after radio on
   end
 end
 
@@ -301,7 +301,7 @@ function Wifi.devices(types)
   for line in output:gmatch('([^\n]*)\n?') do
     for device_name, device_type in line:gmatch('([^:]*):(.+)') do
       if k == "Error" then
-	return nil
+        return nil
       end
       devices[i] = Device.new(device_name, device_type)
       i = i + 1
@@ -350,7 +350,7 @@ function Wifi.update()
     if Wifi.connection:is_wireless() then
       local name = Wifi.connection:device_name()
       if name then
-	wifi.signal = util.os_capture("iw dev " .. name .. " link | grep 'signal' | awk '{print $2}'")
+        wifi.signal = util.os_capture("iw dev " .. name .. " link | grep 'signal' | awk '{print $2}'")
       end
     else
       wifi.signal = ""

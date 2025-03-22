@@ -89,7 +89,7 @@ function Buffer:print()
     local format = ""
     local values = {}
     for col = 1, self.width do
-      format = format.."%01x"
+      format = format .. "%01x"
       values[col] = self.grid[row][col]
     end
     print(string.format(format, table.unpack(values)))

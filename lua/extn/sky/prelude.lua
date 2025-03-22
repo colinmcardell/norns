@@ -1,4 +1,3 @@
-
 -- setup the global sky module for devices to use without having to redundently
 -- require/include the core
 
@@ -10,7 +9,7 @@ end
 
 sky = {
   __loaded = {},
-  __search = {paths.this.path, paths.code},
+  __search = { paths.this.path, paths.code },
 }
 
 function sky.use_debug(bool)
@@ -45,4 +44,3 @@ function sky.use(path, reload)
 end
 
 return sky
-

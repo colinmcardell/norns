@@ -1,5 +1,3 @@
-
-
 local char_modifier = require 'core/keymap/char_modifier'
 
 local k = {}

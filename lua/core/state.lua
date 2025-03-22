@@ -59,10 +59,10 @@ state.clock.crow_in_div = 4
 -- read state.lua and set parameters back to stored vals.
 state.resume = function()
   -- restore state object
-  local f = io.open(_path.data..'system.state')
+  local f = io.open(_path.data .. 'system.state')
   if f ~= nil then
     io.close(f)
-    dofile(_path.data..'system.state')
+    dofile(_path.data .. 'system.state')
   end
 
   -- if previously-saved state.clock.midi_out is a number,
@@ -105,7 +105,7 @@ state.save = function()
 end
 
 state.save_state = function()
-  local fd=io.open(_path.data .. "system.state","w+")
+  local fd = io.open(_path.data .. "system.state", "w+")
   io.output(fd)
   io.write("-- norns system state\n")
   io.write("norns.state.clean_shutdown = " .. (state.clean_shutdown and "true" or "false") .. "\n")
@@ -149,23 +149,23 @@ state.save_state = function()
   io.write("norns.state.clock.tempo = " .. norns.state.clock.tempo .. "\n")
   io.write("norns.state.clock.link_quantum = " .. norns.state.clock.link_quantum .. "\n")
   io.write("norns.state.clock.link_start_stop_sync = " .. norns.state.clock.link_start_stop_sync .. "\n")
-  for i = 1,16 do
-    io.write("norns.state.clock.midi_out["..i.."] = " .. norns.state.clock.midi_out[i] .. "\n")
+  for i = 1, 16 do
+    io.write("norns.state.clock.midi_out[" .. i .. "] = " .. norns.state.clock.midi_out[i] .. "\n")
   end
   io.write("norns.state.clock.midi_in = " .. norns.state.clock.midi_in .. "\n")
   io.write("norns.state.clock.crow_out = " .. norns.state.clock.crow_out .. "\n")
   io.write("norns.state.clock.crow_out_div = " .. norns.state.clock.crow_out_div .. "\n")
   io.write("norns.state.clock.crow_in_div = " .. norns.state.clock.crow_in_div .. "\n")
-  for i=1,16 do
+  for i = 1, 16 do
     io.write("midi.vports[" .. i .. "].name = '" .. midi.vports[i].name .. "'\n")
   end
-  for i=1,4 do
+  for i = 1, 4 do
     io.write("grid.vports[" .. i .. "].name = '" .. grid.vports[i].name .. "'\n")
   end
-  for i=1,4 do
+  for i = 1, 4 do
     io.write("arc.vports[" .. i .. "].name = '" .. arc.vports[i].name .. "'\n")
   end
-  for i=1,4 do
+  for i = 1, 4 do
     io.write("hid.vports[" .. i .. "].name = '" .. hid.vports[i].name .. "'\n")
   end
   io.close(fd)

@@ -1,9 +1,9 @@
 local listselect = require 'listselect'
-local textentry= require 'textentry'
+local textentry = require 'textentry'
 
 local m = {
   pos = 0,
-  list = {"off","hotspot","connect", "add", "del"},
+  list = { "off", "hotspot", "connect", "add", "del" },
   selected = 1,
   try = "",
   countdown = -1
@@ -42,10 +42,10 @@ m.passdone = function(txt)
 end
 
 
-m.key = function(n,z)
-  if n==2 and z==1 then
+m.key = function(n, z)
+  if n == 2 and z == 1 then
     _menu.set_page("SYSTEM")
-  elseif n==3 and z==1 then
+  elseif n == 3 and z == 1 then
     if m.pos == 0 then
       wifi.off()
     elseif m.pos == 1 then
@@ -63,14 +63,17 @@ m.key = function(n,z)
   end
 end
 
-m.enc = function(n,delta)
-  if n==2 then
+m.enc = function(n, delta)
+  if n == 2 then
     m.pos = m.pos + delta
-    if m.pos > m.len - 1 then m.pos = m.len - 1
-    elseif m.pos < 0 then m.pos = 0 end
+    if m.pos > m.len - 1 then
+      m.pos = m.len - 1
+    elseif m.pos < 0 then
+      m.pos = 0
+    end
     _menu.redraw()
-  elseif n==3 and m.pos == 2 then
-    m.selected = util.clamp(1,m.selected+delta,wifi.conn_count)
+  elseif n == 3 and m.pos == 2 then
+    m.selected = util.clamp(1, m.selected + delta, wifi.conn_count)
     _menu.redraw()
   end
 end
@@ -79,24 +82,24 @@ m.redraw = function()
   screen.clear()
   screen.level(4)
 
-  screen.move(0,10)
+  screen.move(0, 10)
   screen.text("STATUS: " .. wifi.status)
-  screen.move(0,20)
+  screen.move(0, 20)
   screen.text("NETWORK: " .. wifi.connection_name)
-  screen.move(0,30)
+  screen.move(0, 30)
   screen.text("IP: " .. wifi.ip)
   if wifi.ip and wifi.connection then
     if wifi.connection:is_wireless() then
-      screen.move(0,40)
+      screen.move(0, 40)
       screen.text("SIGNAL: " .. wifi.signal .. "dBm")
     end
   end
 
-  local xp = {0,20,58,94,114}
-  for i=1,m.len do
-    screen.move(xp[i],60)
+  local xp = { 0, 20, 58, 94, 114 }
+  for i = 1, m.len do
+    screen.move(xp[i], 60)
     local line = m.list[i]
-    if(i==m.pos+1) then
+    if (i == m.pos + 1) then
       screen.level(15)
     else
       screen.level(4)
@@ -111,7 +114,7 @@ m.init = function()
   -- screen enter notification
   screen.clear()
   screen.level(4)
-  screen.move(64,40)
+  screen.move(64, 40)
   screen.text_center("scanning...")
   screen.update()
   wifi.ensure_radio_is_on()

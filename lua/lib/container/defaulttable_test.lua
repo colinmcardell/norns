@@ -15,7 +15,7 @@ function test_new_no_args()
 end
 
 function test_new_with_table_literal()
-  local dt = DefaultTable.new({'a', 'b', 'c'})
+  local dt = DefaultTable.new({ 'a', 'b', 'c' })
   T.assertEquals(dt['key1'][1], 'a')
   T.assertEquals(dt['key1'][3], 'c')
 
@@ -81,13 +81,13 @@ function test_pairs()
   local keys = {}
   local values = {}
 
-  for k,v in pairs(dt) do
+  for k, v in pairs(dt) do
     table.insert(keys, k)
     table.insert(values, v)
   end
 
-  T.assertItemsEquals(keys, {'a', 2, {}})
-  T.assertItemsEquals(values, {1234, 'first', 'other'})
+  T.assertItemsEquals(keys, { 'a', 2, {} })
+  T.assertItemsEquals(values, { 1234, 'first', 'other' })
 end
 
 os.exit(T.LuaUnit.run())

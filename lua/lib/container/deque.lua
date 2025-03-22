@@ -243,7 +243,3 @@ function Deque:to_array()
 end
 
 return Deque
-
-
-
-

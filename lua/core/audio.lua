@@ -75,7 +75,7 @@ end
 
 --- restart the audio engine (recompile sclang).
 Audio.restart = function()
-   _norns.restart_audio()
+  _norns.restart_audio()
 end
 
 
@@ -85,69 +85,67 @@ end
 
 --- reverb on.
 function Audio.rev_on()
-   _norns.rev_on()
+  _norns.rev_on()
 end
 
 --- reverb off.
 function Audio.rev_off()
-   _norns.rev_off()
+  _norns.rev_off()
 end
 
 --- reverb Monitor level.
 -- @tparam number val
 function Audio.level_monitor_rev(val)
-   _norns.level_monitor_rev(val)
+  _norns.level_monitor_rev(val)
 end
 
 --- reverb ENGINE level.
 -- @tparam number val
 function Audio.level_eng_rev(val)
-   _norns.level_ext_rev(val)
+  _norns.level_ext_rev(val)
 end
 
 --- reverb TAPE level.
 -- @tparam number val
 function Audio.level_tape_rev(val)
-   _norns.level_tape_rev(val)
+  _norns.level_tape_rev(val)
 end
 
 --- reverb DAC level.
 -- @tparam number val
 function Audio.level_rev_dac(val)
-   _norns.level_rev_dac(val)
+  _norns.level_rev_dac(val)
 end
 
 --- set reverb parameter.
 -- @tparam string name
 -- @tparam number val
 function Audio.rev_param(name, val)
-   _norns.rev_param(name, val)
+  _norns.rev_param(name, val)
 end
 
 --- turn on compressor.
 function Audio.comp_on()
-   _norns.comp_on()
+  _norns.comp_on()
 end
 
 --- turn off compressor.
 function Audio.comp_off()
-   _norns.comp_off()
+  _norns.comp_off()
 end
 
 --- compressor mix amount.
 -- @tparam number val
 function Audio.comp_mix(val)
-   _norns.comp_mix(val)
+  _norns.comp_mix(val)
 end
 
 --- set compressor parameter.
 -- @tparam string name
 -- @tparam number val
 function Audio.comp_param(name, val)
-   _norns.comp_param(name, val)
+  _norns.comp_param(name, val)
 end
-
-
 
 --- Tape Functions
 -- @section Tape
@@ -223,7 +221,7 @@ end
 -- @param out1
 -- @param out2
 Audio.vu = function(in1, in2, out1, out2)
-   -- print (in1 .. '\t' .. in2 .. '\t' .. out1 .. '\t' .. out2)
+  -- print (in1 .. '\t' .. in2 .. '\t' .. out1 .. '\t' .. out2)
 end
 
 
@@ -233,7 +231,7 @@ end
 --- set output level, clamped, save state.
 -- @tparam number value audio level (0-64)
 function Audio.set_audio_level(value)
-  local l = util.clamp(value,0,64)
+  local l = util.clamp(value, 0, 64)
   if l ~= norns.state.out then
     norns.state.out = l
     Audio.output_level(l / 64.0)
@@ -243,14 +241,14 @@ end
 --- adjust output level, clamped, save state.
 -- @tparam number delta amount to change output level
 function Audio.adjust_output_level(delta)
-  local l = util.clamp(norns.state.out + delta,0,64)
+  local l = util.clamp(norns.state.out + delta, 0, 64)
   if l ~= norns.state.out then
     norns.state.out = l
     Audio.output_level(l / 64.0)
   end
 end
 
---- print audio file info 
+--- print audio file info
 -- @tparam string path (from dust directory)
 -- @treturn integer number of audio channels
 -- @treturn integer number of samples
@@ -261,19 +259,18 @@ function Audio.file_info(path)
   return _norns.sound_file_inspect(path)
 end
 
-
 function Audio.add_params()
-  params:add_group("LEVELS",9)
-  params:add_control("output_level", "output", 
-    cs.new(-math.huge,6,'db',0,norns.state.mix.output,"dB"))
+  params:add_group("LEVELS", 9)
+  params:add_control("output_level", "output",
+    cs.new(-math.huge, 6, 'db', 0, norns.state.mix.output, "dB"))
   params:set_action("output_level",
-    function(x) 
+    function(x)
       audio.level_dac(util.dbamp(x))
       norns.state.mix.output = x
     end)
   params:set_save("output_level", false)
   params:add_control("input_level", "input",
-    cs.new(-math.huge,6,'db',0,norns.state.mix.input,"dB"))
+    cs.new(-math.huge, 6, 'db', 0, norns.state.mix.input, "dB"))
   params:set_action("input_level",
     function(x)
       audio.level_adc(util.dbamp(x))
@@ -281,7 +278,7 @@ function Audio.add_params()
     end)
   params:set_save("input_level", false)
   params:add_control("monitor_level", "monitor",
-    cs.new(-math.huge,6,'db',0,norns.state.mix.monitor,"dB"))
+    cs.new(-math.huge, 6, 'db', 0, norns.state.mix.monitor, "dB"))
   params:set_action("monitor_level",
     function(x)
       audio.level_monitor(util.dbamp(x))
@@ -289,7 +286,7 @@ function Audio.add_params()
     end)
   params:set_save("monitor_level", false)
   params:add_control("engine_level", "engine",
-    cs.new(-math.huge,6,'db',0,norns.state.mix.engine,"dB"))
+    cs.new(-math.huge, 6, 'db', 0, norns.state.mix.engine, "dB"))
   params:set_action("engine_level",
     function(x)
       audio.level_eng(util.dbamp(x))
@@ -297,7 +294,7 @@ function Audio.add_params()
     end)
   params:set_save("engine_level", false)
   params:add_control("softcut_level", "softcut",
-    cs.new(-math.huge,6,'db',0,norns.state.mix.cut,"dB"))
+    cs.new(-math.huge, 6, 'db', 0, norns.state.mix.cut, "dB"))
   params:set_action("softcut_level",
     function(x)
       audio.level_cut(util.dbamp(x))
@@ -305,7 +302,7 @@ function Audio.add_params()
     end)
   params:set_save("softcut_level", false)
   params:add_control("tape_level", "tape",
-    cs.new(-math.huge,6,'db',0,norns.state.mix.tape,"dB"))
+    cs.new(-math.huge, 6, 'db', 0, norns.state.mix.tape, "dB"))
   params:set_action("tape_level",
     function(x)
       audio.level_tape(util.dbamp(x))
@@ -313,12 +310,15 @@ function Audio.add_params()
     end)
   params:set_save("tape_level", false)
   params:add_separator("monitoring_separator", "monitoring")
-  params:add_option("monitor_mode", "monitor mode", {"STEREO", "MONO"},
+  params:add_option("monitor_mode", "monitor mode", { "STEREO", "MONO" },
     norns.state.mix.monitor_mode)
   params:set_action("monitor_mode",
     function(x)
-      if x == 1 then audio.monitor_stereo()
-      else audio.monitor_mono() end
+      if x == 1 then
+        audio.monitor_stereo()
+      else
+        audio.monitor_mono()
+      end
       norns.state.mix.monitor_mode = x
     end)
   params:set_save("monitor_mode", false)
@@ -330,15 +330,15 @@ function Audio.add_params()
       norns.state.mix.headphone_gain = x
     end)
   params:set_save("headphone_gain", false)
-  
-  params:add_group("REVERB",11)
-  params:add_option("reverb", "reverb", {"OFF", "ON"}, 
+
+  params:add_group("REVERB", 11)
+  params:add_option("reverb", "reverb", { "OFF", "ON" },
     norns.state.mix.aux)
   params:set_action("reverb",
-  function(x)
-    if x == 1 then audio.rev_off() else audio.rev_on() end
-    norns.state.mix.aux = x
-  end)
+    function(x)
+      if x == 1 then audio.rev_off() else audio.rev_on() end
+      norns.state.mix.aux = x
+    end)
   params:set_save("reverb", false)
 
   --local cs_DB_LEVEL = cs.new(-math.huge,18,'db',0,0,"dB")
@@ -346,84 +346,84 @@ function Audio.add_params()
   --local cs_DB_LEVEL_9DB = cs.new(-math.huge,18,'db',0,-9,"dB")
 
   params:add_control("rev_eng_input", "input engine",
-    cs.new(-math.huge,18,'db',0,norns.state.mix.rev_eng_input,"dB"))
+    cs.new(-math.huge, 18, 'db', 0, norns.state.mix.rev_eng_input, "dB"))
   params:set_action("rev_eng_input",
-  function(x)
-    audio.level_eng_rev(util.dbamp(x))
-    norns.state.mix.rev_eng_input = x
-  end)
+    function(x)
+      audio.level_eng_rev(util.dbamp(x))
+      norns.state.mix.rev_eng_input = x
+    end)
 
-  params:add_control("rev_cut_input", "input softcut", 
-    cs.new(-math.huge,18,'db',0,norns.state.mix.rev_eng_input,"dB"))
+  params:add_control("rev_cut_input", "input softcut",
+    cs.new(-math.huge, 18, 'db', 0, norns.state.mix.rev_eng_input, "dB"))
   params:set_action("rev_cut_input",
-  function(x)
-    audio.level_cut_rev(util.dbamp(x))
-    norns.state.mix.rev_cut_input = x
-  end)
+    function(x)
+      audio.level_cut_rev(util.dbamp(x))
+      norns.state.mix.rev_cut_input = x
+    end)
 
   params:add_control("rev_monitor_input", "input monitor",
-    cs.new(-math.huge,18,'db',0,norns.state.mix.rev_monitor_input,"dB"))
+    cs.new(-math.huge, 18, 'db', 0, norns.state.mix.rev_monitor_input, "dB"))
   params:set_action("rev_monitor_input",
-  function(x)
-    audio.level_monitor_rev(util.dbamp(x))
-    norns.state.mix.rev_monitor_input = x
-  end)
+    function(x)
+      audio.level_monitor_rev(util.dbamp(x))
+      norns.state.mix.rev_monitor_input = x
+    end)
 
   params:add_control("rev_tape_input", "input tape",
-    cs.new(-math.huge,18,'db',0,norns.state.mix.rev_tape_input,"dB"))
+    cs.new(-math.huge, 18, 'db', 0, norns.state.mix.rev_tape_input, "dB"))
   params:set_action("rev_tape_input",
-  function(x)
-    audio.level_tape_rev(util.dbamp(x))
-    norns.state.mix.rev_tape_input = x
-  end)
+    function(x)
+      audio.level_tape_rev(util.dbamp(x))
+      norns.state.mix.rev_tape_input = x
+    end)
 
   params:add_control("rev_return_level", "return level",
-    cs.new(-math.huge,18,'db',0,norns.state.mix.rev_return_level,"dB"))
+    cs.new(-math.huge, 18, 'db', 0, norns.state.mix.rev_return_level, "dB"))
   params:set_action("rev_return_level",
-  function(x)
-    audio.level_rev_dac(util.dbamp(x))
-    norns.state.mix.rev_return_level = x
-  end)
+    function(x)
+      audio.level_rev_dac(util.dbamp(x))
+      norns.state.mix.rev_return_level = x
+    end)
 
   params:add_control("rev_pre_delay", "pre delay",
-    cs.new(20,100,'lin',0,norns.state.mix.rev_pre_delay,'ms'))
+    cs.new(20, 100, 'lin', 0, norns.state.mix.rev_pre_delay, 'ms'))
   params:set_action("rev_pre_delay",
-  function(x)
-    audio.rev_param("pre_del",x)
-    norns.state.mix.rev_pre_delay = x
-  end)
+    function(x)
+      audio.rev_param("pre_del", x)
+      norns.state.mix.rev_pre_delay = x
+    end)
 
   params:add_control("rev_lf_fc", "lf fc",
-    cs.new(50,1000,'exp',0, norns.state.mix.rev_lf_fc,'hz'))
+    cs.new(50, 1000, 'exp', 0, norns.state.mix.rev_lf_fc, 'hz'))
   params:set_action("rev_lf_fc",
-  function(x)
-    audio.rev_param("lf_fc",x)
-    norns.state.mix.rev_lf_fc = x
-  end)
+    function(x)
+      audio.rev_param("lf_fc", x)
+      norns.state.mix.rev_lf_fc = x
+    end)
 
   params:add_control("rev_low_time", "low time",
-    cs.new(0.1,16,'lin',0,norns.state.mix.rev_low_time,'s'))
+    cs.new(0.1, 16, 'lin', 0, norns.state.mix.rev_low_time, 's'))
   params:set_action("rev_low_time",
-  function(x)
-    audio.rev_param("low_rt60",x)
-    norns.state.mix.rev_low_time = x
-  end)
+    function(x)
+      audio.rev_param("low_rt60", x)
+      norns.state.mix.rev_low_time = x
+    end)
 
   params:add_control("rev_mid_time", "mid time",
-    cs.new(0.1,16,'lin',0,norns.state.mix.rev_mid_time,'s'))
+    cs.new(0.1, 16, 'lin', 0, norns.state.mix.rev_mid_time, 's'))
   params:set_action("rev_mid_time",
-  function(x)
-    audio.rev_param("mid_rt60",x)
-    norns.state.mix.rev_mid_time = x
-  end)
+    function(x)
+      audio.rev_param("mid_rt60", x)
+      norns.state.mix.rev_mid_time = x
+    end)
 
-  params:add_control("rev_hf_damping", "hf damping", 
-    cs.new(1500,20000,'exp',0,norns.state.mix.rev_hf_damping,'hz'))
+  params:add_control("rev_hf_damping", "hf damping",
+    cs.new(1500, 20000, 'exp', 0, norns.state.mix.rev_hf_damping, 'hz'))
   params:set_action("rev_hf_damping",
-  function(x)
-    audio.rev_param("hf_damp",x)
-    norns.state.mix.rev_hf_damping = x
-  end)
+    function(x)
+      audio.rev_param("hf_damp", x)
+      norns.state.mix.rev_hf_damping = x
+    end)
 
   --[[
   local cs_EQ_FREQ1 = cs.new(40,2500,'exp',0,315,'hz')
@@ -448,82 +448,82 @@ function Audio.add_params()
   function(x) audio.aux_param("level",x) end)
   --]]
 
-  params:add_group("COMPRESSOR",8)
-  params:add_option("compressor", "compressor", {"OFF", "ON"},
+  params:add_group("COMPRESSOR", 8)
+  params:add_option("compressor", "compressor", { "OFF", "ON" },
     norns.state.mix.ins)
   params:set_action("compressor",
-  function(x)
-    if x == 1 then
-      audio.comp_off()
-    else
-      audio.comp_on()
-    end
-    norns.state.mix.ins = x
-  end)
+    function(x)
+      if x == 1 then
+        audio.comp_off()
+      else
+        audio.comp_on()
+      end
+      norns.state.mix.ins = x
+    end)
   params:set_save("compressor", false)
 
   params:add_control("comp_mix", "mix",
-    cs.new(0,1,'lin',0,norns.state.mix.comp_mix,''))
+    cs.new(0, 1, 'lin', 0, norns.state.mix.comp_mix, ''))
   params:set_action("comp_mix",
-  function(x)
-    audio.comp_mix(x)
-    norns.state.mix.comp_mix = x
-  end)
+    function(x)
+      audio.comp_mix(x)
+      norns.state.mix.comp_mix = x
+    end)
 
   params:add_control("comp_ratio", "ratio",
-    cs.new(1,20,'lin',0,norns.state.mix.comp_ratio,''))
+    cs.new(1, 20, 'lin', 0, norns.state.mix.comp_ratio, ''))
   params:set_action("comp_ratio",
-  function(x)
-    audio.comp_param("ratio",x)
-    norns.state.mix.comp_ratio = x
-  end)
+    function(x)
+      audio.comp_param("ratio", x)
+      norns.state.mix.comp_ratio = x
+    end)
 
   params:add_control("comp_threshold", "threshold",
-    cs.new(-100,10,'db',0,norns.state.mix.comp_threshold,'dB'))
-    params:set_action("comp_threshold",
-  function(x)
-    audio.comp_param("threshold",x)
-    norns.state.mix.comp_threshold = x
-  end)
+    cs.new(-100, 10, 'db', 0, norns.state.mix.comp_threshold, 'dB'))
+  params:set_action("comp_threshold",
+    function(x)
+      audio.comp_param("threshold", x)
+      norns.state.mix.comp_threshold = x
+    end)
 
   params:add_control("comp_attack", "attack",
-    cs.new(1,1000,'exp',0,norns.state.mix.comp_attack,'ms'))
+    cs.new(1, 1000, 'exp', 0, norns.state.mix.comp_attack, 'ms'))
   params:set_action("comp_attack",
-  function(x)
-    audio.comp_param("attack", x*0.001)
-    norns.state.mix.comp_attack = x
-  end)
+    function(x)
+      audio.comp_param("attack", x * 0.001)
+      norns.state.mix.comp_attack = x
+    end)
 
-  
+
   params:add_control("comp_release", "release",
-    cs.new(1,1000,'exp',0,norns.state.mix.comp_release,'ms'))
+    cs.new(1, 1000, 'exp', 0, norns.state.mix.comp_release, 'ms'))
   params:set_action("comp_release",
-  function(x)
-    audio.comp_param("release",x * 0.001)
-    norns.state.mix.comp_release = x
-  end)
+    function(x)
+      audio.comp_param("release", x * 0.001)
+      norns.state.mix.comp_release = x
+    end)
 
   params:add_control("comp_pre_gain", "pre gain",
-    cs.new(-20,60,'db',0,norns.state.mix.comp_pre_gain,'dB'))
+    cs.new(-20, 60, 'db', 0, norns.state.mix.comp_pre_gain, 'dB'))
   params:set_action("comp_pre_gain",
-  function(x)
-    audio.comp_param("gain_pre",x)
-    norns.state.mix.comp_pre_gain = x
-  end)
+    function(x)
+      audio.comp_param("gain_pre", x)
+      norns.state.mix.comp_pre_gain = x
+    end)
 
   params:add_control("comp_post_gain", "post gain",
-    cs.new(-20,60,'db',0,norns.state.mix.comp_post_gain,'dB'))
+    cs.new(-20, 60, 'db', 0, norns.state.mix.comp_post_gain, 'dB'))
   params:set_action("comp_post_gain",
-  function(x)
-    audio.comp_param("gain_post",x)
-    norns.state.mix.comp_post_gain = x
-  end)
+    function(x)
+      audio.comp_param("gain_post", x)
+      norns.state.mix.comp_post_gain = x
+    end)
 
 
-  params:add_group("SOFTCUT",3)
+  params:add_group("SOFTCUT", 3)
 
   params:add_control("cut_input_adc", "input adc",
-    cs.new(-math.huge,18,'db',0,norns.state.mix.cut_input_adc,"dB"))
+    cs.new(-math.huge, 18, 'db', 0, norns.state.mix.cut_input_adc, "dB"))
   params:set_action("cut_input_adc",
     function(x)
       audio.level_adc_cut(util.dbamp(x))
@@ -531,7 +531,7 @@ function Audio.add_params()
     end)
 
   params:add_control("cut_input_eng", "input engine",
-    cs.new(-math.huge,18,'db',0,norns.state.mix.cut_input_eng,"dB"))
+    cs.new(-math.huge, 18, 'db', 0, norns.state.mix.cut_input_eng, "dB"))
   params:set_action("cut_input_eng",
     function(x)
       audio.level_eng_cut(util.dbamp(x))
@@ -539,13 +539,12 @@ function Audio.add_params()
     end)
 
   params:add_control("cut_input_tape", "input tape",
-    cs.new(-math.huge,18,'db',0,norns.state.mix.cut_input_tape,"dB"))
+    cs.new(-math.huge, 18, 'db', 0, norns.state.mix.cut_input_tape, "dB"))
   params:set_action("cut_input_tape",
     function(x)
       audio.level_tape_cut(util.dbamp(x))
       norns.state.mix.cut_input_tape = x
     end)
-
 end
 
 return Audio

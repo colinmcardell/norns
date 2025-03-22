@@ -47,12 +47,12 @@ end
 
 --- request a single update immediately.
 function Poll:update(callback)
-   if callback then
-      if type(callback) == "function" then
-	 self.props.callback = callback
-	 end
-   end
-   _norns.request_poll_value(self.props.id)
+  if callback then
+    if type(callback) == "function" then
+      self.props.callback = callback
+    end
+  end
+  _norns.request_poll_value(self.props.id)
 end
 
 --- custom setters.
@@ -70,13 +70,20 @@ end
 --- custom getters.
 -- available properties: name, callback, start, stop.
 function Poll:__index(idx)
-  if idx == 'id' then return self.props.id
-  elseif idx == 'name' then return self.props.name
-  elseif idx == 'callback' then return self.props.callback
-  elseif idx == 'start' then return Poll.start
-  elseif idx == 'stop' then return Poll.stop
-  elseif idx == 'update' then return Poll.update
-  elseif idx == 'perform' then return Poll.perform
+  if idx == 'id' then
+    return self.props.id
+  elseif idx == 'name' then
+    return self.props.name
+  elseif idx == 'callback' then
+    return self.props.callback
+  elseif idx == 'start' then
+    return Poll.start
+  elseif idx == 'stop' then
+    return Poll.stop
+  elseif idx == 'update' then
+    return Poll.update
+  elseif idx == 'perform' then
+    return Poll.perform
   else
     return rawget(self, idx)
   end
@@ -94,7 +101,8 @@ function Poll:perform(value)
       -- print("no callback") -- ok
     end
   else
-    print("error: poll has no properties!") assert(false)
+    print("error: poll has no properties!")
+    assert(false)
   end
 end
 
@@ -108,7 +116,7 @@ Poll.register = function(data, count)
   Poll.polls = {}
   Poll.poll_names = {}
   local props
-  for i=1,count do
+  for i = 1, count do
     props = {
       id = data[i][1],
       name = data[i][2]
@@ -122,7 +130,7 @@ end
 Poll.list_names = function()
   print('___ polls ___')
   local names = tab.sort(Poll.polls)
-  for _,n in ipairs(names) do print(n) end
+  for _, n in ipairs(names) do print(n) end
 end
 
 -- set callback function for registered Poll object by name.
@@ -130,18 +138,18 @@ end
 -- @param callback function to call with value on each poll
 Poll.set = function(name, callback)
   local p = Poll.polls[name]
-  if(p) then
-     p.props.callback = callback
+  if (p) then
+    p.props.callback = callback
   end
   return p
 end
 
 -- stop all polls.
 Poll.clear_all = function()
-   for _,p in pairs(Poll.polls) do
-      p:stop()
-      p.props.callback = nil
-   end
+  for _, p in pairs(Poll.polls) do
+    p:stop()
+    p.props.callback = nil
+  end
 end
 
 

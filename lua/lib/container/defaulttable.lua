@@ -6,7 +6,7 @@ local function shallow_copy(t)
   -- MAINT: the {table.unpack(t)} trick doesn't work if the given table has
   -- non-integer keys or a numeric indicies with gaps
   local new = {}
-  for k,v in pairs(t) do
+  for k, v in pairs(t) do
     new[k] = v
   end
   return new

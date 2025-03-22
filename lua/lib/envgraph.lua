@@ -17,7 +17,7 @@ local Graph = require "graph"
 
 local function new_env_graph(x_min, x_max, y_min, y_max)
   local graph = Graph.new(x_min, x_max, "lin", y_min, y_max, "lin", "line_and_point", false, false)
-  setmetatable(EnvGraph, {__index = Graph})
+  setmetatable(EnvGraph, { __index = Graph })
   setmetatable(graph, EnvGraph)
   return graph
 end
@@ -52,12 +52,14 @@ end
 -- @treturn EnvGraph Instance of EnvGraph.
 function EnvGraph.new_dadsr(x_min, x_max, y_min, y_max, delay, attack, decay, sustain, release, level, curve)
   local graph = new_env_graph(x_min, x_max, y_min, y_max)
-  set_env_values(graph, delay or 0.1, attack or 0.05, decay or 0.2, sustain or 0.5, release or 0.3, level or 1, curve or -4)
-  
+  set_env_values(graph, delay or 0.1, attack or 0.05, decay or 0.2, sustain or 0.5, release or 0.3, level or 1,
+    curve or -4)
+
   graph:add_point(0, 0)
   graph:add_point(graph._env.delay, 0)
   graph:add_point(graph._env.delay + graph._env.attack, graph._env.level, graph._env.curve)
-  graph:add_point(graph._env.delay + graph._env.attack + graph._env.decay, graph._env.level * graph._env.sustain, graph._env.curve)
+  graph:add_point(graph._env.delay + graph._env.attack + graph._env.decay, graph._env.level * graph._env.sustain,
+    graph._env.curve)
   graph:add_point(graph._x_max - graph._env.release, graph._env.level * graph._env.sustain, graph._env.curve)
   graph:add_point(graph._x_max, 0, graph._env.curve)
   return graph
@@ -75,10 +77,11 @@ end
 function EnvGraph:edit_dadsr(delay, attack, decay, sustain, release, level, curve)
   if #self._points ~= 6 then return end
   set_env_values(self, delay, attack, decay, sustain, release, level, curve)
-  
+
   self:edit_point(2, self._env.delay)
   self:edit_point(3, self._env.delay + self._env.attack, self._env.level, self._env.curve)
-  self:edit_point(4, self._env.delay + self._env.attack + self._env.decay, self._env.level * self._env.sustain, self._env.curve)
+  self:edit_point(4, self._env.delay + self._env.attack + self._env.decay, self._env.level * self._env.sustain,
+    self._env.curve)
   self:edit_point(5, self._x_max - self._env.release, self._env.level * self._env.sustain, self._env.curve)
   self:edit_point(6, nil, nil, self._env.curve)
 end
@@ -99,7 +102,7 @@ end
 function EnvGraph.new_adsr(x_min, x_max, y_min, y_max, attack, decay, sustain, release, level, curve)
   local graph = new_env_graph(x_min, x_max, y_min, y_max)
   set_env_values(graph, nil, attack or 0.05, decay or 0.2, sustain or 0.5, release or 0.3, level or 1, curve or -4)
-  
+
   graph:add_point(0, 0)
   graph:add_point(graph._env.attack, graph._env.level, graph._env.curve)
   graph:add_point(graph._env.attack + graph._env.decay, graph._env.level * graph._env.sustain, graph._env.curve)
@@ -119,13 +122,12 @@ end
 function EnvGraph:edit_adsr(attack, decay, sustain, release, level, curve)
   if #self._points ~= 5 then return end
   set_env_values(self, nil, attack, decay, sustain, release, level, curve)
-  
+
   self:edit_point(2, self._env.attack, self._env.level, self._env.curve)
   self:edit_point(3, self._env.attack + self._env.decay, self._env.level * self._env.sustain, self._env.curve)
   self:edit_point(4, self._x_max - self._env.release, self._env.level * self._env.sustain, self._env.curve)
   self:edit_point(5, nil, nil, self._env.curve)
 end
-
 
 --- Create a new ASR EnvGraph object.
 -- All arguments optional.
@@ -141,7 +143,7 @@ end
 function EnvGraph.new_asr(x_min, x_max, y_min, y_max, attack, release, level, curve)
   local graph = new_env_graph(x_min, x_max, y_min, y_max)
   set_env_values(graph, nil, attack or 0.05, nil, nil, release or 0.3, level or 1, curve or -4)
-  
+
   graph:add_point(0, 0)
   graph:add_point(graph._env.attack, graph._env.level, graph._env.curve)
   graph:add_point(graph._x_max - graph._env.release, graph._env.level, graph._env.curve)
@@ -158,7 +160,7 @@ end
 function EnvGraph:edit_asr(attack, release, level, curve)
   if #self._points ~= 4 then return end
   set_env_values(self, nil, attack, nil, nil, release, level, curve)
-  
+
   self:edit_point(2, self._env.attack, self._env.level, self._env.curve)
   self:edit_point(3, self._x_max - self._env.release, self._env.level, self._env.curve)
   self:edit_point(4, nil, nil, self._env.curve)
@@ -178,7 +180,7 @@ end
 function EnvGraph.new_ar(x_min, x_max, y_min, y_max, attack, release, level, curve)
   local graph = new_env_graph(x_min, x_max, y_min, y_max)
   set_env_values(graph, nil, attack or 0.1, nil, nil, release or 0.9, level or 1, curve or -4)
-  
+
   graph:add_point(0, 0)
   graph:add_point(graph._env.attack, graph._env.level, graph._env.curve)
   graph:add_point(graph._env.attack + graph._env.release, 0, graph._env.curve)
@@ -194,11 +196,10 @@ end
 function EnvGraph:edit_ar(attack, release, level, curve)
   if #self._points ~= 3 then return end
   set_env_values(self, nil, attack, nil, nil, release, level, curve)
-  
+
   self:edit_point(2, self._env.attack, self._env.level, self._env.curve)
   self:edit_point(3, self._env.attack + self._env.release, nil, self._env.curve)
 end
-
 
 -- Getters
 
@@ -229,6 +230,5 @@ function EnvGraph:get_level() return self._env.level end
 --- Get curve value.
 -- @treturn string|number Curve value.
 function EnvGraph:get_curve() return self._env.curve end
-
 
 return EnvGraph

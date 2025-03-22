@@ -21,7 +21,6 @@ function Slot:release()
 	self.pool:release(self)
 end
 
-
 -- Rotate allocation class
 local Rotate = {}
 Rotate.__index = Rotate
@@ -44,7 +43,6 @@ function Rotate:next()
 	return self.slots[i]
 end
 
-
 -- Random allocation class
 local Random = {}
 Random.__index = Random
@@ -61,7 +59,6 @@ function Random:next()
 	return self.slots[math.random(self.polyphony)]
 end
 
-
 -- LRU allocation class
 local LRU = {}
 LRU.__index = LRU
@@ -71,7 +68,7 @@ function LRU.new(polyphony, slots)
 	o.slots = slots
 	o.count = 0
 	for _, s in pairs(slots) do
-		s.n = 0    -- yuck: add field to slot
+		s.n = 0 -- yuck: add field to slot
 	end
 	return o
 end
@@ -116,8 +113,8 @@ function Voice.new(polyphony, mode)
 	local o = setmetatable({}, Voice)
 	o.polyphony = polyphony
 	o.mode = mode
-	o.will_steal = nil      -- event callback
-	o.will_release = nil     -- event callback
+	o.will_steal = nil -- event callback
+	o.will_release = nil -- event callback
 	o.pairings = {}
 	local slots = {}
 	for id = 1, polyphony do
@@ -147,7 +144,7 @@ function Voice:get()
 			end
 		end
 
-		if slot.on_steal then 
+		if slot.on_steal then
 			slot.on_steal(slot)
 		elseif slot.on_release then
 			slot.on_release(slot)
@@ -156,7 +153,6 @@ function Voice:get()
 	slot.active = true
 	return slot
 end
-
 
 --- push
 function Voice:push(key, slot)
@@ -181,6 +177,5 @@ function Voice:release(slot)
 		print("voice slot: ", slot, "does not belong to pool: ", self)
 	end
 end
-
 
 return Voice

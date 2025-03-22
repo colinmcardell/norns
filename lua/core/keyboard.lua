@@ -49,12 +49,12 @@ function keyboard.load_enabled()
   local m_fn, err = loadfile(_path.keyboard_layout)
   if err or m_fn == nil or m_fn() == nil then
     -- NB: curently keeping current value
-    print("error loading keyboard layout, using old value: "..keyboard.selected_map)
+    print("error loading keyboard layout, using old value: " .. keyboard.selected_map)
     -- could also fall back to US w/:
     -- keyboard.selected_map = "us"
   else
     keyboard.selected_map = m_fn()
-    print("loaded keyboard layout: "..keyboard.selected_map)
+    print("loaded keyboard layout: " .. keyboard.selected_map)
   end
   km = keyboard.keymap[keyboard.selected_map]
 end
@@ -62,7 +62,7 @@ end
 function keyboard.save_enabled()
   local file, err = io.open(_path.keyboard_layout, "wb")
   if err then return err end
-  file:write("return '"..keyboard.selected_map.."'")
+  file:write("return '" .. keyboard.selected_map .. "'")
   file:close()
 end
 
@@ -72,7 +72,7 @@ function keyboard.set_map(m, autosave)
   if keyboard.keymap[m] then
     keyboard.selected_map = m
     km = keyboard.keymap[keyboard.selected_map]
-    print("loaded keyboard layout: "..keyboard.selected_map)
+    print("loaded keyboard layout: " .. keyboard.selected_map)
     if autosave then
       keyboard.save_enabled()
     end
@@ -81,7 +81,7 @@ end
 
 local function km_uses_altgr()
   return km[char_modifier.ALTGR] ~= nil
-    or km[char_modifier.SHIFT | char_modifier.ALTGR] ~= nil
+      or km[char_modifier.SHIFT | char_modifier.ALTGR] ~= nil
 end
 
 --- key states
@@ -113,24 +113,31 @@ function keyboard.code(key, value) end
 --
 function keyboard.char(ch) end
 
-
 --- return SHIFT state
 function keyboard.shift()
-  return keyboard.state.LEFTSHIFT or keyboard.state.RIGHTSHIFT end
+  return keyboard.state.LEFTSHIFT or keyboard.state.RIGHTSHIFT
+end
+
 --- return ALT state
 function keyboard.alt()
-  return keyboard.state.LEFTALT or (not km_uses_altgr() and keyboard.state.RIGHTALT) end
+  return keyboard.state.LEFTALT or (not km_uses_altgr() and keyboard.state.RIGHTALT)
+end
+
 function keyboard.altgr()
-  return km_uses_altgr() and keyboard.state.RIGHTALT end
+  return km_uses_altgr() and keyboard.state.RIGHTALT
+end
+
 --- return CTRL state
 function keyboard.ctrl()
-  return keyboard.state.LEFTCTRL or keyboard.state.RIGHTCTRL end
+  return keyboard.state.LEFTCTRL or keyboard.state.RIGHTCTRL
+end
+
 --- return META state
 function keyboard.meta()
-  return keyboard.state.LEFTMETA or keyboard.state.RIGHTMETA end
+  return keyboard.state.LEFTMETA or keyboard.state.RIGHTMETA
+end
 
-
-function keyboard.process(type,code,value)
+function keyboard.process(type, code, value)
   local c = keyboard.codes[code]
   if c == nil then
     return
@@ -138,31 +145,38 @@ function keyboard.process(type,code,value)
   screen.ping()
   -- textentry keycode
   if te_kbd_cb.code then
-    te_kbd_cb.code(c,value)
+    te_kbd_cb.code(c, value)
     -- menu screen goto
-  elseif (c=="F1" or c=="F2" or c=="F3" or c=="F4") and value==1 then 
+  elseif (c == "F1" or c == "F2" or c == "F3" or c == "F4") and value == 1 then
     _menu.set_mode(true)
-    _menu.keycode(c,value)
+    _menu.keycode(c, value)
     -- toggle menu with F5
-  elseif (c=="F5" and value==1) then 
+  elseif (c == "F5" and value == 1) then
     _menu.set_mode(not _menu.mode)
     -- menu keycode
-  elseif _menu.mode then _menu.keycode(c,value)
+  elseif _menu.mode then
+    _menu.keycode(c, value)
     -- script keycode
-  elseif keyboard.code then keyboard.code(c,value) end
+  elseif keyboard.code then
+    keyboard.code(c, value)
+  end
 
-  keyboard.state[c] = value>0
+  keyboard.state[c] = value > 0
 
   local a = keyboard.code_to_char(c)
 
-  if value>0 and a then
+  if value > 0 and a then
     --print("char: "..a)
     -- menu keychar
-    if te_kbd_cb.char then te_kbd_cb.char(a)
+    if te_kbd_cb.char then
+      te_kbd_cb.char(a)
       -- script keychar
-    elseif _menu.mode then _menu.keychar(a)
+    elseif _menu.mode then
+      _menu.keychar(a)
       -- textentry keycode
-    elseif keyboard.char then keyboard.char(a) end
+    elseif keyboard.char then
+      keyboard.char(a)
+    end
   end
   --print("kb",code,value,keyboard.codes[code])
 end
@@ -317,6 +331,6 @@ keyboard.codes[126] = 'RIGHTMETA'
 keyboard.codes[127] = 'COMPOSE'
 
 keyboard.state = tab.invert(keyboard.codes)
-for k,_ in pairs(keyboard.state) do keyboard.state[k] = false end
+for k, _ in pairs(keyboard.state) do keyboard.state[k] = false end
 
 return keyboard

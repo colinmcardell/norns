@@ -84,7 +84,7 @@ function Control:set_raw(value, silent)
   local clamped_value = util.clamp(value, 0, 1)
   if self.raw ~= clamped_value then
     self.raw = clamped_value
-    if silent==false then self:bang() end
+    if silent == false then self:bang() end
   end
   if norns.pmap.data[self.id] ~= nil then
     local midi_prm = norns.pmap.data[self.id]
@@ -121,7 +121,7 @@ end
 
 --- get_range.
 function Control:get_range()
-  r = {self.controlspec.minval, self.controlspec.maxval}
+  r = { self.controlspec.minval, self.controlspec.maxval }
   return r
 end
 
@@ -131,8 +131,8 @@ function Control:string()
   if self.formatter then
     return self.formatter(self)
   else
-  local a = util.round(self:get(), 0.01)
-    return a.." "..self.controlspec.units
+    local a = util.round(self:get(), 0.01)
+    return a .. " " .. self.controlspec.units
   end
 end
 

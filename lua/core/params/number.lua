@@ -42,10 +42,10 @@ function Number:set(v, silent)
       v = v + self.range
     end
   end
-  local c = util.clamp(v,self.min,self.max)
+  local c = util.clamp(v, self.min, self.max)
   if self.value ~= c then
     self.value = c
-    if silent==false then self:bang() end
+    if silent == false then self:bang() end
   end
   if norns.pmap.data[self.id] ~= nil then
     local midi_prm = norns.pmap.data[self.id]
@@ -81,6 +81,5 @@ function Number:get_range()
   local r = { self.min, self.max }
   return r
 end
-
 
 return Number

@@ -25,11 +25,11 @@ function ExponentialWarp.unmap(spec, value)
 end
 
 local function ampdb(amp)
-  return math.log10(amp) * 20.0
+  return math.log(amp, 10) * 20.0
 end
 
 local function dbamp(db)
-  return math.pow(10.0, db*0.05)
+  return 10.0 ^ (db * 0.05)
 end
 
 local DbFaderWarp = {}
@@ -41,7 +41,7 @@ function DbFaderWarp.map(spec, value)
   if range >= 0 then
     return ampdb(value * value * range + dbamp(minval))
   else
-    return ampdb((1 - (1-value) * (1-value)) * range + dbamp(minval))
+    return ampdb((1 - (1 - value) * (1 - value)) * range + dbamp(minval))
   end
 end
 
@@ -160,7 +160,7 @@ end
 
 --- print out the configuration of this ControlSpec
 function ControlSpec:print()
-  for k,v in pairs(self) do
+  for k, v in pairs(self) do
     print("ControlSpec:")
     print('>> ', k, v)
   end
@@ -186,11 +186,11 @@ ControlSpec.PHASE = ControlSpec.new(0, math.pi, 'lin', 0, 0, "")
 --- converts to an exponential RQ range
 ControlSpec.RQ = ControlSpec.new(0.001, 2, 'exp', 0, 0.707, "")
 --- converts to a MIDI range (default 64)
-ControlSpec.MIDI = ControlSpec.new(0, 127, 'lin', 1, 64, "", 1/127)
+ControlSpec.MIDI = ControlSpec.new(0, 127, 'lin', 1, 64, "", 1 / 127)
 --- converts to a range for MIDI notes (default 60)
-ControlSpec.MIDINOTE = ControlSpec.new(0, 127, 'lin', 1, 60, "", 1/127)
+ControlSpec.MIDINOTE = ControlSpec.new(0, 127, 'lin', 1, 60, "", 1 / 127)
 --- converts to a range for MIDI velocity (default 64)
-ControlSpec.MIDIVELOCITY = ControlSpec.new(1, 127, 'lin', 1, 64, "", 1/126)
+ControlSpec.MIDIVELOCITY = ControlSpec.new(1, 127, 'lin', 1, 64, "", 1 / 126)
 --- converts to a dB range
 ControlSpec.DB = ControlSpec.new(-math.huge, 0, 'db', nil, nil, "dB")
 --- converts to a linear amplitude range (0-1)

@@ -31,7 +31,7 @@ function UI.Pages.new(index, num_pages)
     index = index or 1,
     num_pages = num_pages or 3
   }
-  setmetatable(UI.Pages, {__index = UI})
+  setmetatable(UI.Pages, { __index = UI })
   setmetatable(pages, UI.Pages)
   return pages
 end
@@ -61,14 +61,16 @@ function UI.Pages:redraw()
   local dot_gap = util.round(util.linlin(1, 4, 1, 2, dot_height))
   local dots_y = util.round((64 - self.num_pages * dot_height - (self.num_pages - 1) * dot_gap) * 0.5)
   for i = 1, self.num_pages do
-    if i == self.index then screen.level(5)
-    else screen.level(1) end
+    if i == self.index then
+      screen.level(5)
+    else
+      screen.level(1)
+    end
     screen.rect(127, dots_y, 1, dot_height)
     screen.fill()
     dots_y = dots_y + dot_height + dot_gap
   end
 end
-
 
 -------- Tabs --------
 
@@ -87,7 +89,7 @@ function UI.Tabs.new(index, titles)
     index = index or 1,
     titles = titles or {}
   }
-  setmetatable(UI.Tabs, {__index = UI})
+  setmetatable(UI.Tabs, { __index = UI })
   setmetatable(tabs, UI.Tabs)
   return tabs
 end
@@ -118,14 +120,16 @@ function UI.Tabs:redraw()
   local GUTTER = 14
   local col_width = (128 - (MARGIN * 2) - GUTTER * (#self.titles - 1)) / #self.titles
   for i = 1, #self.titles do
-    if i == self.index then screen.level(15)
-    else screen.level(3) end
+    if i == self.index then
+      screen.level(15)
+    else
+      screen.level(3)
+    end
     screen.move(MARGIN + col_width * 0.5 + ((col_width + GUTTER) * (i - 1)), 6)
     screen.text_center(self.titles[i])
   end
   screen.fill()
 end
-
 
 -------- List --------
 
@@ -149,7 +153,7 @@ function UI.List.new(x, y, index, entries)
     text_align = "left",
     active = true
   }
-  setmetatable(UI.List, {__index = UI})
+  setmetatable(UI.List, { __index = UI })
   setmetatable(list, UI.List)
   return list
 end
@@ -183,8 +187,11 @@ end
 -- Call when changed.
 function UI.List:redraw()
   for i = 1, #self.entries do
-    if self.active and i == self.index then screen.level(15)
-    else screen.level(3) end
+    if self.active and i == self.index then
+      screen.level(15)
+    else
+      screen.level(3)
+    end
     screen.move(self.x, self.y + 5 + (i - 1) * 11)
     local entry = self.entries[i] or ""
     if self.text_align == "center" then
@@ -197,7 +204,6 @@ function UI.List:redraw()
   end
   screen.fill()
 end
-
 
 -------- ScrollingList --------
 
@@ -223,7 +229,7 @@ function UI.ScrollingList.new(x, y, index, entries)
     text_align = "left",
     active = true
   }
-  setmetatable(UI.ScrollingList, {__index = UI})
+  setmetatable(UI.ScrollingList, { __index = UI })
   setmetatable(list, UI.ScrollingList)
   return list
 end
@@ -256,14 +262,17 @@ end
 --- Redraw ScrollingList.
 -- Call when changed.
 function UI.ScrollingList:redraw()
-  
   local num_entries = #self.entries
   local scroll_offset = self.index - 1 - math.max(self.index - (num_entries - 2), 0)
-  scroll_offset = scroll_offset - util.linlin(num_entries - self.num_above_selected, num_entries, self.num_above_selected, 0, self.index - 1) -- For end of list
-  
+  scroll_offset = scroll_offset -
+  util.linlin(num_entries - self.num_above_selected, num_entries, self.num_above_selected, 0, self.index - 1)                                 -- For end of list
+
   for i = 1, self.num_visible do
-    if self.active and self.index == i + scroll_offset then screen.level(15)
-    else screen.level(3) end
+    if self.active and self.index == i + scroll_offset then
+      screen.level(15)
+    else
+      screen.level(3)
+    end
     screen.move(self.x, self.y + 5 + (i - 1) * 11)
     local entry = self.entries[i + scroll_offset] or ""
     if self.text_align == "center" then
@@ -276,7 +285,6 @@ function UI.ScrollingList:redraw()
   end
   screen.fill()
 end
-
 
 -------- Message --------
 
@@ -293,7 +301,7 @@ function UI.Message.new(text_array)
     text = text_array or {},
     active = true
   }
-  setmetatable(UI.Message, {__index = UI})
+  setmetatable(UI.Message, { __index = UI })
   setmetatable(message, UI.Message)
   return message
 end
@@ -310,15 +318,17 @@ function UI.Message:redraw()
   local LINE_HEIGHT = 11
   local y = util.round(34 - LINE_HEIGHT * (#self.text - 1) * 0.5)
   for i = 1, #self.text do
-    if self.active then screen.level(15)
-    else screen.level(3) end
+    if self.active then
+      screen.level(15)
+    else
+      screen.level(3)
+    end
     screen.move(64, y)
     screen.text_center(self.text[i])
     y = y + 11
   end
   screen.fill()
 end
-
 
 -------- Slider --------
 
@@ -351,10 +361,10 @@ function UI.Slider.new(x, y, width, height, value, min_value, max_value, markers
     active = true,
     direction = direction or "up"
   }
-  local acceptableDirections = {"up","down","left","right"}
-  
+  local acceptableDirections = { "up", "down", "left", "right" }
+
   if (acceptableDirections[direction] == nil) then direction = acceptableDirections[1] end
-  setmetatable(UI.Slider, {__index = UI})
+  setmetatable(UI.Slider, { __index = UI })
   setmetatable(slider, UI.Slider)
   return slider
 end
@@ -388,53 +398,56 @@ end
 -- Call when changed.
 function UI.Slider:redraw()
   screen.level(3)
-  
-  --draws the perimeter 
+
+  --draws the perimeter
   if (self.direction == "up" or self.direction == "down") then
-    screen.rect(self.x + 0.5, self.y + 0.5, self.width - 1, self.height - 1) 
+    screen.rect(self.x + 0.5, self.y + 0.5, self.width - 1, self.height - 1)
   elseif (self.direction == "left" or self.direction == "right") then
     screen.rect(self.x + 0.5, self.y + 0.5, self.width - 1, self.height - 1)
-  end 
-    
+  end
+
   screen.stroke()
-  
+
   --draws the markers
   for _, v in pairs(self.markers) do
     if self.direction == "up" then
-      screen.rect(self.x - 2, util.round(self.y + util.linlin(self.min_value, self.max_value, self.height - 1, 0, v)), self.width + 4, 1) --original
+      screen.rect(self.x - 2, util.round(self.y + util.linlin(self.min_value, self.max_value, self.height - 1, 0, v)),
+        self.width + 4, 1)                                                                                                                --original
     elseif self.direction == "down" then
-      screen.rect(self.x - 2, util.round(self.y + util.linlin(self.min_value, self.max_value, 0,self.height - 1, v)), self.width + 4, 1)
+      screen.rect(self.x - 2, util.round(self.y + util.linlin(self.min_value, self.max_value, 0, self.height - 1, v)),
+        self.width + 4, 1)
     elseif self.direction == "left" then
-      screen.rect(util.round(self.x + util.linlin(self.min_value, self.max_value, self.width - 1, 0, v)), self.y - 2, 1, self.height +4)
+      screen.rect(util.round(self.x + util.linlin(self.min_value, self.max_value, self.width - 1, 0, v)), self.y - 2, 1,
+        self.height + 4)
     elseif self.direction == "right" then
-      screen.rect(util.round(self.x + util.linlin(self.min_value, self.max_value, 0, self.width - 1, v)), self.y - 2, 1, self.height +4)
+      screen.rect(util.round(self.x + util.linlin(self.min_value, self.max_value, 0, self.width - 1, v)), self.y - 2, 1,
+        self.height + 4)
     end
   end
   screen.fill()
-  
+
   --draws the value
   --local filled_height = util.round(util.linlin(self.min_value, self.max_value, 0, self.height, self.value))
   --screen.rect(self.x, self.y + self.height - filled_height, self.width, filled_height)
-  
+
   local filled_amount --sometimes width now
   if self.direction == "up" then
-      filled_amount = util.round(util.linlin(self.min_value, self.max_value, 0, self.height, self.value))
-      screen.rect(self.x, self.y + self.height - filled_amount, self.width, filled_amount)
-    elseif self.direction == "down" then
-      filled_amount = util.round(util.linlin(self.min_value, self.max_value, 0, self.height, self.value)) --same as up
-      screen.rect(self.x, self.y, self.width, filled_amount)
-    elseif self.direction == "left" then
-      filled_amount = util.round(util.linlin(self.min_value, self.max_value, 0, self.width, self.value))
-      screen.rect(self.x + self.width - filled_amount, self.y, filled_amount, self.height)
-    elseif self.direction == "right" then
-      filled_amount = util.round(util.linlin(self.min_value, self.max_value, 0, self.width, self.value))
-      screen.rect(self.x, self.y, filled_amount, self.height)
+    filled_amount = util.round(util.linlin(self.min_value, self.max_value, 0, self.height, self.value))
+    screen.rect(self.x, self.y + self.height - filled_amount, self.width, filled_amount)
+  elseif self.direction == "down" then
+    filled_amount = util.round(util.linlin(self.min_value, self.max_value, 0, self.height, self.value))   --same as up
+    screen.rect(self.x, self.y, self.width, filled_amount)
+  elseif self.direction == "left" then
+    filled_amount = util.round(util.linlin(self.min_value, self.max_value, 0, self.width, self.value))
+    screen.rect(self.x + self.width - filled_amount, self.y, filled_amount, self.height)
+  elseif self.direction == "right" then
+    filled_amount = util.round(util.linlin(self.min_value, self.max_value, 0, self.width, self.value))
+    screen.rect(self.x, self.y, filled_amount, self.height)
   end
-    
+
   if self.active then screen.level(15) else screen.level(5) end
   screen.fill()
 end
-
 
 -------- Dial --------
 
@@ -476,7 +489,7 @@ function UI.Dial.new(x, y, size, value, min_value, max_value, rounding, start_va
     _markers = {},
     _marker_points = {}
   }
-  setmetatable(UI.Dial, {__index = UI})
+  setmetatable(UI.Dial, { __index = UI })
   setmetatable(dial, UI.Dial)
   for k, v in pairs(markers_table) do
     dial:set_marker_position(k, v)
@@ -501,10 +514,10 @@ end
 -- @tparam number position Marker position number.
 function UI.Dial:set_marker_position(id, position)
   self._markers[id] = util.clamp(position, self.min_value, self.max_value)
-  
+
   local radius = self.size * 0.5
   local marker_length = 3
-  
+
   local marker_in = radius - marker_length
   local marker_out = radius + marker_length
   local marker_angle = util.linlin(self.min_value, self.max_value, self._start_angle, self._end_angle, self._markers[id])
@@ -527,32 +540,33 @@ end
 -- Call when changed.
 function UI.Dial:redraw()
   local radius = self.size * 0.5
-  
-  local fill_start_angle = util.linlin(self.min_value, self.max_value, self._start_angle, self._end_angle, self.start_value)
+
+  local fill_start_angle = util.linlin(self.min_value, self.max_value, self._start_angle, self._end_angle,
+    self.start_value)
   local fill_end_angle = util.linlin(self.min_value, self.max_value, self._start_angle, self._end_angle, self.value)
-  
+
   if fill_end_angle < fill_start_angle then
     local temp_angle = fill_start_angle
     fill_start_angle = fill_end_angle
     fill_end_angle = temp_angle
   end
-  
+
   screen.level(5)
   screen.arc(self.x + radius, self.y + radius, radius - 0.5, self._start_angle, self._end_angle)
   screen.stroke()
-  
+
   for _, v in pairs(self._marker_points) do
     screen.move(v.x1, v.y1)
     screen.line(v.x2, v.y2)
     screen.stroke()
   end
-  
+
   screen.level(15)
   screen.line_width(2.5)
   screen.arc(self.x + radius, self.y + radius, radius - 0.5, fill_start_angle, fill_end_angle)
   screen.stroke()
   screen.line_width(1)
-  
+
   local title
   if self.title then
     title = self.title
@@ -567,7 +581,6 @@ function UI.Dial:redraw()
   screen.text_center(title)
   screen.fill()
 end
-
 
 -------- PlaybackIcon --------
 
@@ -590,7 +603,7 @@ function UI.PlaybackIcon.new(x, y, size, status)
     status = status or 1,
     active = true
   }
-  setmetatable(UI.PlaybackIcon, {__index = UI})
+  setmetatable(UI.PlaybackIcon, { __index = UI })
   setmetatable(playback_icon, UI.PlaybackIcon)
   return playback_icon
 end
@@ -610,30 +623,32 @@ end
 --- Redraw PlaybackIcon.
 -- Call when changed.
 function UI.PlaybackIcon:redraw()
-  if self.active then screen.level(15)
-  else screen.level(3) end
+  if self.active then
+    screen.level(15)
+  else
+    screen.level(3)
+  end
   -- Play
   if self.status == 1 then
     screen.move(self.x, self.y)
     screen.line(self.x + self.size, self.y + self.size * 0.5)
     screen.line(self.x, self.y + self.size)
     screen.close()
-  -- Reverse Play
+    -- Reverse Play
   elseif self.status == 2 then
     screen.move(self.x + self.size, self.y)
     screen.line(self.x, self.y + self.size * 0.5)
     screen.line(self.x + self.size, self.y + self.size)
     screen.close()
-  -- Pause
+    -- Pause
   elseif self.status == 3 then
     screen.rect(self.x, self.y, util.round(self.size * 0.4), self.size)
     screen.rect(self.x + util.round(self.size * 0.6), self.y, util.round(self.size * 0.4), self.size)
-  -- Stop
+    -- Stop
   else
     screen.rect(self.x, self.y, self.size, self.size)
   end
   screen.fill()
 end
-
 
 return UI

@@ -2,23 +2,23 @@
 -- @module hid
 -- @alias Hid
 
-local vport = require 'vport'
-local hid_events = require 'hid_events'
+local vport            = require 'vport'
+local hid_events       = require 'hid_events'
 local hid_device_class = require 'hid_device_class'
-local tab  = require 'tabutil'
+local tab              = require 'tabutil'
 
-local gamepad  = require 'gamepad'
+local gamepad          = require 'gamepad'
 
-local Hid = {}
-Hid.__index = Hid
+local Hid              = {}
+Hid.__index            = Hid
 
-Hid.types = hid_events.types
-Hid.codes = hid_events.codes
+Hid.types              = hid_events.types
+Hid.codes              = hid_events.codes
 
-Hid.devices = {}
-Hid.vports = {}
+Hid.devices            = {}
+Hid.vports             = {}
 
-for i=1,4 do
+for i = 1, 4 do
   Hid.vports[i] = {
     name = "none",
     device = nil,
@@ -38,9 +38,9 @@ function Hid.new(id, name, types, codes, dev, guid)
 
   device.id = id
   device.name = vport.get_unique_device_name(name, Hid.devices)
-  device.dev = dev -- opaque pointer
-  device.guid = guid -- SDL format GUID
-  device.event = nil -- event callback
+  device.dev = dev    -- opaque pointer
+  device.guid = guid  -- SDL format GUID
+  device.event = nil  -- event callback
   device.remove = nil -- device unplug callback
   device.port = nil
 
@@ -48,13 +48,13 @@ function Hid.new(id, name, types, codes, dev, guid)
   device.types = {}
   device.codes = {}
   -- types table shall be a simple array with default indexing
-  for k,v in pairs(types) do
+  for k, v in pairs(types) do
     device.types[k] = v
   end
   -- codes table shall be an associate array indexed by type
-  for k,v in pairs(codes) do
+  for k, v in pairs(codes) do
     device.codes[types[k]] = {}
-    for kk,vv in pairs(v) do
+    for kk, vv in pairs(v) do
       device.codes[types[k]][kk] = vv
     end
   end
@@ -65,11 +65,11 @@ function Hid.new(id, name, types, codes, dev, guid)
 
   -- autofill next postiion
   local connected = {}
-  for i=1,4 do
+  for i = 1, 4 do
     table.insert(connected, Hid.vports[i].name)
   end
   if not tab.contains(connected, device.name) then
-    for i=1,4 do
+    for i = 1, 4 do
       if Hid.vports[i].name == "none" then
         Hid.vports[i].name = device.name
         break
@@ -108,7 +108,7 @@ end
 -- clear handlers
 -- @static
 function Hid.cleanup()
-  for i=1,4 do
+  for i = 1, 4 do
     Hid.vports[i].event = nil
   end
 
@@ -133,7 +133,7 @@ function Hid.update_devices()
   end
 
   -- connect available devices to vports
-  for i=1,4 do
+  for i = 1, 4 do
     Hid.vports[i].device = nil
 
     for _, device in pairs(Hid.devices) do
@@ -188,7 +188,7 @@ _norns.hid.event = function(id, type, code, value)
       gamepad.process(device.guid, type, code, value)
     end
   else
-    error('no entry for hid '..id)
+    error('no entry for hid ' .. id)
   end
 end
 

@@ -4,7 +4,7 @@ local MakeNote = sky.Device:extend()
 
 function MakeNote:new(props)
   MakeNote.super.new(self, props)
-  self.duration = props.duration or 1/16
+  self.duration = props.duration or 1 / 16
   self._scheduler = nil
   self._active = DefaultTable.new(0)
 end

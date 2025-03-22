@@ -20,8 +20,8 @@ OSC.__index = OSC
 -- @tparam string args : osc message args
 -- @tparam table from : a {host, port} table with the source address
 function OSC.event(path, args, from)
---   print("incoming osc message from:”, from[1], from[2], path)
---   tab.print(args)
+  --   print("incoming osc message from:”, from[1], from[2], path)
+  --   tab.print(args)
 end
 
 --- static method to send osc event.
@@ -90,7 +90,7 @@ end
 
 
 local function remote_handler(path, args)
-  local cmd = string.sub(path, 1,11)
+  local cmd = string.sub(path, 1, 11)
   local n, val
   if #args > 1 then
     n, val = args[1], args[2]
@@ -98,28 +98,25 @@ local function remote_handler(path, args)
     n = tonumber(string.sub(path, 13))
     val = args[1]
   end
-  if cmd=="/remote/key" then
+  if cmd == "/remote/key" then
     _norns.key(n, val)
-  elseif cmd=="/remote/enc" then
+  elseif cmd == "/remote/enc" then
     _norns.enc(n, val)
-  elseif cmd=="/remote/brd" then 
-    keyboard.process(1,n,val)
+  elseif cmd == "/remote/brd" then
+    keyboard.process(1, n, val)
   end
 end
-				    
+
 
 -- handle an osc event.
 _norns.osc.event = function(path, args, from)
-
   if OSC.event ~= nil then OSC.event(path, args, from) end
-  
+
   if util.string_starts(path, "/param") then
     param_handler(path, args)
   elseif util.string_starts(path, "/remote") then
     remote_handler(path, args)
   end
-
-
 end
 
 return OSC

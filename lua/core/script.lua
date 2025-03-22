@@ -15,7 +15,7 @@ Script.clear = function()
     local ok, err
     ok, err = pcall(cleanup)
     if not ok then
-      print("### cleanup failed with error: "..err)
+      print("### cleanup failed with error: " .. err)
     end
   end
 
@@ -34,13 +34,13 @@ Script.clear = function()
   end
 
   -- script local state
-  local state = { }
+  local state = {}
 
   setmetatable(_G, {
-    __index = function (_,k)
+    __index = function(_, k)
       return state[k]
     end,
-    __newindex = function(_,k,v)
+    __newindex = function(_, k, v)
       state[k] = v
     end,
   })
@@ -59,8 +59,8 @@ Script.clear = function()
   enc = norns.none
 
   -- reset encoders
-  norns.enc.accel(0,true)
-  norns.enc.sens(0,2)
+  norns.enc.accel(0, true)
+  norns.enc.sens(0, 2)
 
   -- clear, redirect, and reset devices
   grid.cleanup()
@@ -113,7 +113,7 @@ Script.clear = function()
   -- re-enable crow clock if needed
   if params:string("clock_source") == "crow" then
     crow.input[1].change = function() end
-    crow.input[1].mode("change",2,0.1,"rising")
+    crow.input[1].mode("change", 2, 0.1, "rising")
   end
 
   -- reset PLAY mode screen settings
@@ -151,20 +151,20 @@ Script.load = function(filename)
     name = norns.state.name
     path = norns.state.path
   else
-    filename = string.sub(filename,1,1) == "/" and filename or _path["dust"]..filename
+    filename = string.sub(filename, 1, 1) == "/" and filename or _path["dust"] .. filename
     path, scriptname = filename:match("^(.*)/([^.]*).*$")
     name = string.sub(path, string.len(_path["code"]) + 1)
     -- append scriptname to the name if it doesn't match directory name in case multiple scripts reside in the same directory
     -- ex: we/study/study1, we/study/study2, ...
-    if string.sub(name, -#scriptname) ~= scriptname then
+    if string.sub(name, - #scriptname) ~= scriptname then
       name_parts = tab.split(name, "/")
       table.insert(name_parts, scriptname)
       name = table.concat(name_parts, "/")
     end
   end
 
-  local f=io.open(filename,"r")
-  if f==nil then
+  local f = io.open(filename, "r")
+  if f == nil then
     print("# script load failed, file not found: " .. filename)
   else
     io.close(f)
@@ -175,7 +175,7 @@ Script.load = function(filename)
 
     norns.state.script = filename
     norns.state.name = name
-    norns.state.shortname = norns.state.name:match( "([^/]+)$" )
+    norns.state.shortname = norns.state.name:match("([^/]+)$")
     norns.state.path = path .. '/'
     norns.state.lib = path .. '/lib/'
     norns.state.data = _path.data .. name .. '/'
@@ -184,33 +184,33 @@ Script.load = function(filename)
     if util.file_exists(norns.state.data) == false then
       print("### initializing data folder")
       util.make_dir(norns.state.data)
-      if util.file_exists(norns.state.path.."/data") then
-        os.execute("cp "..norns.state.path.."/data/*.pset "..norns.state.data)
+      if util.file_exists(norns.state.path .. "/data") then
+        os.execute("cp " .. norns.state.path .. "/data/*.pset " .. norns.state.data)
         print("### copied default psets")
       end
     end
 
-    local file = norns.state.data.."pset-last.txt"
+    local file = norns.state.data .. "pset-last.txt"
     if util.file_exists(file) then
-      local f = io.open(file,"r")
+      local f = io.open(file, "r")
       io.input(f)
       local i = io.read("*line")
       io.close(f)
       if i then
-        print("pset last used: "..i)
+        print("pset last used: " .. i)
         norns.state.pset_last = tonumber(i)
       end
     end
 
     local status = norns.try(function() dofile(filename) end, "load fail") -- do the new script
     if status == true then
-      norns.state.save() -- remember this script for next launch
-      norns.script.nointerface = redraw == norns.blank -- check if redraw is present
-      norns.script.redraw = redraw -- store redraw function for context switching
-      norns.script.refresh = refresh -- store refresh function for context switching
-      redraw = norns.none -- block redraw until Script.init
-      refresh = norns.none -- block refresh until Script.init
-      Script.run() -- load engine then run script-specified init function
+      norns.state.save()                                                   -- remember this script for next launch
+      norns.script.nointerface = redraw == norns.blank                     -- check if redraw is present
+      norns.script.redraw = redraw                                         -- store redraw function for context switching
+      norns.script.refresh = refresh                                       -- store refresh function for context switching
+      redraw = norns.none                                                  -- block redraw until Script.init
+      refresh = norns.none                                                 -- block refresh until Script.init
+      Script.run()                                                         -- load engine then run script-specified init function
     else
       Script.clear()
     end
@@ -242,15 +242,15 @@ end
 -- @treturn table meta table with metadata
 Script.metadata = function(filename)
   local meta = {}
-  local f=io.open(filename,"r")
-  if f==nil then
-    print("file not found: "..filename)
+  local f = io.open(filename, "r")
+  if f == nil then
+    print("file not found: " .. filename)
   else
     io.close(f)
     for line in io.lines(filename) do
-      if util.string_starts(line,"--") then
-        local skip_hyphens = string.sub(line,4,-1)
-        local fix_newlines = string.gsub(skip_hyphens,"\r$","")
+      if util.string_starts(line, "--") then
+        local skip_hyphens = string.sub(line, 4, -1)
+        local fix_newlines = string.gsub(skip_hyphens, "\r$", "")
         table.insert(meta, fix_newlines)
       else
         if #meta == 0 then

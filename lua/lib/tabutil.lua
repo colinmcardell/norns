@@ -11,7 +11,7 @@ local tab = {}
 --- print the contents of a table
 -- @tparam table t table to print
 tab.print = function(t)
-  for k,v in pairs(t) do print(k .. '\t' .. tostring(v)) end
+  for k, v in pairs(t) do print(k .. '\t' .. tostring(v)) end
 end
 
 --- return a lexigraphically sorted array of keys for a table
@@ -38,7 +38,7 @@ end
 -- @tparam table t table to check
 -- @param e element to look for
 -- @treturn boolean t/f is element is present
-tab.contains = function(t,e)
+tab.contains = function(t, e)
   for index, value in ipairs(t) do
     if value == e then return true end
   end
@@ -46,13 +46,13 @@ tab.contains = function(t,e)
 end
 
 
---- given a simple table of primitives, 
+--- given a simple table of primitives,
 --- "invert" it so that values become keys and vice versa.
 --- this allows more efficient checks on multiple values
 -- @param t a simple table
 tab.invert = function(t)
   local inv = {}
-  for k,v in pairs(t) do
+  for k, v in pairs(t) do
     inv[v] = k
   end
   return inv
@@ -63,7 +63,7 @@ end
 -- @tparam table t table to check
 -- @param e element to look for
 -- @return key, nil if not found
-tab.key = function(t,e)
+tab.key = function(t, e)
   for index, value in ipairs(t) do
     if value == e then return index end
   end
@@ -88,14 +88,14 @@ end
 -- @tparam string inputstr : string to split
 -- @tparam string sep : delimiter
 tab.split = function(inputstr, sep)
-	if sep == nil then
-		sep = "%s"
-	end
-	local t={}
-	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-		table.insert(t, str)
-	end
-	return t
+  if sep == nil then
+    sep = "%s"
+  end
+  local t = {}
+  for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+    table.insert(t, str)
+  end
+  return t
 end
 
 
@@ -114,11 +114,11 @@ function tab.save(tbl, filename)
 
   -- initiate variables for save procedure
   local tables, lookup = { tbl }, { [tbl] = 1 }
-  file:write("return {"..charE)
+  file:write("return {" .. charE)
 
   for idx, t in ipairs(tables) do
-    file:write("-- Table: {"..idx.."}"..charE)
-    file:write("{"..charE)
+    file:write("-- Table: {" .. idx .. "}" .. charE)
+    file:write("{" .. charE)
     local thandled = {}
 
     for i, v in ipairs(t) do
@@ -130,35 +130,34 @@ function tab.save(tbl, filename)
           table.insert(tables, v)
           lookup[v] = #tables
         end
-        file:write(charS.."{"..lookup[v].."},"..charE)
+        file:write(charS .. "{" .. lookup[v] .. "}," .. charE)
       elseif stype == "string" then
-        file:write(charS..string.format("%q", v)..","..charE)
+        file:write(charS .. string.format("%q", v) .. "," .. charE)
       elseif stype == "number" then
-        file:write(charS..tostring(v)..","..charE)
+        file:write(charS .. tostring(v) .. "," .. charE)
       elseif stype == "boolean" then
-        file:write(charS..tostring(v)..","..charE)
+        file:write(charS .. tostring(v) .. "," .. charE)
       end
     end
 
     for i, v in pairs(t) do
       -- escape handled values
       if (not thandled[i]) then
-
         local str = ""
         local stype = type(i)
         -- handle index
         if stype == "table" then
           if not lookup[i] then
-             table.insert(tables, i)
-             lookup[i] = #tables
+            table.insert(tables, i)
+            lookup[i] = #tables
           end
-          str = charS.."[{"..lookup[i].."}]="
+          str = charS .. "[{" .. lookup[i] .. "}]="
         elseif stype == "string" then
-          str = charS.."["..string.format("%q", i).."]="
+          str = charS .. "[" .. string.format("%q", i) .. "]="
         elseif stype == "number" then
-          str = charS.."["..tostring(i).."]="
+          str = charS .. "[" .. tostring(i) .. "]="
         elseif stype == "boolean" then
-          str = charS.."["..tostring(i).."]="
+          str = charS .. "[" .. tostring(i) .. "]="
         end
 
         if str ~= "" then
@@ -169,18 +168,18 @@ function tab.save(tbl, filename)
               table.insert(tables, v)
               lookup[v] = #tables
             end
-            file:write(str.."{"..lookup[v].."},"..charE)
+            file:write(str .. "{" .. lookup[v] .. "}," .. charE)
           elseif stype == "string" then
-            file:write(str..string.format("%q", v)..","..charE)
+            file:write(str .. string.format("%q", v) .. "," .. charE)
           elseif stype == "number" then
-            file:write(str..tostring(v)..","..charE)
+            file:write(str .. tostring(v) .. "," .. charE)
           elseif stype == "boolean" then
-            file:write(str..tostring(v)..","..charE)
+            file:write(str .. tostring(v) .. "," .. charE)
           end
         end
       end
     end
-    file:write("},"..charE)
+    file:write("}," .. charE)
   end
   file:write("}")
   file:close()
@@ -190,7 +189,7 @@ end
 -- @tparam string sfile Filename or stringtable to load.
 -- @return On success, returns a previously saved table. On failure, returns as second argument an error msg.
 function tab.load(sfile)
-  local ftables,err = loadfile(sfile)
+  local ftables, err = loadfile(sfile)
   if err then return _, err end
   local tables = ftables()
   for idx = 1, #tables do
@@ -205,7 +204,7 @@ function tab.load(sfile)
     end
     -- link indices
     for _, v in ipairs(tolinki) do
-      tables[idx][v[2]], tables[idx][v[1]] =  tables[idx][v[1]], nil
+      tables[idx][v[2]], tables[idx][v[1]] = tables[idx][v[1]], nil
     end
   end
   return tables[1]
@@ -225,23 +224,22 @@ function tab.readonly(params)
       end
       return nil
     end,
-    __newindex = function (_,k,v)
+    __newindex = function(_, k, v)
       if (tab.contains(exceptions, k)) then
         t[k] = v
       else
-        error("'"..k.."', a read-only key, cannot be re-assigned.")
+        error("'" .. k .. "', a read-only key, cannot be re-assigned.")
       end
     end,
-    __pairs = function (_) return pairs(proxy) end,
-    __ipairs = function (_) return ipairs(proxy) end,
+    __pairs = function(_) return pairs(proxy) end,
+    __ipairs = function(_) return ipairs(proxy) end,
   }
   setmetatable(proxy, mt)
   return proxy
 end
 
-
 --- return new table, gathering values:
---- - first from default_values, 
+--- - first from default_values,
 --- - then from (i.e. overridden by) custom_values
 --- nils in custom_values are ignored
 -- @tparam table default_values base values (provides keys & fallback values)
@@ -249,7 +247,7 @@ end
 -- @treturn table composite table
 function tab.gather(default_values, custom_values)
   local result = {}
-  for k,v in pairs(default_values) do 
+  for k, v in pairs(default_values) do
     result[k] = (custom_values[k] ~= nil) and custom_values[k] or v
   end
   return result
@@ -262,7 +260,7 @@ end
 -- @tparam table updated_values override values (take precedence)
 -- @treturn table composite table
 function tab.update(table_to_mutate, updated_values)
-  for k,v in pairs(updated_values) do 
+  for k, v in pairs(updated_values) do
     if updated_values[k] ~= nil then
       table_to_mutate[k] = updated_values[k]
     end
@@ -277,8 +275,8 @@ end
 tab.select_values = function(tbl, condition)
   local t = {}
 
-  for k,v in pairs(tbl) do
-    if condition(v,k) then t[k] = v end
+  for k, v in pairs(tbl) do
+    if condition(v, k) then t[k] = v end
   end
 
   return t

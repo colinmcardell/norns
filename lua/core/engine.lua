@@ -29,8 +29,8 @@ Engine.is_loading = false
 -- @param data - an array of strings
 -- @param count - number of names
 Engine.register = function(data, count)
-  print("available engines ("..count.."): ")
-  for i=1,count do
+  print("available engines (" .. count .. "): ")
+  for i = 1, count do
     print("  " .. data[i])
   end
   Engine.names = data
@@ -43,10 +43,10 @@ end
 -- @param count - number of commands
 Engine.register_commands = function(data, count)
   local name, fmt
-  print('Engine.register_commands; count: '..count)
--- Engine.numCommands = count;
+  print('Engine.register_commands; count: ' .. count)
+  -- Engine.numCommands = count;
   Engine.commands = {}
-  for i=1,count do
+  for i = 1, count do
     name = data[i][1]
     fmt = data[i][2]
     Engine.add_command(i, name, fmt)
@@ -59,9 +59,9 @@ end
 -- @param fmt - OSC format string (e.g. 'isf' for "int string float")
 Engine.add_command = function(id, name, fmt)
   local func = function(...)
-    local arg={...}
-    if select("#",...) ~= #fmt then
-   print("warning: wrong count of arguments for command '"..name.."'")
+    local arg = { ... }
+    if select("#", ...) ~= #fmt then
+      print("warning: wrong count of arguments for command '" .. name .. "'")
     end
     _norns.send_command(id, table.unpack(arg))
   end
@@ -77,8 +77,8 @@ end
 Engine.list_commands = function()
   print("___ engine commands ___")
   local sorted = tab.sort(Engine.commands)
-  for i,n in ipairs(sorted) do
-    print(Engine.commands[n].name,' ',Engine.commands[n].fmt)
+  for i, n in ipairs(sorted) do
+    print(Engine.commands[n].name, ' ', Engine.commands[n].fmt)
   end
 end
 
@@ -91,9 +91,9 @@ Engine.load = function(name, callback)
     return false
   else
     if type(callback) == 'function' then
-      _norns.report.did_engine_load = function()	    
+      _norns.report.did_engine_load = function()
         Engine.is_loading = false
-        local status = norns.try(callback,"init")
+        local status = norns.try(callback, "init")
         norns.init_done(status)
       end
     else
@@ -103,13 +103,13 @@ Engine.load = function(name, callback)
       end
     end
 
-    if #Engine.names==0 or tab.contains(Engine.names, name)==true then
+    if #Engine.names == 0 or tab.contains(Engine.names, name) == true then
       Engine.name = name
       Engine.is_loading = true
       _norns.load_engine(name)
       return true
     else
-      norns.scripterror("missing "..name)
+      norns.scripterror("missing " .. name)
       return false
     end
   end

@@ -116,7 +116,7 @@ function Held:process(event, output)
     if self.debug then
       print("HELD >>")
       for i, e in ipairs(held) do
-	      print(i, sky.to_string(e))
+        print(i, sky.to_string(e))
       end
       print("<<")
     end
@@ -124,7 +124,6 @@ function Held:process(event, output)
     output(self.mk_event(held))
   end
 end
-
 
 --
 -- Pattern class
@@ -202,7 +201,6 @@ end
 function Pattern.builder.random(notes)
 end
 
-
 --
 -- Arp class
 --
@@ -274,9 +272,9 @@ function Arp:process(event, output, state)
       n = n + 1
       if n > self._length then
         if self._next_pattern then self:switch_pattern() end
-	      self._step = 1
+        self._step = 1
       else
-	      self._step = n
+        self._step = n
       end
     end
   end

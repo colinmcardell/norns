@@ -12,7 +12,7 @@ BeatClock.__index = BeatClock
 function BeatClock.new(name)
   local i = {}
   setmetatable(i, BeatClock)
-  
+
   i.name = name or ""
   i.playing = false
   i.ticks_per_step = 6
@@ -24,7 +24,7 @@ function BeatClock.new(name)
   i.external = false
   i.send = false
   i.midi = false
-  
+
   i.metro = metro.init()
   i.metro.count = -1
   i.metro.event = function() i:tick() end
@@ -35,7 +35,7 @@ function BeatClock.new(name)
   i.on_stop = function(e) end
   i.on_select_internal = function(e) print("BeatClock using internal clock") end
   i.on_select_external = function(e) print("BeatClock using external clock") end
-  
+
   i:enable_midi()
 
   return i
@@ -51,7 +51,7 @@ function BeatClock:start(dev_id)
   if self.midi and self.send then
     for id, device in pairs(midi.devices) do
       if id ~= dev_id then
-        device:send({251})
+        device:send({ 251 })
       end
     end
   end
@@ -65,7 +65,7 @@ function BeatClock:stop(dev_id)
   if self.midi and self.send then
     for id, device in pairs(midi.devices) do
       if id ~= dev_id then
-        device:send({252})
+        device:send({ 252 })
       end
     end
   end
@@ -87,11 +87,11 @@ function BeatClock:tick(dev_id)
   if self.playing and self.current_ticks == 0 then
     self:advance_step()
   end
-  
+
   if self.midi and self.send then
     for id, device in pairs(midi.devices) do
       if id ~= dev_id then
-        device:send({248})
+        device:send({ 248 })
       end
     end
   end
@@ -105,9 +105,9 @@ function BeatClock:reset(dev_id)
   if self.midi and self.send then
     for id, device in pairs(midi.devices) do
       if id ~= dev_id then
-        device:send({250})
+        device:send({ 250 })
         if not self.playing then -- force reseting while stopped requires a start/stop (??)
-          device:send({252})
+          device:send({ 252 })
         end
       end
     end
@@ -133,12 +133,12 @@ end
 --- bpm change
 function BeatClock:bpm_change(bpm)
   self.bpm = bpm
-  self.metro.time = 60/(self.ticks_per_step * self.steps_per_beat * self.bpm)
+  self.metro.time = 60 / (self.ticks_per_step * self.steps_per_beat * self.bpm)
 end
 
 --- add clock params
 function BeatClock:add_clock_params()
-  params:add_option("clock", "clock", {"internal", "external"}, self.external or 2 and 1)
+  params:add_option("clock", "clock", { "internal", "external" }, self.external or 2 and 1)
   params:set_action("clock", function(x) self:clock_source_change(x) end)
   params:add_number("bpm", "bpm", 1, 480, self.bpm)
   params:set_action("bpm", function(x) self:bpm_change(x) end)
@@ -148,7 +148,7 @@ end
 
 --- enable midi
 function BeatClock:enable_midi()
-  self.midi = true  
+  self.midi = true
 end
 
 --- process midi
@@ -157,9 +157,9 @@ function BeatClock:process_midi(data)
     local status = data[1]
     local data1 = data[2]
     local data2 = data[3]
-  
-    if self.external then 
-      if status == 248 then -- midi clock
+
+    if self.external then
+      if status == 248 then     -- midi clock
         self:tick(id)
       elseif status == 250 then -- midi clock start
         self:reset(id)
@@ -169,9 +169,8 @@ function BeatClock:process_midi(data)
       elseif status == 252 then -- midi clock stop
         self:stop(id)
       end
-    end 
+    end
   end
 end
 
-  
 return BeatClock

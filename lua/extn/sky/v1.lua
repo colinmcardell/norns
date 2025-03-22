@@ -13,4 +13,3 @@ sky.use('device/utility') -- needed by Chain
 sky.use('device/virtual')
 
 return sky
-

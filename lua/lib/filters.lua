@@ -16,15 +16,15 @@ end
 
 --- clear a filter's history
 function f:clear()
-   for i=1,self.bufsize do
-      self.buf[i]=0
+   for i = 1, self.bufsize do
+      self.buf[i] = 0
    end
 end
 
 -- debug function to print the buffer
 function f:__tostring()
    str = ''
-   for i=1,self.bufsize do
+   for i = 1, self.bufsize do
       str = str .. self.buf[i] .. ', '
    end
    return str
@@ -36,7 +36,7 @@ end
 
 local mean = {}
 mean.__index = mean
-setmetatable(mean, { __index=f })
+setmetatable(mean, { __index = f })
 
 -------------------------------------------------------------
 --- constructor
@@ -45,13 +45,13 @@ function mean.new(bufsize)
    local new = setmetatable({}, mean)
 
    new.buf = {}
-   if bufsize==nil then bufsize=16 end
+   if bufsize == nil then bufsize = 16 end
    new.bufsize = bufsize
-   new.scale = 1/bufsize
+   new.scale = 1 / bufsize
    new:clear()
 
    new.pos = 1
---   new.tail = 2
+   --   new.tail = 2
    new.sum = 0
 
    print('done allocating new mean filter')
@@ -62,7 +62,7 @@ end
 -- @param x new input
 -- @return scaled sum of stored history
 function mean:next(x)
-   local a = x*self.scale
+   local a = x * self.scale
    self.sum = self.sum + a
    self.sum = self.sum - self.buf[self.pos]
    self.buf[self.pos] = a
@@ -76,7 +76,7 @@ end
 
 local median = {}
 median.__index = median
-setmetatable(median, { __index=f })
+setmetatable(median, { __index = f })
 
 --- constructor
 --- @param bufsize window size, cannot change after creation
@@ -84,11 +84,11 @@ function median.new(bufsize)
    local new = setmetatable({}, median)
 
    new.buf = {}
-   if bufsize==nil then bufsize=17 end
+   if bufsize == nil then bufsize = 17 end
    -- only odd buffer sizes are allowed!
-   if (bufsize%2) == 0 then bufsize = bufsize + 1 end
+   if (bufsize % 2) == 0 then bufsize = bufsize + 1 end
    new.bufsize = bufsize
-   new.midpoint = (bufsize-1)/2
+   new.midpoint = (bufsize - 1) / 2
    new:clear()
 
    new.value = 0
@@ -101,25 +101,25 @@ function median:count_below()
    local count = 0
    local max = -math.huge
    local x
-   for i=1,self.bufsize do
+   for i = 1, self.bufsize do
       x = self.buf[i]
       if x < self.value then count = count + 1 end
       if x > max then max = x end
    end
    return count, max
 end
+
 function median:count_above()
    local count = 0
    local min = math.huge
    local x
-   for i=1,self.bufsize do
+   for i = 1, self.bufsize do
       x = self.buf[i]
       if x > self.value then count = count + 1 end
       if x < min then min = x end
    end
    return count, min
 end
-
 
 --- process a new input value and update the average
 -- @param x new input
@@ -132,13 +132,13 @@ function median:next(x)
    if x > self.value and x0 <= self.value then
       local count, min = self:count_above()
       if count > self.midpoint then
-	 self.value = min
+         self.value = min
       end
    end
    if x < self.value and x0 >= self.value then
       local count, max = self:count_below()
       if count > self.midpoint then
-	 self.value = max
+         self.value = max
       end
    end
    return self.value
@@ -150,7 +150,7 @@ end
 
 local smoother = {}
 smoother.__index = smoother
-setmetatable(smoother, {__index=f})
+setmetatable(smoother, { __index = f })
 
 --------
 -- constructor
@@ -169,7 +169,6 @@ function smoother.new(time, sr)
    new.pos = 1 -- NB: not really used
    return new
 end
-
 
 function smoother:calc_coeff()
    self.a = 1 - math.exp(-6.9 / (self.t * self.sr))
@@ -195,10 +194,13 @@ smoother.EPSILON = 1e-8
 -- @param x new input (optional)
 -- @return smoothed output
 function smoother:next(x)
-   if x == nil then x = self.x
-   else self.x = x end
+   if x == nil then
+      x = self.x
+   else
+      self.x = x
+   end
 
-   local d =  x - self.buf[1]
+   local d = x - self.buf[1]
 
    if math.abs(d) < smoother.EPSILON then
       self.buf[1] = x

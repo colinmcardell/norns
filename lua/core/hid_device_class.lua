@@ -17,7 +17,7 @@ HidDeviceClass.is_ascii_keyboard = function(device)
     local key_codes_inv = tab.invert(device.codes[type_key])
     -- hacky magic numbers;
     -- codes for ascii key events happen to be in this range:
-    for i=1,58 do
+    for i = 1, 58 do
         if key_codes_inv[i] == nil then
             return false
         end
@@ -55,16 +55,16 @@ HidDeviceClass.is_mouse = function(device)
 end
 
 HidDeviceClass.is_gamepad = function(device)
-  -- NB: we could test for support for REL_ABS & REL_KEY
-  -- BUT each controller brand likes to reinvent the keycode they send
-  -- (+ other )
-  -- hence it's safer to have a whitelist of models
-  -- + a wizard script for people to register new ones
-  return (device.guid ~= nil and gamepad_models[device.guid] ~= nil)
+    -- NB: we could test for support for REL_ABS & REL_KEY
+    -- BUT each controller brand likes to reinvent the keycode they send
+    -- (+ other )
+    -- hence it's safer to have a whitelist of models
+    -- + a wizard script for people to register new ones
+    return (device.guid ~= nil and gamepad_models[device.guid] ~= nil)
 end
 
 HidDeviceClass.is_tablet = function(device)
-  -- TODO
+    -- TODO
 end
 
 -- ... other TODO?

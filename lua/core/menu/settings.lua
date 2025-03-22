@@ -1,31 +1,31 @@
-local textentry= require 'textentry'
+local textentry = require 'textentry'
 
 local m = {
   pos = 1,
-  list = {"RESET", "PASSWORD >", "DISPLAY >", "BATTERY WARNING"},
-  pages = {"RESET", "PASSWORD", "DISPLAY"}
+  list = { "RESET", "PASSWORD >", "DISPLAY >", "BATTERY WARNING" },
+  pages = { "RESET", "PASSWORD", "DISPLAY" }
 }
 
-m.key = function(n,z)
-  if n==2 and z==1 then
+m.key = function(n, z)
+  if n == 2 and z == 1 then
     _menu.set_page("SYSTEM")
-  elseif n==3 and z==1 then
-    if m.pages[m.pos]=="RESET" then
+  elseif n == 3 and z == 1 then
+    if m.pages[m.pos] == "RESET" then
       _menu.set_page("RESET")
-    elseif m.pages[m.pos]=="PASSWORD" then
+    elseif m.pages[m.pos] == "PASSWORD" then
       textentry.enter(m.passdone, "", "new password:", m.passcheck)
-    elseif m.pages[m.pos]=="DISPLAY" then
+    elseif m.pages[m.pos] == "DISPLAY" then
       _menu.set_page("DISPLAY")
     end
   end
 end
 
-m.enc = function(n,delta)
-  if n==2 then
+m.enc = function(n, delta)
+  if n == 2 then
     m.pos = util.clamp(m.pos + delta, 1, #m.list)
     _menu.redraw()
-  elseif n==3 and m.list[m.pos]=="BATTERY WARNING" then
-    norns.state.battery_warning = (delta>0) and 1 or 0
+  elseif n == 3 and m.list[m.pos] == "BATTERY WARNING" then
+    norns.state.battery_warning = (delta > 0) and 1 or 0
     screen.update = screen.update_default
     _menu.redraw()
   end
@@ -33,19 +33,19 @@ end
 
 m.redraw = function()
   screen.clear()
-  for i=1,6 do
+  for i = 1, 6 do
     if (i > 3 - m.pos) and (i < #m.list - m.pos + 4) then
-      screen.move(0,10*i)
-      local line = m.list[i+m.pos-3]
-      if(i==3) then
+      screen.move(0, 10 * i)
+      local line = m.list[i + m.pos - 3]
+      if (i == 3) then
         screen.level(15)
       else
         screen.level(4)
       end
       screen.text(line)
-      if m.list[i+m.pos-3]=="BATTERY WARNING" then
-	screen.move(128,10*i)
-	screen.text_right(norns.state.battery_warning==1 and "on" or "off")
+      if m.list[i + m.pos - 3] == "BATTERY WARNING" then
+        screen.move(128, 10 * i)
+        screen.text_right(norns.state.battery_warning == 1 and "on" or "off")
       end
     end
   end
@@ -58,7 +58,7 @@ m.deinit = norns.none
 m.passcheck = function(txt)
   if txt ~= nil then
     if string.len(txt) < 8 then
-      return ("remaining: "..8 - string.len(txt))
+      return ("remaining: " .. 8 - string.len(txt))
     elseif string.len(txt) > 63 then
       return ("too long")
     end
@@ -68,8 +68,8 @@ end
 m.passdone = function(txt)
   if txt ~= nil then
     if string.len(txt) >= 8 and string.len(txt) < 64 then
-      local chpasswd_status = os.execute("echo 'we:"..txt.."' | sudo chpasswd")
-      local smbpasswd_status = os.execute("printf '"..txt.."\n"..txt.."\n' | sudo smbpasswd -a we")
+      local chpasswd_status = os.execute("echo 'we:" .. txt .. "' | sudo chpasswd")
+      local smbpasswd_status = os.execute("printf '" .. txt .. "\n" .. txt .. "\n' | sudo smbpasswd -a we")
       local hotspotpasswd_status;
       local fd = io.open("home/we/norns/.system.hotspot_password", "w+")
       if fd then

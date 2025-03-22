@@ -27,14 +27,14 @@ end
 function test_new_and_value()
   T.assertNil(Observable.new():value())
   T.assertEquals(Observable.new(3):value(), 3)
-  local foo = {"one", "two"}
+  local foo = { "one", "two" }
   T.assertEquals(Observable.new(foo):value(), foo)
 end
 
 function test_call()
   T.assertNil(Observable.new()())
   T.assertEquals(Observable.new(3)(), 3)
-  local bar = {"bar", "baz"}
+  local bar = { "bar", "baz" }
   T.assertEquals(Observable.new(bar)(), bar)
 end
 
@@ -79,7 +79,7 @@ function test_registration_with_callback()
     count = count + 1
     value = v
   end
-  local observer = "foo"  -- any value key
+  local observer = "foo" -- any value key
 
   local o = Observable.new()
   o:register(observer, handler)
@@ -96,7 +96,7 @@ function test_unregister()
     count = count + 1
     value = v
   end
-  local observer = "bar"  -- any value key
+  local observer = "bar" -- any value key
   local w = Watcher.new()
 
   local o = Observable.new()

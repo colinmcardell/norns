@@ -47,10 +47,10 @@ end
 
 --- low battery screen update
 Screen.update_low_battery = function()
-  _norns.screen_rect(32,34,64,16)
+  _norns.screen_rect(32, 34, 64, 16)
   _norns.screen_level(0)
   _norns.screen_fill()
-  _norns.screen_move(64,45)
+  _norns.screen_move(64, 45)
   _norns.screen_level(15)
   _norns.screen_text_center("LOW BATTERY")
   _norns.screen_update()
@@ -104,7 +104,7 @@ Screen.move_rel = function(x, y) _norns.screen_move_rel(x, y) end
 --- draw line to specified point.
 -- @tparam number x destination x
 -- @tparam number y destination y
-Screen.line = function(x,y) _norns.screen_line(x,y) end
+Screen.line = function(x, y) _norns.screen_line(x, y) end
 
 --- draw line to specified point relative to current position.
 -- @tparam number x relative destination x
@@ -176,7 +176,7 @@ Screen.text = function(str) _norns.screen_text(str) end
 -- (characters are removed from end of string until it fits.)
 -- uses currently selected font.
 -- @tparam string str text to write
--- @tparam number w width 
+-- @tparam number w width
 Screen.text_trim = function(str, w) _norns.screen_text_trim(str, w) end
 
 --- draw text (left aligned) and rotated.
@@ -207,7 +207,7 @@ Screen.text_center_rotate = function(x, y, str, degrees) _norns.screen_text_cent
 
 --- calculate width of text given current font and draw state.
 -- @tparam string str : text to calculate width of
-Screen.text_extents = function(str) 
+Screen.text_extents = function(str)
   return _norns.screen_text_extents(str)
 end
 
@@ -291,75 +291,75 @@ Screen.current_point = function() return _norns.screen_current_point() end
 Screen.font_face = function(index) _norns.screen_font_face(index) end
 Screen.font_face_count = 68
 Screen.font_face_names = {
-   "norns",
-   "liquid",
-   "Roboto-Thin",
-   "Roboto-Light",
-   "Roboto-Regular",
-   "Roboto-Medium",
-   "Roboto-Bold",
-   "Roboto-Black",
-   "Roboto-ThinItalic",
-   "Roboto-LightItalic",
-   "Roboto-Italic",
-   "Roboto-MediumItalic",
-   "Roboto-BoldItalic",
-   "Roboto-BlackItalic",
-   "VeraBd",
-   "VeraBI",
-   "VeraIt",
-   "VeraMoBd",
-   "VeraMoBI",
-   "VeraMoIt",
-   "VeraMono",
-   "VeraSeBd",
-   "VeraSe",
-   "Vera",
-   "bmp/tom-thumb",
-   "bmp/creep",
-   "bmp/ctrld-fixed-10b",
-   "bmp/ctrld-fixed-10r",
-   "bmp/ctrld-fixed-13b",
-   "bmp/ctrld-fixed-13b-i",
-   "bmp/ctrld-fixed-13r",
-   "bmp/ctrld-fixed-13r-i",
-   "bmp/ctrld-fixed-16b",
-   "bmp/ctrld-fixed-16b-i",
-   "bmp/ctrld-fixed-16r",
-   "bmp/ctrld-fixed-16r-i",
-   "bmp/scientifica-11",
-   "bmp/scientificaBold-11",
-   "bmp/scientificaItalic-11",
-   "bmp/ter-u12b",
-   "bmp/ter-u12n",
-   "bmp/ter-u14b",
-   "bmp/ter-u14n",
-   "bmp/ter-u14v",
-   "bmp/ter-u16b",
-   "bmp/ter-u16n",
-   "bmp/ter-u16v",
-   "bmp/ter-u18b",
-   "bmp/ter-u18n",
-   "bmp/ter-u20b",
-   "bmp/ter-u20n",
-   "bmp/ter-u22b",
-   "bmp/ter-u22n",
-   "bmp/ter-u24b",
-   "bmp/ter-u24n",
-   "bmp/ter-u28b",
-   "bmp/ter-u28n",
-   "bmp/ter-u32b",
-   "bmp/ter-u32n",
-   "bmp/unscii-16-full",
-   "bmp/unscii-16",
-   "bmp/unscii-8-alt",
-   "bmp/unscii-8-fantasy",
-   "bmp/unscii-8-mcr",
-   "bmp/unscii-8",
-   "bmp/unscii-8-tall",
-   "bmp/unscii-8-thin",
-   "Particle",
-   "04B_03__",
+  "norns",
+  "liquid",
+  "Roboto-Thin",
+  "Roboto-Light",
+  "Roboto-Regular",
+  "Roboto-Medium",
+  "Roboto-Bold",
+  "Roboto-Black",
+  "Roboto-ThinItalic",
+  "Roboto-LightItalic",
+  "Roboto-Italic",
+  "Roboto-MediumItalic",
+  "Roboto-BoldItalic",
+  "Roboto-BlackItalic",
+  "VeraBd",
+  "VeraBI",
+  "VeraIt",
+  "VeraMoBd",
+  "VeraMoBI",
+  "VeraMoIt",
+  "VeraMono",
+  "VeraSeBd",
+  "VeraSe",
+  "Vera",
+  "bmp/tom-thumb",
+  "bmp/creep",
+  "bmp/ctrld-fixed-10b",
+  "bmp/ctrld-fixed-10r",
+  "bmp/ctrld-fixed-13b",
+  "bmp/ctrld-fixed-13b-i",
+  "bmp/ctrld-fixed-13r",
+  "bmp/ctrld-fixed-13r-i",
+  "bmp/ctrld-fixed-16b",
+  "bmp/ctrld-fixed-16b-i",
+  "bmp/ctrld-fixed-16r",
+  "bmp/ctrld-fixed-16r-i",
+  "bmp/scientifica-11",
+  "bmp/scientificaBold-11",
+  "bmp/scientificaItalic-11",
+  "bmp/ter-u12b",
+  "bmp/ter-u12n",
+  "bmp/ter-u14b",
+  "bmp/ter-u14n",
+  "bmp/ter-u14v",
+  "bmp/ter-u16b",
+  "bmp/ter-u16n",
+  "bmp/ter-u16v",
+  "bmp/ter-u18b",
+  "bmp/ter-u18n",
+  "bmp/ter-u20b",
+  "bmp/ter-u20n",
+  "bmp/ter-u22b",
+  "bmp/ter-u22n",
+  "bmp/ter-u24b",
+  "bmp/ter-u24n",
+  "bmp/ter-u28b",
+  "bmp/ter-u28n",
+  "bmp/ter-u32b",
+  "bmp/ter-u32n",
+  "bmp/unscii-16-full",
+  "bmp/unscii-16",
+  "bmp/unscii-8-alt",
+  "bmp/unscii-8-fantasy",
+  "bmp/unscii-8-mcr",
+  "bmp/unscii-8",
+  "bmp/unscii-8-tall",
+  "bmp/unscii-8-thin",
+  "Particle",
+  "04B_03__",
 }
 
 --- set font size.
@@ -391,12 +391,12 @@ _norns.screen_text_center_rotate = function(x, y, str, degrees)
 end
 
 _norns.screen_circle = function(x, y, r)
-  _norns.screen_arc(x, y, r, 0, math.pi*2)
+  _norns.screen_arc(x, y, r, 0, math.pi * 2)
 end
 
 --- export screenshot
 -- @param filename saved to dust/data/(script)/(filename).png
-Screen.export_screenshot = function(filename) _norns.screen_export_screenshot(norns.state.data..filename..'.png') end
+Screen.export_screenshot = function(filename) _norns.screen_export_screenshot(norns.state.data .. filename .. '.png') end
 
 --- display png
 -- @param filename
@@ -555,7 +555,8 @@ Screen.blend_mode = function(index)
     if i ~= nil then
       _norns.screen_set_operator(i)
     else
-      print(index..' is not a valid blending mode, use tab.print(screen.BLEND_MODES) to see available modes and their indexes.')
+      print(index ..
+        ' is not a valid blending mode, use tab.print(screen.BLEND_MODES) to see available modes and their indexes.')
     end
   elseif type(index) == "number" then
     _norns.screen_set_operator(index)

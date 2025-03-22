@@ -22,12 +22,15 @@ function Group.new(id, name, n)
 end
 
 function Group:get()
-  return self.n 
+  return self.n
 end
 
 function Group:set(v) end
+
 function Group:delta(d) end
+
 function Group:set_default() end
+
 function Group:bang() end
 
 function Group:string()

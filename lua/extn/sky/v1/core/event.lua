@@ -36,7 +36,10 @@ local type_names = invert(types)
 
 local function mk_note_on(note, vel, ch, duration, correlation)
   return {
-    type = types.NOTE_ON, ch = ch or 1, note = note, vel = vel,
+    type = types.NOTE_ON,
+    ch = ch or 1,
+    note = note,
+    vel = vel,
     duration = duration,
     correlation = correlation or 0
   }
@@ -44,7 +47,10 @@ end
 
 local function mk_note_off(note, vel, ch, correlation)
   return {
-    type = types.NOTE_OFF, ch = ch or 1, note = note, vel = vel,
+    type = types.NOTE_OFF,
+    ch = ch or 1,
+    note = note,
+    vel = vel,
     correlation = correlation
   }
 end
@@ -102,7 +108,7 @@ local function mk_trigger(which)
 end
 
 local function mk_gate(which, state)
-  return { type = types.GATE, which = which or 1, state = state or 1}
+  return { type = types.GATE, which = which or 1, state = state or 1 }
 end
 
 --
@@ -113,7 +119,7 @@ end
 -- @param num : integer midi note number
 local function to_hz(num)
   local exp = (num - 21) / 12
-  return 27.5 * 2^exp
+  return 27.5 * 2 ^ exp
 end
 
 
@@ -166,7 +172,7 @@ local function to_string(event)
     e = "event " .. tn
   end
 
-  for k,v in pairs(event) do
+  for k, v in pairs(event) do
     if k ~= "type" then
       e = e .. ', ' .. k .. ' ' .. tostring(v)
     end
@@ -178,7 +184,7 @@ end
 -- @param event : then event object to clone
 local function copy(event)
   local new = {}
-  for k,v in pairs(event) do
+  for k, v in pairs(event) do
     new[k] = v
   end
   return new
@@ -229,14 +235,14 @@ end
 local function is_transport(event)
   local t = event.type
   return ((t == types.START)
-      or (t == types.STOP)
-      or (t == types.CONTINUE))
+    or (t == types.STOP)
+    or (t == types.CONTINUE))
 end
 
 local function matcher(props)
   return function(event)
     local matches = true
-    for k,v in pairs(props) do
+    for k, v in pairs(props) do
       matches = event[k] == v
       if not matches then
         return matches

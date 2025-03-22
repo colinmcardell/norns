@@ -4,24 +4,24 @@ local contrast = 127
 local gamma = 1.0
 
 map[0] = {
-  position = {x=0, y=56},
+  position = { x = 0, y = 56 },
   name = "BRIGHTNESS",
   get = function(_) return brightness end,
   set = function(d) brightness = util.clamp(0, brightness + d, 15) end,
   is_default = function(_) return brightness == 15 end,
 }
 map[1] = {
-  position = {x=54, y=56},
+  position = { x = 54, y = 56 },
   name = "CONTRAST",
   get = function(_) return contrast end,
   set = function(d) contrast = util.clamp(0, contrast + d, 255) end,
   is_default = function(_) return contrast == 127 end,
 }
 map[2] = {
-  position = {x=98, y=56},
+  position = { x = 98, y = 56 },
   name = "GAMMA",
   get = function(_) return string.format("%.2f", gamma) end,
-  set = function(d) gamma = util.clamp(1.0, gamma + (d * 0.01),  30.0) end,
+  set = function(d) gamma = util.clamp(1.0, gamma + (d * 0.01), 30.0) end,
   is_default = function(_) return gamma > 0.999 and gamma < 1.001 end,
 }
 
@@ -39,10 +39,10 @@ local save_settings = function()
   local file, err = io.open(_path.display_settings, "w")
   if err then return err end
   local s = ""
-  s = s.."brightness="..brightness..","
-  s = s.."contrast="..contrast..","
-  s = s.."gamma="..gamma..","
-  file:write("return {"..s.."}")
+  s = s .. "brightness=" .. brightness .. ","
+  s = s .. "contrast=" .. contrast .. ","
+  s = s .. "gamma=" .. gamma .. ","
+  file:write("return {" .. s .. "}")
   file:close()
 end
 
@@ -56,17 +56,17 @@ local m = {
   len = tab.count(map),
 }
 
-m.key = function(n,z)
-  if n==2 and z==1 then
+m.key = function(n, z)
+  if n == 2 and z == 1 then
     _menu.set_page("SYSTEM")
   end
 end
 
-m.enc = function(n,delta)
-  if n==2 then
+m.enc = function(n, delta)
+  if n == 2 then
     m.pos = util.clamp(0, m.pos + delta, m.len - 1)
     _menu.redraw()
-  elseif n==3 then
+  elseif n == 3 then
     map[m.pos].set(delta)
     _norns.screen_brightness(brightness)
     _norns.screen_contrast(contrast)
@@ -81,16 +81,16 @@ m.redraw = function()
 
   -- callibration bar visualization.
   local bar_height = 38
-  for i=0,15 do
+  for i = 0, 15 do
     screen.level(i)
-    screen.rect(i*8, 0, 8, bar_height)
+    screen.rect(i * 8, 0, 8, bar_height)
     screen.fill()
     screen.level(15)
-    screen.move(i*8 + 4, bar_height + 7)
+    screen.move(i * 8 + 4, bar_height + 7)
     screen.text_center(i)
   end
 
-  for i=0, (m.len - 1) do
+  for i = 0, (m.len - 1) do
     local setting = map[i]
     screen.level(i == m.pos and 15 or 4)
     screen.move(setting.position.x, setting.position.y)

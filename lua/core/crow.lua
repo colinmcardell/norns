@@ -26,7 +26,7 @@ end
 local ebuffer = ""
 _norns.crow.event = function(id, line)
   local function evalcrow(line)
-    line, reps = (ebuffer..line):gsub("%^%^", "norns.crow.events.")
+    line, reps = (ebuffer .. line):gsub("%^%^", "norns.crow.events.")
     ebuffer = "" -- ebuffer has been processed, so reset it
     if reps > 0 then
       assert(load(line))()
@@ -36,12 +36,12 @@ _norns.crow.event = function(id, line)
   end
 
   local n, m = line:find "%c+"
-  if not n then -- no control chars found
-    ebuffer = ebuffer .. line -- line incomplete so add it to the buffer
+  if not n then                -- no control chars found
+    ebuffer = ebuffer .. line  -- line incomplete so add it to the buffer
   else
-    evalcrow(line:sub(1, n-1)) -- process complete segment
-    if m < #line then -- recur with post-whitespace remainder
-      _norns.crow.event(id, line:sub(m+1, -1))
+    evalcrow(line:sub(1, n - 1)) -- process complete segment
+    if m < #line then          -- recur with post-whitespace remainder
+      _norns.crow.event(id, line:sub(m + 1, -1))
     end
   end
 end
@@ -62,7 +62,7 @@ norns.crow.send = function(cmd)
 end
 
 function norns.crow.connected()
-    return norns.crow.dev ~= nil
+  return norns.crow.dev ~= nil
 end
 
 function norns.crow.findscript(file)
@@ -81,7 +81,7 @@ end
 function norns.crow.loadscript(file, is_persistent, cont)
   local abspath = norns.crow.findscript(file)
   if not abspath then
-    print("crow.loadscript: can't find file "..file)
+    print("crow.loadscript: can't find file " .. file)
     return
   end
 
@@ -97,25 +97,27 @@ function norns.crow.loadscript(file, is_persistent, cont)
     norns.crow.send(is_persistent and "^^w" or "^^e")
     if cont then
       clock.sleep(is_persistent and 0.5 or 0.2) -- ensure flash is complete
-      cont() -- call continuation function
+      cont()                                    -- call continuation function
     end
   end
 
-  print("crow loading: ".. file)
+  print("crow loading: " .. file)
   return clock.run(upload, abspath, is_persistent, cont)
 end
-
 
 -- event handling
 function norns.crow.register_event(fn)
   local n = tab.count(norns.crow.events) + 1
   local c = ""
-  if     n <= 26 then c = utf8.char(n + 64) -- uppercase alphas
-  elseif n <= 52 then c = utf8.char(n + 70) -- lowercase alphas
-  else print("ERROR: can't register event. out of indices. only 52 handlers allowed.")
+  if n <= 26 then
+    c = utf8.char(n + 64)                   -- uppercase alphas
+  elseif n <= 52 then
+    c = utf8.char(n + 70)                   -- lowercase alphas
+  else
+    print("ERROR: can't register event. out of indices. only 52 handlers allowed.")
   end
   norns.crow.events[c] = fn -- store the function in the event table
-  return c -- return the key reference for linking to crow event
+  return c                  -- return the key reference for linking to crow event
 end
 
 function norns.crow.reset_events()
@@ -128,15 +130,14 @@ function norns.crow.reset_events()
     pupdate  = norns.crow.public.update,
     pubview  = norns.crow.public.view,
     change   = function() end, -- ignore clock event
-  },{
+  }, {
     __index = function(self, ix)
-      return function(...) print("unused event: ^^"..ix.."(".. quote(...) ..")") end
+      return function(...) print("unused event: ^^" .. ix .. "(" .. quote(...) .. ")") end
     end,
   })
 end
 
-
--- reset state 
+-- reset state
 function norns.crow.init()
   -- clear crow's VM allowing for full customization by norns script
   crow.reset()
@@ -150,17 +151,16 @@ function norns.crow.init()
     print(">>>>>> norns.crow.add / " .. id .. " / " .. name)
   end
   norns.crow.remove = function(id) print(">>>>>> norns.crow.remove " .. id) end
-  norns.crow.receive = function(...) print("crow:",...) end
+  norns.crow.receive = function(...) print("crow:", ...) end
 
   -- reset user callbacks
   norns.crow.public.reset()
 end
 
-
 --- helper functions for common crow actions from norns
 norns.crow.clock_enable = function()
   -- directly set the change event on crow so it conforms to old-style event names
-  norns.crow.send[[
+  norns.crow.send [[
     input[1].change = function()
       tell('change',1,1)
     end
@@ -178,12 +178,18 @@ crow = {}
 crow.public = norns.crow.public.io
 
 -- fns with custom syntax
-function crow.version()  crow "^^v" end
+function crow.version() crow "^^v" end
+
 function crow.identity() crow "^^i" end
-function crow.reset()    crow "crow.reset()" end
-function crow.kill()     crow "^^k" end
-function crow.clear()    crow "^^c" end
-function crow.send(...)  crow(...) end -- alias for legacy scripts
+
+function crow.reset() crow "crow.reset()" end
+
+function crow.kill() crow "^^k" end
+
+function crow.clear() crow "^^c" end
+
+function crow.send(...) crow(...) end  -- alias for legacy scripts
+
 -- crow.connected -> norns.crow.connected
 -- crow.add       -> norns.crow.add
 -- crow.remove    -> norns.crow.remove
@@ -196,37 +202,37 @@ function crow.send(...)  crow(...) end -- alias for legacy scripts
 -- does *not* support directly querying values or function responses from crow
 -- when setting crow namespace fns they create stubs on crow that forward to the norns events
 local crowSub = {
-    __index = function(self, ix)
-        -- build up the table access key chain
-        self.str = self.str .. quote.key(ix)
-        return self
-    end,
+  __index = function(self, ix)
+    -- build up the table access key chain
+    self.str = self.str .. quote.key(ix)
+    return self
+  end,
 
-    __newindex = function(self, ix, val)
-        -- set a table value on crow
-        sval = ""
-        if type(val) == 'function' then
-            -- assigning a function to a crow variable, causes crow to forward that fn call to norns
-            local n = norns.crow.register_event(val) -- register the event & get a dynamic key
-            sval = 'function(...)_c.tell('..quote(n)..',quote(...))end'
-        else
-            sval = quote(val)
-        end
-        norns.crow.send(self.str .. quote.key(ix) .. '=' .. sval)
-    end,
+  __newindex = function(self, ix, val)
+    -- set a table value on crow
+    sval = ""
+    if type(val) == 'function' then
+      -- assigning a function to a crow variable, causes crow to forward that fn call to norns
+      local n = norns.crow.register_event(val)       -- register the event & get a dynamic key
+      sval = 'function(...)_c.tell(' .. quote(n) .. ',quote(...))end'
+    else
+      sval = quote(val)
+    end
+    norns.crow.send(self.str .. quote.key(ix) .. '=' .. sval)
+  end,
 
-    __call = function(self, ...)
-        local nargs = select("#", ...)
-        local qt = nargs > 0 and quote(...) or ''
-        norns.crow.send(self.str .. '(' .. qt .. ')')
-    end,
+  __call = function(self, ...)
+    local nargs = select("#", ...)
+    local qt = nargs > 0 and quote(...) or ''
+    norns.crow.send(self.str .. '(' .. qt .. ')')
+  end,
 }
 
 -- set global var on crow
 crow.__newindex = function(self, ix, val) norns.crow.send(ix .. '=' .. quote(val)) end
 
 -- create a table that will resolve to a crow.send call in crowSub
-crow.__index = function(self, ix) return setmetatable({str=ix}, crowSub) end
+crow.__index = function(self, ix) return setmetatable({ str = ix }, crowSub) end
 
 -- call crow with a literal string to execute that string on crow:
 -- crow "output[1].volts = 3"
