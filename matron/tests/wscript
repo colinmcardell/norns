@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+
+top = "../.."
+
+
+def configure(ctx):
+    pass
+
+
+def build(bld):
+    # Unity runner for our tests
+    bld.program(
+        features="c cprogram",
+        source=[
+            "test_runner.c",
+            "test_event_system.c",
+            "test_hal.c",
+            # Add more test files here as they are created
+        ],
+        target="matron_tests",
+        includes=[
+            "../src",
+            "../src/hardware",
+            "../../third-party/unity/src",
+        ],
+        use=[
+            "LIBUNITY",
+        ],
+        lib=[
+            "pthread",
+            "m",
+        ],
+        cflags=[
+            "-O0",
+            "-g",
+            "-Wall",
+            "-std=c11",
+            "-DUNITY_INCLUDE_CONFIG_H",
+        ],
+        defines=[
+            "TESTING",  # Define TESTING to enable test-specific code paths
+        ],
+    )
