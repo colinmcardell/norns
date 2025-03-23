@@ -1,0 +1,34 @@
+{
+    "name": "Norns Development",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "DEBIAN_FRONTEND": "noninteractive"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                "ms-vscode.makefile-tools",
+                "yzhang.markdown-all-in-one",
+                "golang.go"
+            ]
+        }
+    },
+    "remoteUser": "vscode",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": true,
+            "username": "vscode",
+            "upgradePackages": true
+        },
+        "ghcr.io/devcontainers/features/git:1": {}
+    },
+    // Remove the vscode volume from mounts array to avoid duplicating it
+    "mounts": [],
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+    "workspaceFolder": "/workspace"
+}
