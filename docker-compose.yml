@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  norns-build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/norns
+      - build-cache:/norns/build
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    command: build-norns
+
+volumes:
+  build-cache:
