@@ -93,6 +93,12 @@ RUN apt-get update && apt-get install -y \
     vim \
     && rm -rf /var/lib/apt/lists/*
 
+# Set up Lua environment and install common testing dependencies
+RUN luarocks install busted && \
+    luarocks install luacov && \
+    luarocks install luacheck && \
+    luarocks install ldoc
+
 # Set the default user
 USER vscode
 WORKDIR /workspace
