@@ -42,3 +42,9 @@ maiden-repl/maiden-repl
 # macos finder droppings
 .DS_Store
 ._.DS_Store
+
+# Lua development
+*.lua.coverage
+luacov.*.out
+luacov.report.out
+.luacheckcache
