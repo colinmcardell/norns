@@ -24,7 +24,12 @@ RUN apt-get update && apt-get install -y \
     libavahi-client-dev \
     libavahi-compat-libdnssd-dev \
     libcairo2-dev \
+    libcairo-script-interpreter2 \
     libevdev-dev \
+    libfontconfig1-dev \
+    libfreetype-dev \
+    libfreetype6-dev \
+    libglib2.0-dev \
     libgpiod-dev \
     libicu-dev \
     libjack-jackd2-dev \
@@ -42,7 +47,11 @@ RUN apt-get update && apt-get install -y \
     sudo \
     unzip \
     wget \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/include/lua5.3 /usr/include/lua \
+    && ls -la /usr/include/lua5.3 \
+    && echo "Verifying lauxlib.h exists:" \
+    && test -f /usr/include/lua5.3/lauxlib.h && echo "lauxlib.h found"
 
 # Install Python-is-Python3 for libmonome
 RUN apt-get update && apt-get install -y python-is-python3 && rm -rf /var/lib/apt/lists/*
