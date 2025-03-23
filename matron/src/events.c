@@ -15,8 +15,8 @@
 #include "stat.h"
 #include "weaver.h"
 
-#include "event_types.h"
 #include "event_custom.h"
+#include "event_types.h"
 
 //----------------------------
 //--- types and variables
@@ -213,8 +213,8 @@ static void handle_event(union event_data *ev) {
         w_handle_power(ev->power.present);
         break;
     case EVENT_STAT:
-        w_handle_stat(ev->stat.disk, ev->stat.temp, ev->stat.cpu, ev->stat.cpu1, ev->stat.cpu2,
-            ev->stat.cpu3, ev->stat.cpu4);
+        w_handle_stat(ev->stat.disk, ev->stat.temp, ev->stat.cpu, ev->stat.cpu1, ev->stat.cpu2, ev->stat.cpu3,
+                      ev->stat.cpu4);
         break;
     case EVENT_MONOME_ADD:
         w_handle_monome_add(ev->monome_add.dev);
@@ -295,7 +295,8 @@ static void handle_event(union event_data *ev) {
         w_handle_crow_event(ev->crow_event.dev, ev->crow_event.id);
         break;
     case EVENT_SOFTCUT_RENDER:
-        w_handle_softcut_render(ev->softcut_render.idx, ev->softcut_render.sec_per_sample, ev->softcut_render.start, ev->softcut_render.size, ev->softcut_render.data);
+        w_handle_softcut_render(ev->softcut_render.idx, ev->softcut_render.sec_per_sample, ev->softcut_render.start,
+                                ev->softcut_render.size, ev->softcut_render.data);
         break;
     case EVENT_SOFTCUT_POSITION:
         w_handle_softcut_position(ev->softcut_position.idx, ev->softcut_position.pos);
@@ -326,9 +327,9 @@ void handle_engine_report(void) {
 void event_handle_pending(void) {
     union event_data *ev = NULL;
     char done = 0;
-    while(!done) {    
+    while (!done) {
         pthread_mutex_lock(&evq.lock);
-        if (evq.size > 0) {     
+        if (evq.size > 0) {
             ev = evq_pop();
         } else {
             done = 1;

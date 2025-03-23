@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +12,7 @@ struct args {
     char ext_port[ARG_BUF_SIZE];
     char remote_port[ARG_BUF_SIZE];
     char crone_port[ARG_BUF_SIZE];
-    char framebuffer[ARG_BUF_SIZE];    
+    char framebuffer[ARG_BUF_SIZE];
 };
 
 static struct args a = {
@@ -38,7 +40,7 @@ int args_parse(int argc, char **argv) {
             strncpy(a.crone_port, optarg, ARG_BUF_SIZE - 1);
             break;
         case '?':
-        case 'h':	    
+        case 'h':
         default:
             fprintf(stdout, "Start matron with optional overrides:\n");
             fprintf(stdout, "-l   override OSC local port [default %s]\n", a.loc_port);
