@@ -217,23 +217,21 @@ This section tracks the progress of implementation tasks for the build system mo
 
 ### 10.2 Migration Tasks Progress
 
-| Task ID  | Description                                         | Dependencies                 | Assigned To | Status      | Due Date | Notes                                                                         |
-| -------- | --------------------------------------------------- | ---------------------------- | ----------- | ----------- | -------- | ----------------------------------------------------------------------------- |
-| TASK-001 | Create top-level CMakeLists.txt                     | None                         |             | Completed   |          | Created initial CMakeLists.txt with component structure and build options     |
-| TASK-002 | Ensure testing framework setup functional           | TASK-001                     |             | Completed   |          | Integrated Unity test framework and created example test                      |
-| TASK-003 | Create platform-specific configurations             | TASK-001                     |             | Completed   |          | Created toolchain files and platform configurations for DESKTOP, PI3, and CM3 |
-| TASK-004 | Convert matron to CMake                             | TASK-001                     |             | Not Started |          |                                                                               |
-| TASK-005 | Convert maiden-repl component to CMake if necessary | TASK-001, TASK-003           |             | Not Started |          |                                                                               |
-| TASK-006 | Convert crone component to CMake                    | TASK-001, TASK-003           |             | Not Started |          |                                                                               |
-| TASK-007 | Make softcut an independent library                 | TASK-001                     |             | Not Started |          |                                                                               |
-| TASK-008 | Standardize SuperCollider extension integration     | TASK-006                     |             | Not Started |          |                                                                               |
-| TASK-009 | Create compatibility script                         | TASK-005, TASK-006           |             | Not Started |          |                                                                               |
-| TASK-010 | Update CI pipeline for CMake builds                 | TASK-005, TASK-006, TASK-007 |             | Not Started |          |                                                                               |
-| TASK-011 | Update build documentation                          | All tasks                    |             | Not Started |          |                                                                               |
+| Task ID  | Description                                         | Dependencies                 | Assigned To | Status      | Due Date | Notes                                                                                                              |
+| -------- | --------------------------------------------------- | ---------------------------- | ----------- | ----------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
+| TASK-001 | Create top-level CMakeLists.txt                     | None                         |             | Completed   |          | Created initial CMakeLists.txt with component structure and build options                                          |
+| TASK-002 | Ensure testing framework setup functional           | TASK-001                     |             | Completed   |          | Integrated Unity test framework and created example test                                                           |
+| TASK-003 | Create platform-specific configurations             | TASK-001                     |             | Completed   |          | Created toolchain files and platform configurations for DESKTOP, PI3, and CM3                                      |
+| TASK-004 | Convert matron to CMake                             | TASK-001                     |             | Completed   |          | Created CMake build system for matron. Implemented tests for HAL and event system with proper mock implementations |
+| TASK-005 | Convert maiden-repl component to CMake if necessary | TASK-001, TASK-003           |             | Not Started |          |                                                                                                                    |
+| TASK-006 | Convert crone component to CMake                    | TASK-001, TASK-003           |             | Not Started |          |                                                                                                                    |
+| TASK-007 | Make softcut an independent library                 | TASK-001                     |             | Not Started |          |                                                                                                                    |
+| TASK-008 | Standardize SuperCollider extension integration     | TASK-006                     |             | Not Started |          |                                                                                                                    |
+| TASK-009 | Create compatibility script                         | TASK-005, TASK-006           |             | Not Started |          |                                                                                                                    |
+| TASK-010 | Update CI pipeline for CMake builds                 | TASK-005, TASK-006, TASK-007 |             | Not Started |          |                                                                                                                    |
+| TASK-011 | Update build documentation                          | All tasks                    |             | Not Started |          |                                                                                                                    |
 
 ### 10.3 Weekly Status Updates
-
-This section will contain dated entries of progress updates:
 
 **Week of April 6, 2025**
 - Progress summary: Created the top-level CMakeLists.txt file that integrates the existing component-level build systems.
@@ -248,6 +246,13 @@ This section will contain dated entries of progress updates:
 - Tasks started: None
 - Blockers encountered: None
 - Next steps: Proceed with TASK-004 to convert matron to CMake
+
+**Week of April 7, 2025**
+- Progress summary: Successfully converted matron to CMake including comprehensive testing capabilities. Created separate test runners for HAL and event system tests. Implemented proper mocking for HAL tests. Added detailed documentation for running tests.
+- Completed tasks: TASK-004
+- Tasks started: None
+- Blockers encountered: None
+- Next steps: Proceed with TASK-005 to review/convert the maiden-repl component to CMake
 
 **Week of [Date]**
 - Progress summary:

@@ -91,9 +91,8 @@ endif()
 
 # Add components based on options
 if(BUILD_MATRON)
-    # Matron will be converted to CMake in a future task
-    message(STATUS "Matron component will be built with WAF until migration is complete")
-    # Future: add_subdirectory(matron)
+    # Matron is now built with CMake
+    add_subdirectory(matron)
 endif()
 
 if(BUILD_CRONE)

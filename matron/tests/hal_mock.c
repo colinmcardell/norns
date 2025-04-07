@@ -1,8 +1,8 @@
+#include "../src/hardware/hal.h"
 #include "test_helpers.h"
 #include <stdbool.h>
-#include <stddef.h>
 
-// Mock function state tracking variables
+// Mock state tracking variables
 bool screen_init_called = false;
 bool screen_deinit_called = false;
 bool input_init_called = false;
@@ -14,18 +14,12 @@ bool system_init_called = false;
 bool system_deinit_called = false;
 
 // Static mock implementation structures
-static hal_screen_t mock_screen = {.width = 128, // Set default width for tests
-                                   .height = 64, // Set default height for tests
-                                   .init = NULL,
-                                   .deinit = NULL,
-                                   .clear = NULL,
-                                   .refresh = NULL};
-
+static hal_screen_t mock_screen = {0};
 static hal_input_t mock_input = {0};
 static hal_audio_t mock_audio = {0};
 static hal_system_t mock_system = {0};
 
-// Mock implementations
+// Screen mock implementations
 bool mock_screen_init(void) {
     screen_init_called = true;
     return true;
@@ -43,6 +37,7 @@ void mock_screen_refresh(void) {
     // Empty implementation
 }
 
+// Input mock implementations
 bool mock_input_init(void) {
     input_init_called = true;
     return !input_init_returns_error;
@@ -56,6 +51,7 @@ void mock_input_scan(void) {
     // Empty implementation
 }
 
+// Audio mock implementations
 bool mock_audio_init(void) {
     audio_init_called = true;
     return true;
@@ -73,6 +69,7 @@ void mock_audio_stop(void) {
     // Empty implementation
 }
 
+// System mock implementations
 bool mock_system_init(void) {
     system_init_called = true;
     return true;
@@ -168,22 +165,4 @@ hal_system_t *hal_system(void) {
         mock_system.get_temperature = mock_system_get_temperature;
     }
     return &mock_system;
-}
-
-// Unity setup and teardown functions
-void setUp(void) {
-    // Reset state tracking for each test
-    screen_init_called = false;
-    screen_deinit_called = false;
-    input_init_called = false;
-    input_init_returns_error = false;
-    input_deinit_called = false;
-    audio_init_called = false;
-    audio_deinit_called = false;
-    system_init_called = false;
-    system_deinit_called = false;
-}
-
-void tearDown(void) {
-    // Common cleanup after each test
 }
