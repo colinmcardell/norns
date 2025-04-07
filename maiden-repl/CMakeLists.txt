@@ -46,4 +46,9 @@ else()
     # nope
 endif()
 
+# Apply platform-specific settings
+if(COMMAND configure_for_platform)
+    configure_for_platform(maiden-repl)
+endif()
+
 target_compile_options(maiden-repl PRIVATE -Wall -Wextra -Werror -pedantic)

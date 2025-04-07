@@ -25,6 +25,30 @@ add_executable(crone ${SRC})
 
 include_directories(./faust ./softcut/softcut-lib/include lib/readerwriterqueue)
 
+# Configure Faust include paths based on platform
+if(APPLE)
+    include_directories(/usr/local/include)
+    # Check for Homebrew first, then MacPorts for Faust
+    if(EXISTS "/opt/homebrew/include/faust")
+        include_directories(/opt/homebrew/include)
+    elseif(EXISTS "/usr/local/include/faust")
+        include_directories(/usr/local/include)
+    elseif(EXISTS "/opt/local/include/faust")
+        include_directories(/opt/local/include)
+    else()
+        message(WARNING "Faust headers not found in standard locations")
+    endif()
+elseif(UNIX)
+    # Standard locations on Linux
+    if(EXISTS "/usr/include/faust")
+        include_directories(/usr/include)
+    elseif(EXISTS "/usr/local/include/faust")
+        include_directories(/usr/local/include)
+    else()
+        message(WARNING "Faust headers not found in standard locations")
+    endif()
+endif()
+
 if(UNIX)
     if(APPLE)
         find_library(lo_lib liblo.dylib REQUIRED)
@@ -44,6 +68,16 @@ else()
     # nope
 endif()
 
+# Set audio buffer size from platform configuration
+if(DEFINED NORNS_AUDIO_BUFFER_SIZE)
+    target_compile_definitions(crone PRIVATE BUFFER_SIZE=${NORNS_AUDIO_BUFFER_SIZE})
+endif()
+
+# Apply platform-specific settings
+if(COMMAND configure_for_platform)
+    configure_for_platform(crone)
+    configure_for_platform(softcut)
+endif()
 
 set_target_properties(crone PROPERTIES
 CXX_STANDARD 14
