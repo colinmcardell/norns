@@ -25,14 +25,24 @@ set(TEST_COMMON_SOURCES
 # Basic test executable
 add_executable(test_crone ${TEST_COMMON_SOURCES} test_basic.cpp)
 target_include_directories(test_crone PRIVATE 
-    ${CMAKE_CURRENT_SOURCE_DIR}/../softcut/softcut-lib/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../lib/readerwriterqueue
     ${CMAKE_CURRENT_SOURCE_DIR}/../src
 )
 
+# Add softcut include directories
+if(TARGET softcut::softcut)
+    get_target_property(SOFTCUT_INCLUDE_DIRS softcut::softcut INTERFACE_INCLUDE_DIRECTORIES)
+    target_include_directories(test_crone PRIVATE ${SOFTCUT_INCLUDE_DIRS})
+endif()
+
 # Link with main crone executable for component testing
 if(TARGET crone)
     target_link_libraries(test_crone crone)
+else()
+    # If crone target is not available, link with softcut directly
+    if(TARGET softcut::softcut)
+        target_link_libraries(test_crone softcut::softcut)
+    endif()
 endif()
 
 # When using the top-level build system, the unity target should be available

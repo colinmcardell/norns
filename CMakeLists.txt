@@ -15,6 +15,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(BUILD_MATRON "Build matron component" ON)
 option(BUILD_CRONE "Build crone component" ON)
 option(BUILD_MAIDEN_REPL "Build maiden-repl component" ON)
+option(BUILD_SOFTCUT "Build softcut library" ON)
 option(BUILD_TESTS "Build test suites" ON)
 
 # Platform configuration
@@ -71,6 +72,11 @@ endmacro()
 
 # Global include directories for all targets
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+# Add third-party libraries
+if(BUILD_SOFTCUT)
+    add_subdirectory(third-party/softcut)
+endif()
 
 # Add the test framework when enabled
 if(BUILD_TESTS)
@@ -141,6 +147,7 @@ message(STATUS "  Components:")
 message(STATUS "    - Matron: ${BUILD_MATRON}")
 message(STATUS "    - Crone: ${BUILD_CRONE}")
 message(STATUS "    - Maiden REPL: ${BUILD_MAIDEN_REPL}")
+message(STATUS "    - Softcut: ${BUILD_SOFTCUT}")
 message(STATUS "    - Tests: ${BUILD_TESTS}")
 message(STATUS "  SuperCollider Integration:")
 message(STATUS "    - Enabled: ${USE_SUPERCOLLIDER}")

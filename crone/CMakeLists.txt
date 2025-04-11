@@ -45,8 +45,10 @@ endif()
 
 message(STATUS "Found Faust headers in: ${FAUST_INCLUDE_DIRS}")
 
-# Add softcut as independent library
-add_subdirectory(softcut)
+# Check if softcut is available
+if(NOT TARGET softcut::softcut)
+    message(FATAL_ERROR "Softcut library not found - required for crone")
+endif()
 
 # Define source files (no softcut sources)
 set(CRONE_SOURCES
@@ -107,9 +109,12 @@ endif()
 # Include directories
 target_include_directories(crone PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/softcut/softcut-lib/include
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/readerwriterqueue
 )
+
+# Add softcut include directories
+get_target_property(SOFTCUT_INCLUDE_DIRS softcut::softcut INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(crone PRIVATE ${SOFTCUT_INCLUDE_DIRS})
 
 # Add Faust includes
 target_include_directories(crone PRIVATE 
@@ -119,7 +124,7 @@ target_include_directories(crone PRIVATE
 
 # Link libraries
 target_link_libraries(crone PRIVATE
-    softcut
+    softcut::softcut
     ${JACK_LIBRARIES}
     ${LIBLO_LIBRARIES}
     ${SNDFILE_LIBRARIES}

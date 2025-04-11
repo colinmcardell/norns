@@ -1,8 +1,8 @@
 [submodule "third-party/link"]
 	path = third-party/link
 	url = https://github.com/Ableton/link.git
-[submodule "crone/softcut"]
-	path = crone/softcut
+[submodule "third-party/softcut"]
+	path = third-party/softcut
 	url = https://github.com/monome/softcut-lib.git
 [submodule "crone/lib/readerwriterqueue"]
 	path = crone/lib/readerwriterqueue
