@@ -259,9 +259,12 @@ This section tracks the progress of implementation tasks for the build system mo
 | TASK-014 | Create migration guide for users of the old system    | TASK-011, TASK-012           |             | Completed   |          | Created waf_to_cmake_migration.md with detailed instructions for transitioning from WAF to CMake                                                                                     |
 | TASK-015 | Verify all functionality works with CMake-only builds | TASK-012, TASK-013           |             | Not Started |          | Comprehensive testing of all components with CMake-only builds                                                                                                                       |
 | TASK-016 | Add tests for norns-centric softcut integration       | TASK-007                     |             | Not Started |          | Create tests for the integration between crone and softcut, focusing on norns usage                                                                                                  |
-| TASK-017 | Complete removal of all WAF files and references      | None                         |             | Not Started |          | Remove all remaining WAF files and ensure documentation is updated                                                                                                                   |
+| TASK-017 | Complete removal of all WAF files and references      | TASK-020, TASK-021, TASK-022 |             | Not Started |          | Remove all remaining WAF files and ensure documentation is updated                                                                                                                   |
 | TASK-018 | Move crone/lib/readerwriterqueue to third-party       | None                         |             | Not Started |          | Move the readerwriterqueue library from crone/lib to third-party and update all references to ensure proper CMake integration                                                        |
 | TASK-019 | Project Finalization and Verification                 | All tasks                    |             | Not Started |          | Comprehensive verification that the entire Norns project has been successfully migrated to CMake with clean, readable, and consistent scripts throughout the project, free of errors |
+| TASK-020 | Convert watcher component to CMake                    | None                         |             | Not Started |          | Create CMakeLists.txt for the watcher component and ensure it integrates properly with the main build system                                                                         |
+| TASK-021 | Convert ws-wrapper component to CMake                 | None                         |             | Not Started |          | Create CMakeLists.txt for the ws-wrapper component and ensure it integrates properly with the main build system                                                                      |
+| TASK-022 | Create CMakeLists.txt for third-party root directory  | None                         |             | Not Started |          | Create a CMakeLists.txt for the third-party root directory that properly includes all third-party libraries                                                                          |
 
 ### 10.3 Weekly Status Updates
 
@@ -315,8 +318,62 @@ This section tracks the progress of implementation tasks for the build system mo
 - Next steps: Proceed with TASK-007 to make softcut an independent library, TASK-010 to update the CI pipeline for CMake builds, and TASK-011 to update the build documentation
 
 **Week of April 11, 2025**
-- Progress summary: Created a GitHub Actions workflow for the CI pipeline that builds and tests the project on Linux, macOS, and Raspberry Pi. The workflow uses Docker for consistent build environments and leverages the build.sh script for building and testing. Added comprehensive testing for different build configurations and platforms. Added two new tasks to the project: moving the readerwriterqueue library to third-party and a comprehensive project finalization task to ensure all components are properly migrated to CMake with clean, consistent scripts.
+- Progress summary: Created a GitHub Actions workflow for the CI pipeline that builds and tests the project on Linux, macOS, and Raspberry Pi. The workflow uses Docker for consistent build environments and leverages the build.sh script for building and testing. Added comprehensive testing for different build configurations and platforms. Added two new tasks to the project: moving the readerwriterqueue library to third-party and a comprehensive project finalization task to ensure all components are properly migrated to CMake with clean, consistent scripts. Conducted an analysis of remaining WAF components and identified three components that still need to be converted to CMake: watcher, ws-wrapper, and the third-party root directory. Added three new tasks (TASK-020, TASK-021, TASK-022) to address these conversions before proceeding with the complete removal of WAF files.
 - Completed tasks: TASK-010
 - Tasks started: None
 - Blockers encountered: None
-- Next steps: Proceed with TASK-018 to move readerwriterqueue to third-party, TASK-007 to make softcut an independent library, and TASK-011 to update the build documentation
+- Next steps: Proceed with TASK-020, TASK-021, and TASK-022 to convert remaining components to CMake before completing TASK-017 (removal of all WAF files)
+
+### 10.4 WAF to CMake Conversion Status
+
+This section documents the current status of the WAF to CMake conversion process, which will be useful for completing TASK-017.
+
+#### 10.4.1 Components with CMake Support
+
+The following components have been successfully converted to CMake:
+
+| Component     | CMakeLists.txt Location                       | Status    | Notes                                                          |
+| ------------- | --------------------------------------------- | --------- | -------------------------------------------------------------- |
+| matron        | /workspace/matron/CMakeLists.txt              | Completed | Fully converted with proper test infrastructure                |
+| crone         | /workspace/crone/CMakeLists.txt               | Completed | Fully converted with Faust support and test infrastructure     |
+| maiden-repl   | /workspace/maiden-repl/CMakeLists.txt         | Completed | Fully converted with test infrastructure                       |
+| softcut       | /workspace/third-party/softcut/CMakeLists.txt | Completed | Converted as an independent library with its own build targets |
+| unity (tests) | /workspace/third-party/unity/CMakeLists.txt   | Completed | Third-party testing framework with CMake support               |
+| link          | /workspace/third-party/link/CMakeLists.txt    | Completed | Third-party library for synchronizing timing across devices    |
+| sc            | /workspace/sc/CMakeLists.txt                  | Completed | SuperCollider extensions with platform-specific installation   |
+
+#### 10.4.2 Components Requiring CMake Conversion
+
+The following components still have WAF build scripts but no corresponding CMake build files:
+
+| Component   | Current Build File             | Status      | Notes                                                                                 |
+| ----------- | ------------------------------ | ----------- | ------------------------------------------------------------------------------------- |
+| watcher     | /workspace/watcher/wscript     | Not Started | Watchdog utility that needs to be converted to CMake                                  |
+| ws-wrapper  | /workspace/ws-wrapper/wscript  | Not Started | Utility which wraps standard I/O in websockets                                        |
+| third-party | /workspace/third-party/wscript | Not Started | Root-level third-party directory needs a CMakeLists.txt to properly include libraries |
+
+#### 10.4.3 WAF Files to Remove
+
+Once all components have been converted to CMake, the following WAF-related files should be removed:
+
+1. Root level:
+   - `waf` executable
+   - `wscript`
+
+2. Component level wscript files:
+   - `crone/wscript`
+   - `maiden-repl/wscript`
+   - `matron/wscript`
+   - `third-party/wscript`
+   - `watcher/wscript`
+   - `ws-wrapper/wscript`
+
+3. WAF lock files:
+   - `.lock-waf_linux_build`
+   - `third-party/.lock-waf_linux_build`
+   - `third-party/build/.lock-waf_linux_build`
+   - `matron/.lock-waf_linux_build`
+   - `matron/build/.lock-waf_linux_build`
+
+4. Documentation updates needed:
+   - `readme-setup.md` contains references to WAF that need to be updated to reflect the CMake build system
