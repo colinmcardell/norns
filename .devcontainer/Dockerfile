@@ -89,6 +89,12 @@ RUN mkdir -p /tmp/nanomsg && \
     rm -rf /tmp/nanomsg && \
     ldconfig
 
+# Install libfaust
+RUN git clone https://github.com/grame-cncm/faust.git && \
+    cd faust && \
+    make && \
+    make install
+
 # Create non-root user
 RUN groupadd --gid 1000 vscode && \
     useradd --uid 1000 --gid 1000 -m vscode && \

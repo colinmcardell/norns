@@ -103,6 +103,11 @@ if(BUILD_MAIDEN_REPL)
     add_subdirectory(maiden-repl)
 endif()
 
+# Add SuperCollider extensions when enabled
+if(USE_SUPERCOLLIDER)
+    add_subdirectory(sc)
+endif()
+
 # Installation targets
 install(DIRECTORY lua/ DESTINATION ${CMAKE_INSTALL_DATADIR}/norns/lua
         FILES_MATCHING PATTERN "*.lua")
@@ -137,7 +142,15 @@ message(STATUS "    - Matron: ${BUILD_MATRON}")
 message(STATUS "    - Crone: ${BUILD_CRONE}")
 message(STATUS "    - Maiden REPL: ${BUILD_MAIDEN_REPL}")
 message(STATUS "    - Tests: ${BUILD_TESTS}")
-message(STATUS "    - SuperCollider: ${USE_SUPERCOLLIDER}")
+message(STATUS "  SuperCollider Integration:")
+message(STATUS "    - Enabled: ${USE_SUPERCOLLIDER}")
+if(USE_SUPERCOLLIDER)
+    if(NORNS_IS_EMBEDDED)
+        message(STATUS "    - Install Path: System-wide (${SC_EXTENSIONS_SYSTEM_DIR})")
+    else()
+        message(STATUS "    - Install Path: User directory (${SC_EXTENSIONS_USER_DIR})")
+    endif()
+endif()
 message(STATUS "------------------------------------------------")
 
 # Create uninstall target
