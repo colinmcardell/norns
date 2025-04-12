@@ -20,6 +20,7 @@ option(BUILD_SOFTCUT "Build softcut library" ON)
 option(BUILD_TESTS "Build test suites" ON)
 option(BUILD_WATCHER "Build watcher component" ON)
 option(BUILD_WS_WRAPPER "Build ws-wrapper component" ON)
+option(BUILD_ABLETON_LINK "Build with Ableton Link support" ON)
 
 # Platform configuration
 set(PLATFORM "DESKTOP" CACHE STRING "Target platform (DESKTOP, PI3, CM3)")

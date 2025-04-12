@@ -10,9 +10,7 @@
 *.swp
 *.swo
 
-# waf
-.lock-waf*
-.waf*
+# build
 build/
 
 # build

@@ -1,6 +1,6 @@
 # Norns CMake Verification Plan
 
-This document outlines the comprehensive verification plan for the Norns CMake build system as part of TASK-015. It includes both the build verification that has been implemented in the `verify_cmake_builds.sh` script and the additional verification steps that should be performed in the future.
+This document outlines the comprehensive verification plan for the Norns CMake build system. It includes both the build verification that has been implemented in the `verify_cmake_builds.sh` script and the additional verification steps that should be performed in the future.
 
 ## 1. Comprehensive Build Testing
 

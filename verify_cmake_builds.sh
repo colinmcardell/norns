@@ -25,8 +25,7 @@ mkdir -p "${LOG_DIR}"
 cat > "${SUMMARY_FILE}" << EOF
 # Norns CMake Build Verification Results
 
-This document contains the results of the CMake build verification tests
-performed as part of TASK-015.
+This document contains the results of the CMake build verification tests.
 
 ## Test Environment
 
