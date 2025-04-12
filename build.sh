@@ -8,7 +8,7 @@ set -e
 COMMAND="build"      # configure, build, clean, install, or test
 PLATFORM="DESKTOP"   # DESKTOP, PI3, or CM3
 BUILD_TYPE="Debug"   # Debug, Release, or RelWithDebInfo
-COMPONENTS=()        # Components to build (matron, crone, maiden-repl)
+COMPONENTS=()        # Components to build (matron, crone, maiden-repl, watcher, ws-wrapper)
 VERBOSE=0            # Verbose output
 HELP=0               # Show help
 
@@ -38,7 +38,7 @@ show_help() {
     echo "Options:"
     echo "  --platform=PLATFORM    Target platform: DESKTOP (default), PI3, or CM3"
     echo "  --type=TYPE    Build type: Debug (default), Release, or RelWithDebInfo"
-    echo "  --component=COMPONENT    Component to build (can be specified multiple times)"
+    echo "  --component=COMPONENT    Component to build: matron, crone, maiden-repl, watcher, ws-wrapper (can be specified multiple times)"
     echo "  --desktop    Build for desktop (shorthand for --platform=DESKTOP)"
     echo "  --release    Build in release mode (shorthand for --type=Release)"
     echo "  --verbose    Enable verbose output"
@@ -47,6 +47,7 @@ show_help() {
     echo "Examples:"
     echo "  $0 configure --platform=PI3"
     echo "  $0 build --component=matron --component=crone"
+    echo "  $0 build --component=ws-wrapper"
     echo "  $0 --desktop build"
     echo ""
 }
@@ -118,6 +119,12 @@ run_cmake() {
                 ;;
             maiden-repl)
                 cmake_opts+=("-DBUILD_MAIDEN_REPL=ON")
+                ;;
+            watcher)
+                cmake_opts+=("-DBUILD_WATCHER=ON")
+                ;;
+            ws-wrapper)
+                cmake_opts+=("-DBUILD_WS_WRAPPER=ON")
                 ;;
         esac
     done

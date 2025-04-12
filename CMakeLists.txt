@@ -17,6 +17,8 @@ option(BUILD_CRONE "Build crone component" ON)
 option(BUILD_MAIDEN_REPL "Build maiden-repl component" ON)
 option(BUILD_SOFTCUT "Build softcut library" ON)
 option(BUILD_TESTS "Build test suites" ON)
+option(BUILD_WATCHER "Build watcher component" ON)
+option(BUILD_WS_WRAPPER "Build ws-wrapper component" ON)
 
 # Platform configuration
 set(PLATFORM "DESKTOP" CACHE STRING "Target platform (DESKTOP, PI3, CM3)")
@@ -74,13 +76,10 @@ endmacro()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # Add third-party libraries
-if(BUILD_SOFTCUT)
-    add_subdirectory(third-party/softcut)
-endif()
+add_subdirectory(third-party)
 
 # Add the test framework when enabled
 if(BUILD_TESTS)
-    add_subdirectory(third-party/unity)
     enable_testing()
 
     # Helper function to add a test
@@ -109,23 +108,37 @@ if(BUILD_MAIDEN_REPL)
     add_subdirectory(maiden-repl)
 endif()
 
+if(BUILD_WATCHER)
+    add_subdirectory(watcher)
+endif()
+
+if(BUILD_WS_WRAPPER)
+    add_subdirectory(ws-wrapper)
+endif()
+
 # Add SuperCollider extensions when enabled
 if(USE_SUPERCOLLIDER)
     add_subdirectory(sc)
 endif()
 
 # Installation targets
-install(DIRECTORY lua/ DESTINATION ${CMAKE_INSTALL_DATADIR}/norns/lua
-        FILES_MATCHING PATTERN "*.lua")
-install(DIRECTORY resources/ DESTINATION ${CMAKE_INSTALL_DATADIR}/norns/resources)
-
-# Platform-specific installation
 if(NORNS_IS_EMBEDDED)
+    # Embedded platform installation paths
+    install(DIRECTORY lua/ DESTINATION ${CMAKE_INSTALL_DATADIR}/norns/lua
+            FILES_MATCHING PATTERN "*.lua")
+    install(DIRECTORY resources/ DESTINATION ${CMAKE_INSTALL_DATADIR}/norns/resources)
+    
     # Additional files needed for embedded platforms
     install(FILES matronrc.lua DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/norns)
 else()
-    # Desktop-specific installation
-    install(FILES matronrc.lua DESTINATION ${CMAKE_INSTALL_DATADIR}/norns/config
+    # Desktop-specific installation paths (use home directory for non-root users)
+    set(NORNS_USER_DIR "$ENV{HOME}/.local/share/norns")
+    install(DIRECTORY lua/ DESTINATION ${NORNS_USER_DIR}/lua
+            FILES_MATCHING PATTERN "*.lua")
+    install(DIRECTORY resources/ DESTINATION ${NORNS_USER_DIR}/resources)
+    
+    # Desktop-specific configuration
+    install(FILES matronrc.lua DESTINATION ${NORNS_USER_DIR}/config
             RENAME default_matronrc.lua)
 endif()
 
@@ -148,6 +161,8 @@ message(STATUS "    - Matron: ${BUILD_MATRON}")
 message(STATUS "    - Crone: ${BUILD_CRONE}")
 message(STATUS "    - Maiden REPL: ${BUILD_MAIDEN_REPL}")
 message(STATUS "    - Softcut: ${BUILD_SOFTCUT}")
+message(STATUS "    - Watcher: ${BUILD_WATCHER}")
+message(STATUS "    - WS-Wrapper: ${BUILD_WS_WRAPPER}")
 message(STATUS "    - Tests: ${BUILD_TESTS}")
 message(STATUS "  SuperCollider Integration:")
 message(STATUS "    - Enabled: ${USE_SUPERCOLLIDER}")
