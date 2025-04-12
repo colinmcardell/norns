@@ -36,14 +36,22 @@ endif()
 add_subdirectory(readerwriterqueue)
 
 # Link library for timing synchronization
-option(ENABLE_ABLETON_LINK "Enable Ableton Link integration" OFF)
-if(ENABLE_ABLETON_LINK)
-    add_subdirectory(link)
-    
-    # Define the LINK_PLATFORM_LINUX for Linux builds
-    if(UNIX AND NOT APPLE)
-        add_compile_definitions(LINK_PLATFORM_LINUX)
-    endif()
+# Always enable Ableton Link as per TASK-024
+set(ENABLE_ABLETON_LINK ON CACHE BOOL "Enable Ableton Link integration" FORCE)
+
+# Check for required dependencies
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(PORTAUDIO portaudio-2.0)
+if(NOT PORTAUDIO_FOUND)
+    message(FATAL_ERROR "PortAudio is required for Ableton Link but was not found")
+endif()
+
+# Add Link subdirectory
+add_subdirectory(link)
+
+# Define the LINK_PLATFORM_LINUX for Linux builds
+if(UNIX AND NOT APPLE)
+    add_compile_definitions(LINK_PLATFORM_LINUX)
 endif()
 
 # Print configuration summary

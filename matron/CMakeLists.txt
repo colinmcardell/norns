@@ -40,7 +40,7 @@ set(MATRON_SOURCES
     src/clocks/clock_internal.c
     src/clocks/clock_midi.c
     src/clocks/clock_crow.c
-    src/clocks/clock_link_stub.c
+    src/clocks/clock_link.c
     src/clocks/clock_scheduler.c
     src/time_since.c
 )
@@ -59,6 +59,10 @@ set(MATRON_INCLUDES
 
 # Find required packages
 find_package(PkgConfig REQUIRED)
+
+# Include Link configuration
+include(${CMAKE_CURRENT_SOURCE_DIR}/../third-party/link/AbletonLinkConfig.cmake)
+
 pkg_check_modules(ALSA REQUIRED alsa)
 pkg_check_modules(LIBUDEV REQUIRED libudev)
 pkg_check_modules(LIBEVDEV REQUIRED libevdev)
@@ -93,6 +97,7 @@ set(LIBMONOME_LIBRARIES ${LIBMONOME_LIBRARY})
 
 # Create the matron_core library
 add_library(matron_core STATIC ${MATRON_SOURCES})
+add_dependencies(matron_core Ableton::Link)
 
 # Add include directories
 target_include_directories(matron_core PRIVATE
@@ -109,7 +114,20 @@ target_include_directories(matron_core PRIVATE
     ${SNDFILE_INCLUDE_DIRS}
     ${AVAHI_INCLUDE_DIRS}
     ${JACK_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../third-party/link/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../third-party/link/extensions/abl_link/include
 )
+
+# Add compile definitions for Link
+if(APPLE)
+    target_compile_definitions(matron_core PRIVATE
+        LINK_PLATFORM_MACOSX=1
+    )
+elseif(CMAKE_SYSTEM_NAME MATCHES "Linux|kFreeBSD|GNU")
+    target_compile_definitions(matron_core PRIVATE
+        LINK_PLATFORM_LINUX=1
+    )
+endif()
 
 # Link libraries
 target_link_libraries(matron_core PRIVATE
@@ -127,11 +145,16 @@ target_link_libraries(matron_core PRIVATE
     ${SNDFILE_LIBRARIES}
     ${AVAHI_LIBRARIES}
     ${JACK_LIBRARIES}
+    Ableton::Link
+    abl_link
 )
 
 # Create the matron executable
 add_executable(matron ${MATRON_MAIN})
-target_link_libraries(matron PRIVATE matron_core)
+target_link_libraries(matron PRIVATE 
+    matron_core
+    abl_link
+)
 
 # Add version definitions for matron executable
 target_compile_definitions(matron PRIVATE
@@ -158,7 +181,19 @@ target_include_directories(matron PRIVATE
     ${SNDFILE_INCLUDE_DIRS}
     ${AVAHI_INCLUDE_DIRS}
     ${JACK_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../third-party/link/include
 )
+
+# Add compile definitions for matron executable
+if(APPLE)
+    target_compile_definitions(matron PRIVATE
+        LINK_PLATFORM_MACOSX=1
+    )
+elseif(CMAKE_SYSTEM_NAME MATCHES "Linux|kFreeBSD|GNU")
+    target_compile_definitions(matron PRIVATE
+        LINK_PLATFORM_LINUX=1
+    )
+endif()
 
 # Installation
 install(TARGETS matron DESTINATION bin)

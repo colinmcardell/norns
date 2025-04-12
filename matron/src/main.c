@@ -80,10 +80,8 @@ int main(int argc, char **argv) {
     clock_internal_init();
     clock_midi_init();
     clock_crow_init();
-#if HAVE_ABLETON_LINK
     clock_link_init();
     clock_link_start();
-#endif
     clock_scheduler_init();
 
     fprintf(stderr, "init oracle...\n");
