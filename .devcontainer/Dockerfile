@@ -116,6 +116,18 @@ RUN luarocks install busted && \
     luarocks install luacheck && \
     luarocks install ldoc
 
+# Set up SuperCollider extensions directory structure
+RUN mkdir -p /home/vscode/.local/share/SuperCollider/Extensions && \
+    chown -R vscode:vscode /home/vscode/.local
+
 # Set the default user
 USER vscode
 WORKDIR /workspace
+
+# Install SuperCollider extensions during container setup
+COPY --chown=vscode:vscode sc/install_extensions.sh sc/norns-config.sc /tmp/sc/
+COPY --chown=vscode:vscode sc/core /tmp/sc/core
+COPY --chown=vscode:vscode sc/engines /tmp/sc/engines
+RUN cd /tmp/sc && \
+    ./install_extensions.sh && \
+    rm -rf /tmp/sc
