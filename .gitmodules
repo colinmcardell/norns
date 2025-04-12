@@ -7,3 +7,6 @@
 [submodule "third-party/unity"]
 	path = third-party/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
+[submodule "third-party/readerwriterqueue"]
+	path = third-party/readerwriterqueue
+	url = https://github.com/cameron314/readerwriterqueue.git
