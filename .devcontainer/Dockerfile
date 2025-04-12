@@ -35,6 +35,8 @@ RUN apt-get update && apt-get install -y \
     libjack-jackd2-dev \
     liblo-dev \
     liblua5.3-dev \
+    libportaudio2 \
+    portaudio19-dev \
     libsdl2-dev \
     libsndfile1-dev \
     libudev-dev \
