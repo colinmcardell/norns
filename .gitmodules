@@ -4,9 +4,6 @@
 [submodule "third-party/softcut"]
 	path = third-party/softcut
 	url = https://github.com/monome/softcut-lib.git
-[submodule "crone/lib/readerwriterqueue"]
-	path = crone/lib/readerwriterqueue
-	url = https://github.com/cameron314/readerwriterqueue.git
 [submodule "third-party/unity"]
 	path = third-party/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
