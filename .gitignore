@@ -48,3 +48,6 @@ maiden-repl/maiden-repl
 luacov.*.out
 luacov.report.out
 .luacheckcache
+
+# CMake verification logs
+cmake_verification_logs/
