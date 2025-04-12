@@ -7,9 +7,10 @@ project(norns
     LANGUAGES C CXX)
 
 # Set global properties
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Include compiler flags
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains/compiler_flags.cmake)
 
 # Options to control which components to build
 option(BUILD_MATRON "Build matron component" ON)
@@ -49,17 +50,6 @@ else()
     set(NORNS_REQUIRE_SUPERCOLLIDER ON)
 endif()
 
-# Global compile options based on build type
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_options(-g -O0)
-    add_definitions(-DDEBUG)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_options(-O2)
-    add_definitions(-DNDEBUG)
-elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    add_compile_options(-g -O2)
-    add_definitions(-DNDEBUG)
-endif()
 
 # Option-dependent features based on platform
 cmake_dependent_option(

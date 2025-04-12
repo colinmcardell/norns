@@ -109,12 +109,10 @@ endif()
 # Include directories
 target_include_directories(crone PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/readerwriterqueue
 )
 
-# Add softcut include directories
-get_target_property(SOFTCUT_INCLUDE_DIRS softcut::softcut INTERFACE_INCLUDE_DIRECTORIES)
-target_include_directories(crone PRIVATE ${SOFTCUT_INCLUDE_DIRS})
+# Add readerwriterqueue dependency
+target_link_libraries(crone PRIVATE readerwriterqueue)
 
 # Add Faust includes
 target_include_directories(crone PRIVATE 
