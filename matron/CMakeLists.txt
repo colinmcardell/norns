@@ -135,10 +135,10 @@ target_link_libraries(matron PRIVATE matron_core)
 
 # Add version definitions for matron executable
 target_compile_definitions(matron PRIVATE
-    "VERSION_MAJOR=${NORNS_VERSION_MAJOR}"
-    "VERSION_MINOR=${NORNS_VERSION_MINOR}"
-    "VERSION_PATCH=${NORNS_VERSION_PATCH}"
-    "VERSION_HASH=${NORNS_VERSION_HASH}"
+    "VERSION_MAJOR=${PROJECT_VERSION_MAJOR}"
+    "VERSION_MINOR=${PROJECT_VERSION_MINOR}"
+    "VERSION_PATCH=${PROJECT_VERSION_PATCH}"
+    "VERSION_HASH=\"${PROJECT_VERSION}\""
     "_GNU_SOURCE"
 )
 
