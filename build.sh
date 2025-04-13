@@ -102,6 +102,15 @@ run_cmake() {
     # Create build directory if it doesn't exist
     mkdir -p build/cmake
     
+    # Set appropriate toolchain file based on platform
+    if [ "$PLATFORM" == "PI3" ]; then
+        cmake_opts+=("-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/pi3.toolchain.cmake")
+    elif [ "$PLATFORM" == "CM3" ]; then
+        cmake_opts+=("-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/cm3.toolchain.cmake")
+    elif [ "$PLATFORM" == "DESKTOP" ]; then
+        cmake_opts+=("-DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/desktop.toolchain.cmake")
+    fi
+    
     # Map platform to CMake options
     cmake_opts+=("-DPLATFORM=$PLATFORM")
     

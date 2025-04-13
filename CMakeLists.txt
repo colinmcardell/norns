@@ -1,13 +1,29 @@
 cmake_minimum_required(VERSION 3.10)
 
+# Set global properties
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Platform configuration - Must be defined before project() to use toolchain files
+set(PLATFORM "DESKTOP" CACHE STRING "Target platform (DESKTOP, PI3, CM3)")
+set_property(CACHE PLATFORM PROPERTY STRINGS "DESKTOP" "PI3" "CM3")
+
+# Set up toolchain file if not already set
+# This must happen before the project() command
+if(NOT CMAKE_TOOLCHAIN_FILE AND PLATFORM)
+    if(PLATFORM STREQUAL "PI3")
+        set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains/pi3.toolchain.cmake" CACHE FILEPATH "Toolchain file")
+    elseif(PLATFORM STREQUAL "CM3")
+        set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains/cm3.toolchain.cmake" CACHE FILEPATH "Toolchain file")
+    elseif(PLATFORM STREQUAL "DESKTOP")
+        set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains/desktop.toolchain.cmake" CACHE FILEPATH "Toolchain file")
+    endif()
+endif()
+
 # Project information
 project(norns 
     VERSION 1.0.0
     DESCRIPTION "Norns sound computer software"
     LANGUAGES C CXX)
-
-# Set global properties
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Include compiler flags
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/toolchains/compiler_flags.cmake)
@@ -21,10 +37,6 @@ option(BUILD_TESTS "Build test suites" ON)
 option(BUILD_WATCHER "Build watcher component" ON)
 option(BUILD_WS_WRAPPER "Build ws-wrapper component" ON)
 option(BUILD_ABLETON_LINK "Build with Ableton Link support" ON)
-
-# Platform configuration
-set(PLATFORM "DESKTOP" CACHE STRING "Target platform (DESKTOP, PI3, CM3)")
-set_property(CACHE PLATFORM PROPERTY STRINGS "DESKTOP" "PI3" "CM3")
 
 # Include useful CMake modules
 include(CMakeDependentOption)
