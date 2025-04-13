@@ -91,11 +91,19 @@ RUN mkdir -p /tmp/nanomsg && \
     rm -rf /tmp/nanomsg && \
     ldconfig
 
-# Install libfaust
-RUN git clone https://github.com/grame-cncm/faust.git && \
-    cd faust && \
-    make && \
-    make install
+# Install libfaust with proper dependencies
+RUN apt-get update && apt-get install -y \
+    libmicrohttpd-dev \
+    libsndfile1-dev \
+    libssl-dev \
+    libjson-c-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && git clone --depth=1 https://github.com/grame-cncm/faust.git \
+    && cd faust \
+    && make \
+    && make install \
+    && cd / \
+    && rm -rf faust
 
 # Create non-root user
 RUN groupadd --gid 1000 vscode && \
@@ -124,10 +132,3 @@ RUN mkdir -p /home/vscode/.local/share/SuperCollider/Extensions && \
 USER vscode
 WORKDIR /workspace
 
-# Install SuperCollider extensions during container setup
-COPY --chown=vscode:vscode sc/install_extensions.sh sc/norns-config.sc /tmp/sc/
-COPY --chown=vscode:vscode sc/core /tmp/sc/core
-COPY --chown=vscode:vscode sc/engines /tmp/sc/engines
-RUN cd /tmp/sc && \
-    ./install_extensions.sh && \
-    rm -rf /tmp/sc
