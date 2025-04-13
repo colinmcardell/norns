@@ -94,6 +94,7 @@ void *screen_event_loop(void *x) {
         pthread_mutex_unlock(&screen_q_lock);
         handle_screen_event(&ev);
     }
+    return NULL;
 }
 
 void handle_screen_event(struct screen_event_data *ev) {

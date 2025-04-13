@@ -1,5 +1,3 @@
-#define _GNU_SOURCE /* Required for asprintf() */
-
 #include <alsa/asoundlib.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -65,8 +63,11 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
 
     sscanf(base->path, "/dev/snd/midiC%uD%u", &alsa_card, &alsa_dev);
 
-    if (asprintf(&alsa_name, "hw:%u,%u,%u", alsa_card, alsa_dev, port_index) < 0) {
-        fprintf(stderr, "failed to create alsa device name for card %d,%d\n", alsa_card, alsa_dev);
+    char alsa_name_buffer[64];
+    snprintf(alsa_name_buffer, sizeof(alsa_name_buffer), "hw:%u,%u,%u", alsa_card, alsa_dev, port_index);
+    alsa_name = strdup(alsa_name_buffer);
+    if (alsa_name == NULL) {
+        fprintf(stderr, "failed to allocate memory for alsa device name for card %d,%d\n", alsa_card, alsa_dev);
         return -1;
     }
 
@@ -88,15 +89,20 @@ int dev_midi_init(void *self, unsigned int port_index, bool multiport_device) {
     // fprintf(stderr, "input handle  : %p\n", midi->handle_in);
     // fprintf(stderr, "output handle : %p\n", midi->handle_out);
 
+    // Free the ALSA device name as it's no longer needed after device is opened
+    free(alsa_name);
+
     char *name_with_port_index;
     if (multiport_device) {
-        if (asprintf(&name_with_port_index, "%s %u", base->name, port_index + 1) < 0) {
-            fprintf(stderr, "failed to create human-readable device name for card %d,%d,%d\n", alsa_card, alsa_dev,
+        size_t name_len = strlen(base->name) + 12; // Space for name + space + port number + null terminator
+        name_with_port_index = malloc(name_len);
+        if (name_with_port_index == NULL) {
+            fprintf(stderr, "failed to allocate memory for device name for card %d,%d,%d\n", alsa_card, alsa_dev,
                     port_index);
             return -1;
-        } else {
-            fprintf(stderr, "assigned device name with port: %s\n", name_with_port_index);
         }
+        snprintf(name_with_port_index, name_len, "%s %u", base->name, port_index + 1);
+        fprintf(stderr, "assigned device name with port: %s\n", name_with_port_index);
         base->name = name_with_port_index;
     }
 

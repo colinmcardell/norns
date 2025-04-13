@@ -105,12 +105,16 @@ void io_send_line(int sockid, char *buf) {
     snprintf(bufcat, sz, "%s\n", buf);
     struct sock_io *io = &(sock_io[sockid]);
 
-    // Store return value for assertion but intentionally unused in Release builds
-    // FIXME: Consider adding error handling to log warnings if tx != sz or < 0
-    unsigned int tx = nn_send(io->sock, bufcat, sz, 0);
-    (void)tx; // Mark as intentionally unused to prevent compiler warnings
+    // Send the message and check if the full message was sent
+    int tx = nn_send(io->sock, bufcat, sz, 0);
+    if (tx < 0) {
+        printf("Error sending message: %s\n", nn_strerror(nn_errno()));
+    } else if ((size_t)tx != sz) {
+        printf("Warning: only sent %d of %zu bytes\n", tx, sz);
+    }
 
-    assert(tx == sz);
+    // Assert that the full message was sent
+    assert((size_t)tx == sz);
     free(bufcat);
 }
 

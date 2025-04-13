@@ -40,9 +40,27 @@ void quit(void) {
 void bind_sock(int *sock, int *eid, char *url) {
     *sock = nn_socket(AF_SP, NN_BUS);
     printf("attempting to bind socket at url %s\n", url);
-    assert((*eid = nn_bind(*sock, url)) >= 0);
+
+    // Bind the socket and check for errors
+    *eid = nn_bind(*sock, url);
+    if (*eid < 0) {
+        fprintf(stderr, "Error binding socket: %s\n", nn_strerror(nn_errno()));
+        exit(EXIT_FAILURE);
+    }
+
+    // Assert that binding succeeded
+    assert(*eid >= 0);
+
+    // Set socket option and check for errors
     int to = NN_WS_MSG_TYPE_TEXT;
-    assert(nn_setsockopt(*sock, NN_WS, NN_WS_MSG_TYPE, &to, sizeof(to)) >= 0);
+    int rc = nn_setsockopt(*sock, NN_WS, NN_WS_MSG_TYPE, &to, sizeof(to));
+    if (rc < 0) {
+        fprintf(stderr, "Error setting socket option: %s\n", nn_strerror(nn_errno()));
+        exit(EXIT_FAILURE);
+    }
+
+    // Assert that setting socket option succeeded
+    assert(rc >= 0);
 }
 
 void *loop_rx(void *p) {
@@ -177,6 +195,6 @@ int main(int argc, char **argv) {
         printf("usage: ws-wrapper WS_SOCKET BINARY <child args...>");
     }
 
-    setvbuf(stdout, NULL, _IONBF, 0); 
+    setvbuf(stdout, NULL, _IONBF, 0);
     launch_exe(argc, argv);
 }

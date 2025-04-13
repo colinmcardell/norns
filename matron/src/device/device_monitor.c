@@ -2,8 +2,6 @@
  * device_monitor.c
  */
 
-#define _GNU_SOURCE /* Required for asprintf() */
-
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
@@ -307,6 +305,9 @@ void add_dev_sound(struct udev_device *dev) {
         char *name = get_device_name(dev);
         fprintf(stderr, "dev_monitor: adding midi device %s\n", name);
         dev_list_add(DEV_TYPE_MIDI, alsa_node, name);
+
+        // Free the allocated string after it's been used
+        free((void *)alsa_node);
     }
 }
 
@@ -327,8 +328,13 @@ const char *get_alsa_midi_node(struct udev_device *dev) {
 
         while ((sysdir_ent = readdir(sysdir)) != NULL) {
             if (sscanf(sysdir_ent->d_name, "midiC%uD%u", &alsa_card, &alsa_dev) == 2) {
-                if (asprintf(&result, "/dev/snd/%s", sysdir_ent->d_name) < 0) {
-                    fprintf(stderr, "dev_monitor: failed to create alsa device path for %s\n", sysdir_ent->d_name);
+                // NAME_MAX is typically 255 bytes on Linux, add 10 for "/dev/snd/"
+                char path_buffer[NAME_MAX + 10];
+                snprintf(path_buffer, sizeof(path_buffer), "/dev/snd/%s", sysdir_ent->d_name);
+                result = strdup(path_buffer);
+                if (result == NULL) {
+                    fprintf(stderr, "dev_monitor: failed to allocate memory for alsa device path for %s\n",
+                            sysdir_ent->d_name);
                     return NULL;
                 }
             }
