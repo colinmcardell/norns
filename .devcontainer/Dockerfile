@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     apt-utils \
     build-essential \
     ca-certificates \
+    clang-format \
     cmake \
     curl \
     git \
