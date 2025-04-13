@@ -134,6 +134,28 @@ run_cmake() {
         build_opts+=("--verbose")
     fi
     
+    # Create an array for component-specific targets
+    component_targets=()
+    for component in "${COMPONENTS[@]}"; do
+        case $component in
+            matron)
+                component_targets+=("matron")
+                ;;
+            crone)
+                component_targets+=("crone")
+                ;;
+            maiden-repl)
+                component_targets+=("maiden-repl")
+                ;;
+            watcher)
+                component_targets+=("watcher")
+                ;;
+            ws-wrapper)
+                component_targets+=("ws-wrapper")
+                ;;
+        esac
+    done
+    
     # Handle specific commands
     case $cmd in
         configure)
@@ -146,8 +168,17 @@ run_cmake() {
                 echo "CMake not configured yet, running configure first..."
                 cmake -S . -B build/cmake "${cmake_opts[@]}"
             fi
-            echo "Running: cmake --build build/cmake ${build_opts[*]}"
-            cmake --build build/cmake "${build_opts[@]}"
+            
+            # If specific components were requested, build only those
+            if [ ${#component_targets[@]} -gt 0 ]; then
+                for target in "${component_targets[@]}"; do
+                    echo "Running: cmake --build build/cmake --target $target ${build_opts[*]}"
+                    cmake --build build/cmake --target "$target" "${build_opts[@]}"
+                done
+            else
+                echo "Running: cmake --build build/cmake ${build_opts[*]}"
+                cmake --build build/cmake "${build_opts[@]}"
+            fi
             ;;
         clean)
             echo "Running: cmake --build build/cmake --target clean ${build_opts[*]}"
