@@ -33,7 +33,9 @@ and `libmonome` must be built and installed from source:
 ```
 git clone https://github.com/monome/libmonome
 cd libmonome
-./waf configure && ./waf && sudo ./waf install
+cmake -S . -B build
+cmake --build build
+sudo cmake --install build
 ```
 
 - add `/usr/local/lib` to library search paths. the recommended way to do this is by editing `/etc/ld.so.conf`. (use of the `LD_LIBRARY_PATH` variable is deprecated, since it willl override binary-specific settings.)
@@ -52,8 +54,8 @@ sudo apt install libsdl2-dev
 git clone https://github.com/monome/norns.git
 cd norns
 git submodule update --init --recursive
-./waf configure
-./waf
+./build.sh configure
+./build.sh build
 ```
 
 this should build several executables under `norns/build/<name>/`:
@@ -77,14 +79,14 @@ popd
 
 ### desktop
 
-for building on desktop, add the `--desktop` option to both `waf` steps (configure and build):
+for building on desktop, add the `--desktop` option to the configure step:
 
 ```
-./waf configure --desktop
-./waf build --desktop
+./build.sh configure --desktop
+./build.sh build
 ```
 
-(NB: `waf` assumes `build` as the default command, which is why we can omit it above.)
+(NB: The build script provides a unified interface for building Norns with CMake. See `build_compatibility.md` for more details.)
 
 
 ## launching components

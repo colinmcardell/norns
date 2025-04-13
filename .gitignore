@@ -10,9 +10,7 @@
 *.swp
 *.swo
 
-# waf
-.lock-waf*
-.waf*
+# build
 build/
 
 # build
@@ -48,3 +46,6 @@ maiden-repl/maiden-repl
 luacov.*.out
 luacov.report.out
 .luacheckcache
+
+# CMake verification logs
+cmake_verification_logs/

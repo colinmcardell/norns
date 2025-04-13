@@ -241,13 +241,12 @@ void rm_dev_tty(struct udev_device *dev, const char *node) {
         return;
     }
 
-    if (is_dev_crow(dev)) {         
+    if (is_dev_crow(dev)) {
         dev_list_remove(DEV_TYPE_CROW, node);
         return;
     }
-    
-    fprintf(stderr, "dev_monitor: unmatched TTY device was removed from %s\n", node);
 
+    fprintf(stderr, "dev_monitor: unmatched TTY device was removed from %s\n", node);
 }
 
 void add_dev(struct udev_device *dev, int fidx) {
@@ -291,8 +290,8 @@ void add_dev_tty(struct udev_device *dev) {
 void add_dev_input(struct udev_device *dev) {
     const char *node = udev_device_get_devnode(dev);
     if (node == NULL) {
-	    fprintf(stderr, "dev_monitor: skipping node-less entry in /dev/input\n");
-	    return;
+        fprintf(stderr, "dev_monitor: skipping node-less entry in /dev/input\n");
+        return;
     }
     char *name = get_device_name(dev);
     dev_list_add(DEV_TYPE_HID, node, name);
@@ -303,9 +302,12 @@ void add_dev_sound(struct udev_device *dev) {
     // https://github.com/systemd/systemd/blob/master/rules/78-sound-card.rules
     const char *alsa_node = get_alsa_midi_node(dev);
     if (alsa_node != NULL) {
-	char *name = get_device_name(dev);
-	fprintf(stderr, "dev_monitor: adding midi device %s\n", name);
+        char *name = get_device_name(dev);
+        fprintf(stderr, "dev_monitor: adding midi device %s\n", name);
         dev_list_add(DEV_TYPE_MIDI, alsa_node, name);
+
+        // Free the allocated string after it's been used
+        free((void *)alsa_node);
     }
 }
 
@@ -326,8 +328,13 @@ const char *get_alsa_midi_node(struct udev_device *dev) {
 
         while ((sysdir_ent = readdir(sysdir)) != NULL) {
             if (sscanf(sysdir_ent->d_name, "midiC%uD%u", &alsa_card, &alsa_dev) == 2) {
-                if (asprintf(&result, "/dev/snd/%s", sysdir_ent->d_name) < 0) {
-                    fprintf(stderr, "dev_monitor: failed to create alsa device path for %s\n", sysdir_ent->d_name);
+                // NAME_MAX is typically 255 bytes on Linux, add 10 for "/dev/snd/"
+                char path_buffer[NAME_MAX + 10];
+                snprintf(path_buffer, sizeof(path_buffer), "/dev/snd/%s", sysdir_ent->d_name);
+                result = strdup(path_buffer);
+                if (result == NULL) {
+                    fprintf(stderr, "dev_monitor: failed to allocate memory for alsa device path for %s\n",
+                            sysdir_ent->d_name);
                     return NULL;
                 }
             }
@@ -348,6 +355,10 @@ char *get_device_name(struct udev_device *dev) {
         if (current_dev == NULL) {
             break;
         }
+    }
+
+    if (current_name == NULL) {
+        return strdup("Unknown Device");
     }
 
     return strdup(current_name);
@@ -383,10 +394,10 @@ int is_dev_monome_grid(struct udev_device *dev) {
     return 0;
 }
 
-int is_dev_crow(struct udev_device *dev) { 
+int is_dev_crow(struct udev_device *dev) {
     const char *device_product_string = udev_device_get_property_value(dev, "ID_MODEL");
-    if(device_product_string != NULL) {
+    if (device_product_string != NULL) {
         return strcmp(device_product_string, "crow:_telephone_line") == 0;
     }
-   return 0;
+    return 0;
 }

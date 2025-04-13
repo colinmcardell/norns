@@ -2,17 +2,16 @@
 // Created by emb on 11/30/19.
 //
 
-
 //-----------------------
 //-- debugging
-#include <iostream>
-#include <iomanip>
 #include <chrono>
+#include <iomanip>
+#include <iostream>
 //--------------
 
-#include <sndfile.hh>
 #include <array>
 #include <cmath>
+#include <sndfile.hh>
 #include <utility>
 
 #include "BufDiskWorker.h"
@@ -31,7 +30,9 @@ int BufDiskWorker::sampleRate = 48000;
 
 // clamp unsigned int to upper bound, inclusive
 static inline void clamp(size_t &x, const size_t a) {
-    if (x > a) { x = a; }
+    if (x > a) {
+        x = a;
+    }
 }
 
 int BufDiskWorker::registerBuffer(float *data, size_t frames) {
@@ -49,51 +50,144 @@ void BufDiskWorker::requestJob(BufDiskWorker::Job &job) {
 }
 
 void BufDiskWorker::requestClear(size_t idx, float start, float dur) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::Clear, {idx, 0}, "", 0, start, dur, 0};
+    BufDiskWorker::Job job{
+        BufDiskWorker::JobType::Clear,
+        {idx, 0},
+        "",
+        0,
+        start,
+        dur,
+        0,
+        0.f,    // fadeTime
+        0.f,    // preserve
+        0.f,    // mix
+        false,  // reverse
+        0,      // samples
+        nullptr // renderCallback
+    };
     requestJob(job);
 }
 
-void BufDiskWorker::requestClearWithFade(size_t idx, float start, float dur,
-                                         float fadeTime, float preserve) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::ClearWithFade, {idx, 0}, "", 0, start, dur, 0, fadeTime, preserve};
+void BufDiskWorker::requestClearWithFade(size_t idx, float start, float dur, float fadeTime, float preserve) {
+    BufDiskWorker::Job job{
+        BufDiskWorker::JobType::ClearWithFade,
+        {idx, 0},
+        "",
+        0,
+        start,
+        dur,
+        0,
+        fadeTime,
+        preserve,
+        0.f,    // mix
+        false,  // reverse
+        0,      // samples
+        nullptr // renderCallback
+    };
     requestJob(job);
 }
 
-void BufDiskWorker::requestCopy(size_t srcIdx, size_t dstIdx,
-                                float srcStart, float dstStart, float dur,
-                                float fadeTime, float preserve, bool reverse) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::Copy, {srcIdx, dstIdx}, "", srcStart, dstStart, dur, 0, fadeTime, preserve, 0.f, reverse};
+void BufDiskWorker::requestCopy(size_t srcIdx, size_t dstIdx, float srcStart, float dstStart, float dur, float fadeTime,
+                                float preserve, bool reverse) {
+    BufDiskWorker::Job job{
+        BufDiskWorker::JobType::Copy,
+        {srcIdx, dstIdx},
+        "",
+        srcStart,
+        dstStart,
+        dur,
+        0,
+        fadeTime,
+        preserve,
+        0.f,
+        reverse,
+        0,      // samples
+        nullptr // renderCallback
+    };
     requestJob(job);
 }
 
-void
-BufDiskWorker::requestReadMono(size_t idx, std::string path, float startSrc, float startDst, float dur, int chanSrc,
-                               float preserve, float mix) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::ReadMono, {idx, 0}, std::move(path), startSrc, startDst, dur,
-                           chanSrc, 0.f, preserve, mix};
+void BufDiskWorker::requestReadMono(size_t idx, std::string path, float startSrc, float startDst, float dur,
+                                    int chanSrc, float preserve, float mix) {
+    BufDiskWorker::Job job{
+        BufDiskWorker::JobType::ReadMono,
+        {idx, 0},
+        std::move(path),
+        startSrc,
+        startDst,
+        dur,
+        chanSrc,
+        0.f,
+        preserve,
+        mix,
+        false,  // reverse
+        0,      // samples
+        nullptr // renderCallback
+    };
     requestJob(job);
 }
 
-void BufDiskWorker::requestReadStereo(size_t idx0, size_t idx1, std::string path,
-                                      float startSrc, float startDst, float dur, float preserve, float mix) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::ReadStereo, {idx0, idx1}, std::move(path), startSrc, startDst, dur,
-                           0, 0.f, preserve, mix};
+void BufDiskWorker::requestReadStereo(size_t idx0, size_t idx1, std::string path, float startSrc, float startDst,
+                                      float dur, float preserve, float mix) {
+    BufDiskWorker::Job job{
+        BufDiskWorker::JobType::ReadStereo,
+        {idx0, idx1},
+        std::move(path),
+        startSrc,
+        startDst,
+        dur,
+        0,
+        0.f,
+        preserve,
+        mix,
+        false,  // reverse
+        0,      // samples
+        nullptr // renderCallback
+    };
     requestJob(job);
 }
 
 void BufDiskWorker::requestWriteMono(size_t idx, std::string path, float start, float dur) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::WriteMono, {idx, 0}, std::move(path), start, start, dur, 0};
+    BufDiskWorker::Job job{
+        BufDiskWorker::JobType::WriteMono,
+        {idx, 0},
+        std::move(path),
+        start,
+        start,
+        dur,
+        0,
+        0.f,    // fadeTime
+        0.f,    // preserve
+        0.f,    // mix
+        false,  // reverse
+        0,      // samples
+        nullptr // renderCallback
+    };
     requestJob(job);
 }
 
-void BufDiskWorker::requestWriteStereo(size_t idx0, size_t idx1, std::string path,
-                                       float start, float dur) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::WriteStereo, {idx0, idx1}, std::move(path), start, start, dur, 0};
+void BufDiskWorker::requestWriteStereo(size_t idx0, size_t idx1, std::string path, float start, float dur) {
+    BufDiskWorker::Job job{
+        BufDiskWorker::JobType::WriteStereo,
+        {idx0, idx1},
+        std::move(path),
+        start,
+        start,
+        dur,
+        0,
+        0.f,    // fadeTime
+        0.f,    // preserve
+        0.f,    // mix
+        false,  // reverse
+        0,      // samples
+        nullptr // renderCallback
+    };
     requestJob(job);
 }
 
 void BufDiskWorker::requestRender(size_t idx, float start, float dur, int samples, RenderCallback callback) {
-    BufDiskWorker::Job job{BufDiskWorker::JobType::Render, {idx, 0}, "", start, start, dur, 0, 0.f, 0.f, 0.f, false, samples, callback};
+    BufDiskWorker::Job job{
+        BufDiskWorker::JobType::Render, {idx, 0}, "", start, start, dur, 0, 0.f, 0.f, 0.f, false, samples, callback};
     requestJob(job);
 }
 
@@ -110,31 +204,33 @@ void BufDiskWorker::workLoop() {
         }
 
         switch (job.type) {
-            case JobType::Clear:
-                clearBuffer(bufs[job.bufIdx[0]], job.startDst, job.dur);
-                break;
-            case JobType::ClearWithFade:
-                clearBufferWithFade(bufs[job.bufIdx[0]], job.startDst, job.dur, job.fadeTime, job.preserve);
-                break;
-            case JobType::Copy:
-                copyBuffer(bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur, job.fadeTime, job.preserve, job.reverse);
-                break;
-            case JobType::ReadMono:
-                readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan, job.preserve, job.mix);
-                break;
-            case JobType::ReadStereo:
-                readBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst,
-                                 job.dur, job.preserve, job.mix);
-                break;
-            case JobType::WriteMono:
-                writeBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.dur);
-                break;
-            case JobType::WriteStereo:
-                writeBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.dur);
-                break;
-            case JobType::Render:
-                render(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.renderCallback);
-                break;
+        case JobType::Clear:
+            clearBuffer(bufs[job.bufIdx[0]], job.startDst, job.dur);
+            break;
+        case JobType::ClearWithFade:
+            clearBufferWithFade(bufs[job.bufIdx[0]], job.startDst, job.dur, job.fadeTime, job.preserve);
+            break;
+        case JobType::Copy:
+            copyBuffer(bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur, job.fadeTime,
+                       job.preserve, job.reverse);
+            break;
+        case JobType::ReadMono:
+            readBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.startDst, job.dur, job.chan, job.preserve,
+                           job.mix);
+            break;
+        case JobType::ReadStereo:
+            readBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.startDst, job.dur,
+                             job.preserve, job.mix);
+            break;
+        case JobType::WriteMono:
+            writeBufferMono(job.path, bufs[job.bufIdx[0]], job.startSrc, job.dur);
+            break;
+        case JobType::WriteStereo:
+            writeBufferStereo(job.path, bufs[job.bufIdx[0]], bufs[job.bufIdx[1]], job.startSrc, job.dur);
+            break;
+        case JobType::Render:
+            render(bufs[job.bufIdx[0]], job.startSrc, job.dur, (size_t)job.samples, job.renderCallback);
+            break;
         }
 #if 0 // debug, timing
         auto ms_now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
@@ -153,7 +249,7 @@ void BufDiskWorker::init(int sr) {
 }
 
 int BufDiskWorker::secToFrame(float seconds) {
-    return static_cast<int>(seconds * (float) sampleRate);
+    return static_cast<int>(seconds * (float)sampleRate);
 }
 
 float BufDiskWorker::raisedCosFade(float unitphase) {
@@ -161,7 +257,7 @@ float BufDiskWorker::raisedCosFade(float unitphase) {
 }
 
 float BufDiskWorker::mixFade(float x, float y, float a, float b) {
-    return x * sinf(a * (float)M_PI_2) + y * sinf(b * (float) M_PI_2);
+    return x * sinf(a * (float)M_PI_2) + y * sinf(b * (float)M_PI_2);
 }
 
 //------------------------
@@ -182,8 +278,7 @@ void BufDiskWorker::clearBuffer(BufDesc &buf, float start, float dur) {
     }
 }
 
-void BufDiskWorker::clearBufferWithFade(BufDesc &buf, float start, float dur,
-                                        float fadeTime, float preserve) {
+void BufDiskWorker::clearBufferWithFade(BufDesc &buf, float start, float dur, float fadeTime, float preserve) {
     size_t frStart = secToFrame(start);
     clamp(frStart, buf.frames - 1);
     size_t frDur;
@@ -207,20 +302,19 @@ void BufDiskWorker::clearBufferWithFade(BufDesc &buf, float start, float dur,
         phi = 0.f;
     }
 
-    if (preserve > 1.f) { preserve = 1.f; }
-    if (preserve < 0.f) { preserve = 0.f; }
+    if (preserve > 1.f) {
+        preserve = 1.f;
+    }
+    if (preserve < 0.f) {
+        preserve = 0.f;
+    }
 
     float zero = 0.f;
-    copyLoop(buf.data + frStart,
-             &zero,
-             frDur, frFadeTime,
-             preserve, x, phi,
-             [](float*& d, const float*& s) { d++; });
+    copyLoop(buf.data + frStart, &zero, frDur, frFadeTime, preserve, x, phi, [](float *&d, const float *&) { d++; });
 }
 
-void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
-                               float srcStart, float dstStart, float dur,
-                               float fadeTime, float preserve, bool reverse) {
+void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1, float srcStart, float dstStart, float dur, float fadeTime,
+                               float preserve, bool reverse) {
     size_t frSrcStart = secToFrame(srcStart);
     clamp(frSrcStart, buf0.frames - 1);
     size_t frDstStart = secToFrame(dstStart);
@@ -234,8 +328,12 @@ void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
     }
     clamp(frDur, buf1.frames - frDstStart);
 
-    if (preserve > 1.f) { preserve = 1.f; }
-    if (preserve < 0.f) { preserve = 0.f; }
+    if (preserve > 1.f) {
+        preserve = 1.f;
+    }
+    if (preserve < 0.f) {
+        preserve = 0.f;
+    }
 
     float x;
     float phi;
@@ -254,61 +352,56 @@ void BufDiskWorker::copyBuffer(BufDesc &buf0, BufDesc &buf1,
         // reversing contents while copying into an overlapping region
         // is not possible without additional storage the size of the
         // overlap, so we don't handle this
-        copyLoop(buf1.data + frDstStart,
-                 buf0.data + frSrcStart + frDur - 1,
-                 frDur, frFadeTime,
-                 preserve, x, phi,
-                 [](float*& d, const float*& s) { d++; s--; });
+        copyLoop(buf1.data + frDstStart, buf0.data + frSrcStart + frDur - 1, frDur, frFadeTime, preserve, x, phi,
+                 [](float *&d, const float *&s) {
+                     d++;
+                     s--;
+                 });
     } else {
         // source and destination regions might overlap, so we need to
         // imitate std::memmove - when src < dst start from the end and
         // move backwards
         if (frDstStart < frSrcStart) {
-            copyLoop(buf1.data + frDstStart,
-                     buf0.data + frSrcStart,
-                     frDur, frFadeTime,
-                     preserve, x, phi,
-                     [](float*& d, const float*& s) { d++; s++; });
+            copyLoop(buf1.data + frDstStart, buf0.data + frSrcStart, frDur, frFadeTime, preserve, x, phi,
+                     [](float *&d, const float *&s) {
+                         d++;
+                         s++;
+                     });
         } else {
-            copyLoop(buf1.data + frDstStart + frDur - 1,
-                     buf0.data + frSrcStart + frDur - 1,
-                     frDur, frFadeTime,
-                     preserve, x, phi,
-                     [](float*& d, const float*& s) { d--; s--; });
+            copyLoop(buf1.data + frDstStart + frDur - 1, buf0.data + frSrcStart + frDur - 1, frDur, frFadeTime,
+                     preserve, x, phi, [](float *&d, const float *&s) {
+                         d--;
+                         s--;
+                     });
         }
     }
 }
 
 template <typename Step>
-void BufDiskWorker::copyLoop(float* dst, const float* src,
-                             size_t frDur, size_t frFadeTime,
-                             float preserve, float x, float phi,
-                             Step&& update) {
+void BufDiskWorker::copyLoop(float *dst, const float *src, size_t frDur, size_t frFadeTime, float preserve, float x,
+                             float phi, Step &&update) {
     size_t i;
     float lambda;
     for (i = 0; i < frFadeTime; i++) {
         lambda = raisedCosFade(x);
-        *dst = mixFade(*dst, *src,
-                       1.f - lambda * (1.f - preserve), lambda);
+        *dst = mixFade(*dst, *src, 1.f - lambda * (1.f - preserve), lambda);
         x += phi;
         update(dst, src);
     }
-    for ( ; i < frDur - frFadeTime; i++) {
+    for (; i < frDur - frFadeTime; i++) {
         *dst = preserve * *dst + *src;
         update(dst, src);
     }
-    for ( ; i < frDur; i++) {
+    for (; i < frDur; i++) {
         lambda = raisedCosFade(x);
-        *dst = mixFade(*dst, *src,
-                       1.f - lambda * (1.f - preserve), lambda);
+        *dst = mixFade(*dst, *src, 1.f - lambda * (1.f - preserve), lambda);
         x -= phi;
         update(dst, src);
     }
 }
 
-void BufDiskWorker::readBufferMono(const std::string &path, BufDesc &buf,
-                                   float startSrc, float startDst, float dur, int chanSrc, float preserve, float mix)
-noexcept {
+void BufDiskWorker::readBufferMono(const std::string &path, BufDesc &buf, float startSrc, float startDst, float dur,
+                                   int chanSrc, float preserve, float mix) noexcept {
     SndfileHandle file(path);
 
     if (file.frames() < 1) {
@@ -366,14 +459,12 @@ noexcept {
         frDst++;
         frSrc++;
     }
-    cleanup:
+cleanup:
     delete[] ioBuf;
 }
 
-void BufDiskWorker::readBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1,
-                                     float startTimeSrc, float startTimeDst, float dur,
-                                     float preserve, float mix)
-noexcept {
+void BufDiskWorker::readBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1, float startTimeSrc,
+                                     float startTimeDst, float dur, float preserve, float mix) noexcept {
     SndfileHandle file(path);
 
     if (file.frames() < 1) {
@@ -435,7 +526,7 @@ noexcept {
         frDst++;
         frSrc++;
     }
-    cleanup:
+cleanup:
     delete[] ioBuf;
 }
 
@@ -490,8 +581,8 @@ void BufDiskWorker::writeBufferMono(const std::string &path, BufDesc &buf, float
     }
 }
 
-void BufDiskWorker::writeBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1, float start, float dur)
-noexcept {
+void BufDiskWorker::writeBufferStereo(const std::string &path, BufDesc &buf0, BufDesc &buf1, float start,
+                                      float dur) noexcept {
     const int sr = 48000;
     const int channels = 2;
     const int format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
@@ -550,15 +641,17 @@ noexcept {
         ++frSrc;
         ++nf;
     }
-    cleanup:
+cleanup:
     delete[] ioBuf;
 }
 
 void BufDiskWorker::render(BufDesc &buf, float start, float dur, size_t samples, RenderCallback callback) {
-    if (samples == 0) { return; }
+    if (samples == 0) {
+        return;
+    }
 
     size_t frStart = secToFrame(start);
-    if (frStart < 0) { frStart = 0; }
+    // Remove comparison of unsigned with zero as it's always false
     clamp(frStart, buf.frames - 1);
 
     size_t frDur;
@@ -567,7 +660,9 @@ void BufDiskWorker::render(BufDesc &buf, float start, float dur, size_t samples,
     } else {
         frDur = secToFrame(dur);
     }
-    if (frDur < 1) { return; }
+    if (frDur < 1) {
+        return;
+    }
     clamp(frDur, buf.frames - frStart);
     clamp(samples, frDur);
     dur = frDur / (float)sampleRate;
@@ -587,7 +682,9 @@ void BufDiskWorker::render(BufDesc &buf, float start, float dur, size_t samples,
 
         // FIXME -- sloppy heuristic for how many frames to skip when peak finding
         int stride = (int)std::log2f(dur / 4);
-        if (stride < 1) { stride = 1; }
+        if (stride < 1) {
+            stride = 1;
+        }
         for (m = 1; m <= samples; m++) {
             wStart = secToFrame(start + (m - 1) * window);
             wEnd = secToFrame(start + m * window);

@@ -34,12 +34,11 @@ building
 * macOS (13.1 Ventura)
 
 when building directly on a norns device `maiden-repl` should be built by
-default as part of the `waf` based build system for the full norns software
+default as part of the CMake-based build system for the full norns software
 stack (matron, crone, etc.)
 
-when building on linux or macOS the a secondary `cmake` based build sytem allows
-for building the command independently of the full norns stack. the `cmake`
-system is very rudimentary.
+when building on linux or macOS, the CMake build system allows
+for building the command independently of the full norns stack.
 
 on linux manually install the following dependencies:
 ```
@@ -63,4 +62,3 @@ make
 
 the resulting `maiden-repl` command in the build directory can be copied out and
 placed in a directory which is on one's `PATH`.
-

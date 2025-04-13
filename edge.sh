@@ -3,5 +3,5 @@ set -e
 cd "$(dirname "$0")"
 git pull
 git submodule update
-./waf configure
-./waf -j2
+./build.sh configure
+./build.sh build

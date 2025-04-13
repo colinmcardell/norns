@@ -12,8 +12,8 @@
 #include "clocks/clock_internal.h"
 #include "clocks/clock_link.h"
 #include "clocks/clock_midi.h"
-#include "config.h"
 #include "clocks/clock_scheduler.h"
+#include "config.h"
 #include "device.h"
 #include "device_hid.h"
 #include "device_list.h"
@@ -21,6 +21,7 @@
 #include "device_monitor.h"
 #include "device_monome.h"
 #include "events.h"
+#include "hardware/screen/ssd1322.h"
 #include "hello.h"
 #include "i2c.h"
 #include "input.h"
@@ -32,7 +33,6 @@
 #include "screen_events.h"
 #include "screen_results.h"
 #include "stat.h"
-#include "hardware/screen/ssd1322.h"
 
 #include "oracle.h"
 #include "weaver.h"
@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 
     print_version();
     init_platform();
-    printf("platform: %d\n",platform());
+    printf("platform: %d\n", platform());
 
     events_init(); // <-- must come first!
     if (config_init()) {
@@ -80,10 +80,8 @@ int main(int argc, char **argv) {
     clock_internal_init();
     clock_midi_init();
     clock_crow_init();
-#if HAVE_ABLETON_LINK
     clock_link_init();
     clock_link_start();
-#endif
     clock_scheduler_init();
 
     fprintf(stderr, "init oracle...\n");
@@ -126,7 +124,7 @@ int main(int argc, char **argv) {
 
     fprintf(stderr, "running post-startup...\n");
     w_post_startup();
-    
+
     // blocks until quit
     event_loop();
 }

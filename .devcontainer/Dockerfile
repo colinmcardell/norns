@@ -35,6 +35,8 @@ RUN apt-get update && apt-get install -y \
     libjack-jackd2-dev \
     liblo-dev \
     liblua5.3-dev \
+    libportaudio2 \
+    portaudio19-dev \
     libsdl2-dev \
     libsndfile1-dev \
     libudev-dev \
@@ -89,6 +91,20 @@ RUN mkdir -p /tmp/nanomsg && \
     rm -rf /tmp/nanomsg && \
     ldconfig
 
+# Install libfaust with proper dependencies
+RUN apt-get update && apt-get install -y \
+    libmicrohttpd-dev \
+    libsndfile1-dev \
+    libssl-dev \
+    libjson-c-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && git clone --depth=1 https://github.com/grame-cncm/faust.git \
+    && cd faust \
+    && make \
+    && make install \
+    && cd / \
+    && rm -rf faust
+
 # Create non-root user
 RUN groupadd --gid 1000 vscode && \
     useradd --uid 1000 --gid 1000 -m vscode && \
@@ -108,6 +124,11 @@ RUN luarocks install busted && \
     luarocks install luacheck && \
     luarocks install ldoc
 
+# Set up SuperCollider extensions directory structure
+RUN mkdir -p /home/vscode/.local/share/SuperCollider/Extensions && \
+    chown -R vscode:vscode /home/vscode/.local
+
 # Set the default user
 USER vscode
 WORKDIR /workspace
+

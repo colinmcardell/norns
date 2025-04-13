@@ -30,5 +30,7 @@
     // Remove the vscode volume from mounts array to avoid duplicating it
     "mounts": [],
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
-    "workspaceFolder": "/workspace"
+    "workspaceFolder": "/workspace",
+    // Run SuperCollider setup script when container is created
+    "postCreateCommand": "chmod +x /workspace/sc/sc_setup.sh && /workspace/sc/sc_setup.sh"
 }
