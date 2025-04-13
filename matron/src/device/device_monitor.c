@@ -357,6 +357,10 @@ char *get_device_name(struct udev_device *dev) {
         }
     }
 
+    if (current_name == NULL) {
+        return strdup("Unknown Device");
+    }
+
     return strdup(current_name);
 }
 
