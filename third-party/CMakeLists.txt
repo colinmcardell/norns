@@ -44,6 +44,11 @@ if(BUILD_ABLETON_LINK)
         message(FATAL_ERROR "PortAudio is required for Ableton Link but was not found")
     endif()
 
+    # Set compiler flags override before including Link
+    if(UNIX)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error")
+    endif()
+
     # Add Link subdirectory
     add_subdirectory(link)
 
