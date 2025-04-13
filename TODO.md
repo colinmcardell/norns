@@ -2,3 +2,4 @@
 - [ ] Confirm that the `./build.sh` script is actually using the toolchain files and `-DCMAKE_TOOLCHAIN_FILE` flag and that they work.
 - [ ] Add clang-format to the `.devcontainer` dependencies within the Dockerfile.
 - [ ] Add clang-format to the pre-commit hooks (`./clang-format.sh`).
+- [ ] Resolve issues with Github Actions

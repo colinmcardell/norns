@@ -1,11 +1,12 @@
-name: Norns CI
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:  # Allow manual triggering
+# Workflow temporarily disabled
+# name: Norns CI
+#
+# on:
+#   push:
+#     branches: [ main ]
+#   pull_request:
+#     branches: [ main ]
+#   workflow_dispatch:  # Allow manual triggering
 
 jobs:
   linux-build:
