@@ -198,8 +198,8 @@ run_cmake() {
             cmake --install build/cmake "${build_opts[@]}"
             ;;
         test)
-            echo "Running: ctest --test-dir build/cmake ${build_opts[*]}"
-            ctest --test-dir build/cmake "${build_opts[@]}"
+            echo "Running: ctest --test-dir build/cmake -V ${build_opts[*]}"
+            ctest --test-dir build/cmake -V "${build_opts[@]}"
             ;;
     esac
 }

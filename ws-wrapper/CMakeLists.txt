@@ -28,12 +28,23 @@ if(NOT NANOMSG_FOUND)
 endif()
 
 # Define source files
+set(WS_WRAPPER_LIB_SOURCES
+    src/ws_wrapper.c
+)
+
 set(WS_WRAPPER_SOURCES
     src/main.c
 )
 
+# Create a library for testing
+add_library(ws-wrapper-lib OBJECT ${WS_WRAPPER_LIB_SOURCES})
+target_include_directories(ws-wrapper-lib PUBLIC
+    src
+    ${NANOMSG_INCLUDE_DIRS}
+)
+
 # Create executable
-add_executable(ws-wrapper ${WS_WRAPPER_SOURCES})
+add_executable(ws-wrapper ${WS_WRAPPER_SOURCES} $<TARGET_OBJECTS:ws-wrapper-lib>)
 
 # Include directories
 target_include_directories(ws-wrapper PRIVATE
@@ -64,4 +75,10 @@ if(DEFINED NORNS_USER_DIR)
 else()
     # System installation
     install(TARGETS ws-wrapper DESTINATION bin)
+endif()
+
+# Add tests if testing is enabled
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
 endif()
