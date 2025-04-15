@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     apt-utils \
     build-essential \
     ca-certificates \
-    clang-format \
+    clang-format-16 \
     cmake \
     curl \
     git \
@@ -105,6 +105,9 @@ RUN apt-get update && apt-get install -y \
     && make install \
     && cd / \
     && rm -rf faust
+
+# Alias clang-format-16 to clang-format
+RUN update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-16 100
 
 # Create non-root user
 RUN groupadd --gid 1000 vscode && \
