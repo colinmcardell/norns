@@ -10,7 +10,7 @@ extern int jack_client_init();
 
 extern void jack_client_deinit();
 
-// return the running estimate of audio CPU load reported by jack 
+// return the running estimate of audio CPU load reported by jack
 // returns ratio in [0,1]
 extern float jack_client_get_cpu_load();
 

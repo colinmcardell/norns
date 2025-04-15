@@ -197,7 +197,8 @@ void handle_screen_event(struct screen_event_data *ev) {
         ev->buf = NULL; // Didn't make a copy of the pointer, nullify to avoid double free.
         break;
     case SCREEN_EVENT_DISPLAY_SURFACE_REGION:
-        screen_surface_display_region(ev->buf, ev->payload.d.d1, ev->payload.d.d2, ev->payload.d.d3, ev->payload.d.d4, ev->payload.d.d5, ev->payload.d.d6);
+        screen_surface_display_region(ev->buf, ev->payload.d.d1, ev->payload.d.d2, ev->payload.d.d3, ev->payload.d.d4,
+                                      ev->payload.d.d5, ev->payload.d.d6);
         ev->buf = NULL; // Didn't make a copy of the pointer, nullify to avoid double free.
         break;
     case SCREEN_EVENT_ROTATE:
@@ -505,7 +506,7 @@ void screen_event_display_png(const char *s, double x, double y) {
     screen_event_data_push(&ev);
 }
 
-void screen_event_display_surface(void* surface, double x, double y) {
+void screen_event_display_surface(void *surface, double x, double y) {
     struct screen_event_data ev;
     screen_event_data_init(&ev);
     ev.type = SCREEN_EVENT_DISPLAY_SURFACE;
@@ -515,7 +516,8 @@ void screen_event_display_surface(void* surface, double x, double y) {
     screen_event_data_push(&ev);
 }
 
-void screen_event_display_surface_region(void* surface, double left, double top, double width, double height, double x, double y) {
+void screen_event_display_surface_region(void *surface, double left, double top, double width, double height, double x,
+                                         double y) {
     struct screen_event_data ev;
     screen_event_data_init(&ev);
     ev.type = SCREEN_EVENT_DISPLAY_SURFACE_REGION;

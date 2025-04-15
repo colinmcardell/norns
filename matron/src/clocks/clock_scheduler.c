@@ -146,7 +146,8 @@ bool clock_scheduler_schedule_sync(int thread_id, double sync_beat, double sync_
 
             // count from the stored sync_clock_beat when syncing the same coroutine
             if (event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
-                event->sync_clock_beat = clock_scheduler_next_clock_beat(event->sync_clock_beat, sync_beat, sync_beat_offset);
+                event->sync_clock_beat =
+                    clock_scheduler_next_clock_beat(event->sync_clock_beat, sync_beat, sync_beat_offset);
             } else {
                 event->sync_clock_beat = clock_scheduler_next_clock_beat(clock_beat, sync_beat, sync_beat_offset);
                 event->type = CLOCK_SCHEDULER_EVENT_SYNC;
@@ -223,7 +224,8 @@ void clock_scheduler_reschedule_sync_events() {
         event = &clock_scheduler_events[i];
 
         if (event->ready && event->type == CLOCK_SCHEDULER_EVENT_SYNC) {
-            event->sync_clock_beat = clock_scheduler_next_clock_beat(clock_beat, event->sync_beat, event->sync_beat_offset);
+            event->sync_clock_beat =
+                clock_scheduler_next_clock_beat(clock_beat, event->sync_beat, event->sync_beat_offset);
         }
     }
 

@@ -321,7 +321,7 @@ struct event_softcut_render {
     float sec_per_sample;
     float start;
     size_t size;
-    float* data;
+    float *data;
 }; // + 20
 
 struct event_softcut_position {
