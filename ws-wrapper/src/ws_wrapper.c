@@ -1,8 +1,10 @@
 /*
- * ws-wrapper
+ * ws-wrapper - implementation file
  *
- * this utility launches an arbitrary executable as a child process,
- * and binds the child's standard I/O to a ws socket
+ * This file contains the core functionality to launch an executable as a child
+ * process, and bind the child's standard I/O to a WebSocket (ws) socket.
+ *
+ * The main entry point for the application is in main.c.
  *
  */
 
