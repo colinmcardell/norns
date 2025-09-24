@@ -174,6 +174,10 @@ class MixerClient : public Client<6, 6> {
         tape.setLooping(loop);
     }
 
+    void seekTapePlayback(float positionSeconds) {
+        tape.seekPlaybackToSeconds(static_cast<double>(positionSeconds));
+    }
+
     TapeStatus getTapeStatus() {
         TapeStatus s{};
 

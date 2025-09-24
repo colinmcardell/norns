@@ -1044,6 +1044,13 @@ void OscInterface::addServerMethods() {
         mixerClient->stopTapePlayback();
     });
 
+    addServerMethod("/tape/play/seek", "f", [](lo_arg **argv, int argc) {
+        if (argc < 1) {
+            return;
+        }
+        mixerClient->seekTapePlayback(argv[0]->f);
+    });
+
     addServerMethod("/tape/play/loop", "i", [](lo_arg **argv, int argc) {
         if (argc < 1) {
             return;

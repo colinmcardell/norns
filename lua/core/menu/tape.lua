@@ -140,6 +140,35 @@ local function arm_recording(filename)
   audio.tape_record_open(_path.tape .. filename .. ".wav")
 end
 
+local function compute_seek_step()
+  if m.play.len <= 0 then return 0 end
+  local step = m.play.len / 200
+  if step < 0.05 then step = 0.05 end
+  if step > 5 then step = 5 end
+  return step
+end
+
+local function seek_playback_position(delta)
+  if delta == 0 then return end
+  if m.play.state == C.TAPE_PLAY_STATE_EMPTY then return end
+  if m.play.len <= 0 then return end
+
+  local step = compute_seek_step()
+  if step == 0 then return end
+
+  local next_pos = util.clamp(m.play.pos + (delta * step), 0, m.play.len)
+  if math.abs(next_pos - m.play.pos) < 1e-3 then return end
+
+  audio.tape_play_seek(next_pos)
+
+  -- optimistic local update; engine status will refresh shortly
+  m.play.pos = next_pos
+  m.play.pos_str = util.s_to_hms(math.floor(next_pos))
+  if m.play.len > 0 then
+    m.play.progress = (next_pos / m.play.len * 128)
+  end
+end
+
 local function edit_filename(txt)
   if not txt then
     return
@@ -278,8 +307,14 @@ local function draw_play_status()
 
   -- draw status centered in a fixed column
   screen.level(15)
-  screen.move(35, 24)
-  screen.text(m.play.status_label)
+  screen.move(64, 24)
+  screen.text_center(m.play.status_label)
+
+  screen.level(2)
+  screen.move(0, 32)
+  screen.text("E3 SEEK")
+  screen.move(127, 32)
+  screen.text_right("K1+E3 LOOP")
 end
 
 local function draw_play_loop_icon()
@@ -418,7 +453,7 @@ end
 
 m.enc = function(n, d)
   -- E2 = switch tape mode
-  -- E3 = loop toggle in play mode only
+  -- E3 = seek playback (hold K1 to toggle loop)
   if n == 2 then
     if d > 0 then
       m.mode = TAPE_MODE_REC
@@ -426,8 +461,15 @@ m.enc = function(n, d)
       m.mode = TAPE_MODE_PLAY
     end
   elseif n == 3 and m.mode == TAPE_MODE_PLAY then
-    local new_loop = (d > 0)
-    audio.tape_play_loop(new_loop)
+    if _menu and _menu.alt then
+      if d > 0 then
+        audio.tape_play_loop(true)
+      elseif d < 0 then
+        audio.tape_play_loop(false)
+      end
+    else
+      seek_playback_position(d)
+    end
   end
 end
 

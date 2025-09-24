@@ -21,6 +21,7 @@ local function setup_tape_env(opts)
     tape_play_pause = mock.spy(),
     tape_play_open = mock.spy(),
     tape_play_loop = mock.spy(),
+    tape_play_seek = mock.spy(),
     tape_record_start = mock.spy(),
     tape_record_pause = mock.spy(),
     tape_record_stop = mock.spy(),
@@ -29,6 +30,7 @@ local function setup_tape_env(opts)
 
   -- menu spies
   _menu = { redraw = mock.spy(), draw_panel = mock.spy() }
+  _menu.alt = false
 
   -- minimal screen stubs (only spy on update, others are no-ops)
   screen = {
@@ -194,18 +196,46 @@ function TestTape.test_enc_loop_toggle_in_play_mode()
   local TM = tape.constants
   luaunit.assertEquals(tape.mode, TM.TAPE_MODE_PLAY)
 
+  _menu.alt = true
   _norns.tape_play_loop.reset()
+  _norns.tape_play_seek.reset()
   tape.enc(3, 1)
 
   luaunit.assertTrue(_norns.tape_play_loop.called())
   luaunit.assertEquals(_norns.tape_play_loop.args(1)[1], 1)
+  luaunit.assertFalse(_norns.tape_play_seek.called())
 
+  _menu.alt = true
   _norns.tape_play_loop.reset()
   tape.enc(3, -1)
 
   luaunit.assertTrue(_norns.tape_play_loop.called())
   luaunit.assertEquals(_norns.tape_play_loop.args(1)[1], 0)
 
+  _menu.alt = false
+  env.restore()
+end
+
+function TestTape.test_enc_seek_adjusts_position()
+  -- E3 without K1 seeks within the loaded playback file
+  local env = setup_tape_env()
+  local tape = env.tape
+  local C = audio.tape.constants
+  local TM = tape.constants
+  tape.mode = TM.TAPE_MODE_PLAY
+
+  _norns.tape_status(C.TAPE_PLAY_STATE_READY, 5.0, 10.0, C.TAPE_REC_STATE_READY, 0.0, 1)
+
+  _menu.alt = false
+  _norns.tape_play_seek.reset()
+  _norns.tape_play_loop.reset()
+  tape.enc(3, 2)
+
+  luaunit.assertTrue(_norns.tape_play_seek.called())
+  luaunit.assertAlmostEquals(_norns.tape_play_seek.args(1)[1], 5.1, 1e-3)
+  luaunit.assertFalse(_norns.tape_play_loop.called())
+
+  _menu.alt = false
   env.restore()
 end
 
@@ -217,10 +247,12 @@ function TestTape.test_enc_loop_noop_in_rec_mode()
   tape.mode = TM.TAPE_MODE_REC
 
   _norns.tape_play_loop.reset()
+  _menu.alt = true
   tape.enc(3, 1)
 
   luaunit.assertFalse(_norns.tape_play_loop.called())
 
+  _menu.alt = false
   env.restore()
 end
 
@@ -281,9 +313,11 @@ function TestTape.test_no_redundant_redraws_from_handlers_only_state_updates()
   luaunit.assertFalse(_menu.redraw.called())
 
   -- loop toggle should not redraw
+  _menu.alt = true
   _menu.redraw.reset()
   tape.enc(3, 1)
   luaunit.assertFalse(_menu.redraw.called())
+  _menu.alt = false
 
   -- play/pause via key should not redraw; but the following status update should
   _menu.redraw.reset()

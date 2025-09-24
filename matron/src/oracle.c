@@ -532,6 +532,10 @@ void o_tape_play_loop(int enabled) {
     lo_send(crone_addr, "/tape/play/loop", "i", enabled);
 }
 
+void o_tape_play_seek(float position) {
+    lo_send(crone_addr, "/tape/play/seek", "f", position);
+}
+
 //--- cut
 void o_cut_enable(int i, float value) {
     lo_send(crone_addr, "/set/enabled/cut", "if", i, value);

@@ -93,6 +93,7 @@ _norns.softcut_position = function(i,pos) end
 -- tape callbacks
 _norns.tape_status = function(_play_state, _play_pos_s, _play_len_s, _rec_state, _rec_pos_s, _loop_enabled) end
 _norns.tape_play_file = function(_path) end
+_norns.tape_play_seek = function(_) end
 _norns.tape_rec_file = function(_path) end
 
 -- default readings for battery

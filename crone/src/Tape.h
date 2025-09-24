@@ -12,6 +12,7 @@
 #include <mutex>
 #include <string>
 #include <thread>
+#include <chrono>
 
 #include <cerrno>
 #include <cstring>
@@ -84,14 +85,16 @@ class Tape {
                              Pause,
                              Resume,
                              Stop,
-                             SetLoop };
+                             SetLoop,
+                             Seek };
 
         // command structure for command queue
         // - arg is command-specific (e.g. SetLoop uses arg as bool)
         // - epoch is used as a run id for discarding stale commands
         struct Cmd {
             Command type;
-            uint32_t arg;
+            uint32_t arg0;
+            uint32_t arg1;
             uint32_t epoch;
         };
         static constexpr size_t cmdQueueCapacity = 64;
@@ -206,9 +209,9 @@ class Tape {
         }
 
         // safely adds a command to the queue with a timestamp to track which session it belongs to
-        bool enqueueCmd(Command type, uint32_t arg = 0u) {
+        bool enqueueCmd(Command type, uint32_t arg0 = 0u, uint32_t arg1 = 0u) {
             std::lock_guard<std::mutex> lock(cmdMutex);
-            Cmd c{type, arg, runEpoch.load(std::memory_order_relaxed)};
+            Cmd c{type, arg0, arg1, runEpoch.load(std::memory_order_relaxed)};
             return cmdQueue.try_enqueue(c);
         }
 
@@ -252,6 +255,7 @@ class Tape {
                     break;
 
                 case Command::SetLoop:
+                case Command::Seek:
                     processDerivedCommand(c);
                     break;
                 }
@@ -590,12 +594,15 @@ class Tape {
         // buffer for deinterleaving after ringbuf (audio thread)
         Sample pullBuf[NumChannels * maxFramesToRead]{};
         std::atomic<bool> isPrimed{};
+        std::atomic<uint64_t> startFrame{0};
+        std::atomic<uint64_t> pendingSeekFrame{0};
+        std::atomic<bool> pendingSeek{false};
         bool needsData{};
         std::atomic<bool> loopFile{};
 
       private:
         // prime the ringbuffer
-        void prime() {
+        size_t prime() {
             // std::cout << "priming tape reader" << std::endl;
             jack_ringbuffer_t *rb = this->ringBuf.get();
             size_t framesToRead = jack_ringbuffer_write_space(rb) / frameSize;
@@ -627,9 +634,12 @@ class Tape {
                 }
             }
 
-            if (inChannels == 1)
-                convertToStereo(framesRead);
-            jack_ringbuffer_write(rb, (char *)diskInBuf, frameSize * framesRead);
+            if (framesRead > 0) {
+                if (inChannels == 1)
+                    convertToStereo(framesRead);
+                jack_ringbuffer_write(rb, (char *)diskInBuf, frameSize * framesRead);
+            }
+            return framesRead;
         }
         void convertToStereo(size_t frameCount) {
             size_t fr = 0;
@@ -639,6 +649,33 @@ class Tape {
                 diskInBuf[2 * fr + 1] = sample;
                 fr++;
             }
+        }
+
+        void handlePendingSeek() {
+            uint64_t target = pendingSeekFrame.load(std::memory_order_relaxed);
+            size_t totalFrames = frames.load(std::memory_order_relaxed);
+            if (target > totalFrames) {
+                target = totalFrames;
+            }
+            pendingSeek.store(false, std::memory_order_release);
+            if (this->file == nullptr) {
+                isPrimed = false;
+                return;
+            }
+            if (sf_seek(this->file, static_cast<sf_count_t>(target), SEEK_SET) == -1) {
+                this->status = EIO;
+                SfStream::shouldStop = true;
+                return;
+            }
+            jack_ringbuffer_reset(this->ringBuf.get());
+            needsData = false;
+            size_t primed = 0;
+            if (target < totalFrames) {
+                primed = prime();
+            }
+            isPrimed = (primed > 0);
+            framesProcessed.store(static_cast<size_t>(target), std::memory_order_relaxed);
+            startFrame.store(target, std::memory_order_relaxed);
         }
 
       public:
@@ -654,7 +691,22 @@ class Tape {
       protected:
         void processDerivedCommand(const typename SfStream::Cmd &c) noexcept override {
             if (c.type == SfStream::Command::SetLoop) {
-                loopFile = (c.arg != 0);
+                loopFile = (c.arg0 != 0);
+            } else if (c.type == SfStream::Command::Seek) {
+                uint64_t target = (static_cast<uint64_t>(c.arg1) << 32) | static_cast<uint64_t>(c.arg0);
+                size_t total = frames.load(std::memory_order_relaxed);
+                if (target > total) {
+                    target = total;
+                }
+                framesProcessed.store(static_cast<size_t>(target), std::memory_order_relaxed);
+                startFrame.store(target, std::memory_order_relaxed);
+                pendingSeekFrame.store(target, std::memory_order_relaxed);
+                pendingSeek.store(true, std::memory_order_release);
+                isPrimed = false;
+                this->envIdx = 0;
+                this->envState = SfStream::EnvState::FadeIn;
+                this->transportState = TransportState::Starting;
+                this->cv.notify_one();
             }
         }
 
@@ -760,15 +812,20 @@ class Tape {
 
         // open file for reading - from any thread
         bool open(const std::string &path) {
-            std::lock_guard<std::mutex> lifecycleLock(this->lifecycleMutex);
+            std::unique_lock<std::mutex> lifecycleLock(this->lifecycleMutex);
             if (SfStream::isRunning) {
-                std::cout << "Tape Reader::open(): stream is running; no action was taken" << std::endl;
-                return false;
+                lifecycleLock.unlock();
+                SfStream::stop();
+                while (SfStream::isRunning.load(std::memory_order_relaxed)) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                }
+                lifecycleLock.lock();
             }
             if (this->th && this->th->joinable()) {
                 this->shouldStop = true;
                 this->cv.notify_one();
                 this->th->join();
+                this->th.reset();
             }
 
             SF_INFO sfInfo;
@@ -800,6 +857,9 @@ class Tape {
 
             jack_ringbuffer_reset(this->ringBuf.get());
             isPrimed = false;
+            startFrame.store(0, std::memory_order_relaxed);
+            pendingSeek.store(false, std::memory_order_relaxed);
+            pendingSeekFrame.store(0, std::memory_order_relaxed);
 
             // default to looping unless file is too short
             loopFile = true;
@@ -818,31 +878,89 @@ class Tape {
         }
 
         void start() override {
+            size_t fileFrames = frames.load(std::memory_order_relaxed);
+            uint64_t offset = startFrame.load(std::memory_order_relaxed);
+            if (offset > fileFrames) {
+                offset = fileFrames;
+            }
+            if (this->file != nullptr) {
+                if (sf_seek(this->file, static_cast<sf_count_t>(offset), SEEK_SET) == -1) {
+                    this->status = EIO;
+                    offset = 0;
+                    sf_seek(this->file, 0, SEEK_SET);
+                }
+            }
             isPrimed = false;
             {
                 std::unique_lock<std::mutex> lock(this->diskMutex);
                 needsData = false;
             }
             this->transportState = TransportState::Idle;
-            framesProcessed = 0;
+            framesProcessed.store(static_cast<size_t>(offset), std::memory_order_relaxed);
             jack_ringbuffer_reset(this->ringBuf.get());
+            pendingSeek.store(false, std::memory_order_relaxed);
             SfStream::start();
+        }
+
+        bool requestSeekFrame(uint64_t frame) {
+            if (this->file == nullptr) {
+                return false;
+            }
+            size_t total = frames.load(std::memory_order_relaxed);
+            if (total == 0) {
+                return false;
+            }
+            if (frame > total) {
+                frame = total;
+            }
+            startFrame.store(frame, std::memory_order_relaxed);
+            framesProcessed.store(static_cast<size_t>(frame), std::memory_order_relaxed);
+
+            if (!SfStream::isRunning.load(std::memory_order_relaxed)) {
+                std::unique_lock<std::mutex> lock(this->lifecycleMutex);
+                if (this->file != nullptr) {
+                    if (sf_seek(this->file, static_cast<sf_count_t>(frame), SEEK_SET) == -1) {
+                        this->status = EIO;
+                        return false;
+                    }
+                }
+                jack_ringbuffer_reset(this->ringBuf.get());
+                isPrimed = false;
+                pendingSeek.store(false, std::memory_order_relaxed);
+                return true;
+            }
+
+            uint32_t lo = static_cast<uint32_t>(frame & 0xffffffffULL);
+            uint32_t hi = static_cast<uint32_t>(frame >> 32);
+            if (!this->enqueueCmd(SfStream::Command::Seek, lo, hi)) {
+                std::cout << "Tape::Reader::requestSeekFrame(): command queue full, dropping Seek" << std::endl;
+                return false;
+            }
+            return true;
         }
 
       private:
         // disk thread: read audio file and feed ringbuffer
         void diskLoop() override {
             needsData = false;
-            prime(); // pre-fill ringbuffer
-            isPrimed = true;
+            size_t primed = prime(); // pre-fill ringbuffer
+            isPrimed = (primed > 0);
             SfStream::isRunning = true;
             SfStream::shouldStop = false;
             while (!SfStream::shouldStop) {
+                if (pendingSeek.load(std::memory_order_acquire)) {
+                    handlePendingSeek();
+                    continue;
+                }
                 {
                     std::unique_lock<std::mutex> lock(this->diskMutex);
                     this->cv.wait(lock, [this] {
-                        return this->needsData || SfStream::shouldStop;
+                        return this->needsData || SfStream::shouldStop || pendingSeek.load(std::memory_order_acquire);
                     });
+                    if (pendingSeek.load(std::memory_order_acquire)) {
+                        this->needsData = false;
+                        continue;
+                    }
                     if (!needsData) {
                         if (SfStream::shouldStop) {
                             break;
@@ -1001,6 +1119,35 @@ class Tape {
     }
     size_t recordFramesCaptured() const {
         return writer.numFramesCaptured.load(std::memory_order_relaxed);
+    }
+
+    bool seekPlaybackToFrame(uint64_t frame) {
+        return reader.requestSeekFrame(frame);
+    }
+
+    bool seekPlaybackToSeconds(double seconds) {
+        if (seconds < 0.0) {
+            seconds = 0.0;
+        }
+        float fileSr = playbackFileSampleRate();
+        double sr = static_cast<double>(fileSr);
+        if (sr <= 0.0) {
+            sr = static_cast<double>(getSampleRate());
+        }
+        if (sr <= 0.0) {
+            return false;
+        }
+
+        size_t totalFrames = playbackFramesTotal();
+        if (totalFrames > 0) {
+            double maxSeconds = static_cast<double>(totalFrames) / sr;
+            if (seconds > maxSeconds) {
+                seconds = maxSeconds;
+            }
+        }
+
+        uint64_t frame = static_cast<uint64_t>(seconds * sr);
+        return reader.requestSeekFrame(frame);
     }
 };
 

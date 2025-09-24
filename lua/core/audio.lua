@@ -304,6 +304,10 @@ Audio.tape_play_loop = function(enabled)
   _norns.tape_play_loop(enabled and 1 or 0)
 end
 
+Audio.tape_play_seek = function(position_s)
+  _norns.tape_play_seek(position_s)
+end
+
 --- open a tape recording file.
 -- @param file
 Audio.tape_record_open = function(file)
