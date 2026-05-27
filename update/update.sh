@@ -21,6 +21,12 @@ sudo cp -a /home/we/norns/build/maiden-repl/maiden-repl /home/we/bin/
 cp version.txt /home/we/
 cp changelog.txt /home/we/
 
+# update apt source
+sudo cp config/raspi.list /etc/apt/sources.list.d/
+
+# install nng
+sudo apt-get update && sudo apt-get -y install libnng1 libnng-dev
+
 # remove logging
 sudo apt -y remove rsyslog
 sudo cp config/logrotate.conf /etc/
@@ -31,6 +37,28 @@ sudo rm -rf /var/log/user.log
 
 # disable hciuart
 sudo systemctl disable hciuart
+
+# update services
+sudo systemctl disable norns-matron.service 2>/dev/null
+sudo systemctl disable norns-crone.service 2>/dev/null
+sudo rm -f /etc/systemd/system/norns-matron.service
+sudo rm -f /etc/systemd/system/norns-crone.service
+sudo cp --remove-destination config/norns-main.service /etc/systemd/system/norns-main.service
+sudo cp --remove-destination config/norns-sclang.service /etc/systemd/system/norns-sclang.service
+sudo cp --remove-destination config/norns.target /etc/systemd/system/norns.target
+sudo systemctl enable norns-main.service
+sudo systemctl enable norns-sclang.service
+
+# add watcher
+sudo cp --remove-destination config/norns-watcher.service /etc/systemd/system/norns-watcher.service
+sudo systemctl enable norns-watcher
+
+# packages
+#sudo dpkg -i package/*.deb
+
+# norns-image
+#cd /home/we/norns-image
+#./setup.sh
 
 # update jack systemd
 sudo cp --remove-destination config/norns-jack.service /etc/systemd/system/norns-jack.service
@@ -53,10 +81,6 @@ sudo dpkg -i package/*.deb
 # clean slate
 rm /home/we/matronrc.lua
 
-# maiden project setup
-cd /home/we/maiden
-./project-setup.sh
-
 # get common audio if not present
 if [ ! -d /home/we/dust/audio/common ]; then
 	echo "does not exist, downloading"
@@ -66,9 +90,14 @@ if [ ! -d /home/we/dust/audio/common ]; then
 	rm dust-audio-common.tgz
 fi
 
+# update libmonome
 cd "$(dirname "$0")"/package/libmonome
 ./waf configure
 sudo ./waf install
+
+# maiden project setup
+cd /home/we/maiden
+./project-setup.sh
 
 # cleanup
 rm -rf ~/update/*
