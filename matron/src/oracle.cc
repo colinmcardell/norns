@@ -763,8 +763,8 @@ void o_poll_callback_softcut_render(int idx, float sec_per_sample, float start, 
     ev->softcut_render.sec_per_sample = sec_per_sample;
     ev->softcut_render.start = start;
     ev->softcut_render.size = size;
-    ev->softcut_render.data = (float *)calloc(1, size);
-    memcpy(ev->softcut_render.data, data, size);
+    ev->softcut_render.data = (float *)calloc(size, sizeof(float));
+    memcpy(ev->softcut_render.data, data, size * sizeof(float));
     event_post(ev);
 }
 
