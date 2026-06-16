@@ -1,3 +1,10 @@
+# 260616
+
+# norns 3.0.1
+
+- FIX softcut phase_quant, phase_offset, softcut_render #1896 @colinmcardell
+
+
 # 260526
 
 # norns 3.0.0
