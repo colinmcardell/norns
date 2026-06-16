@@ -35,7 +35,9 @@ std::map<const std::string, std::function<void(int, float)>> cut_param_fn_map =
      {"level_slew_time", crone_set_param_cut_level_slew_time},
      {"pan_slew_time", crone_set_param_cut_pan_slew_time},
      {"recpre_slew_time", crone_set_param_cut_recpre_slew_time},
-     {"rate_slew_time", crone_set_param_cut_rate_slew_time}};
+     {"rate_slew_time", crone_set_param_cut_rate_slew_time},
+     {"phase_quant", crone_set_param_cut_phase_quant},
+     {"phase_offset", crone_set_param_cut_phase_offset}};
 
 std::map<const std::string, std::function<void(int, int)>> cut_param_fn_map_ii =
     {
