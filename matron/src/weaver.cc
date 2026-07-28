@@ -3492,7 +3492,7 @@ int _system_glob(lua_State *l) {
 }
 
 static void _execute_completion(const char *cmd, void *ctx, const char *buf, size_t size) {
-    lua_pushstring((lua_State *)ctx, buf);
+    lua_pushstring((lua_State *)ctx, buf != NULL ? buf : "");
 }
 
 int _execute(lua_State *l) {

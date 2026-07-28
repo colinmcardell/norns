@@ -11,8 +11,11 @@ static void post_command_capture(const char *cmd, void *ctx, const char *respons
     int cb_ref = (int)ctx;
 
     if (response_size == 0) {
+        // FIXME the settings password change passes a plaintext password
+        // through here, and stderr reaches the journal and maiden.
         fprintf(stderr, "system_cmd: command (%s) failed\n", cmd);
-        return;
+        response_buff = "";
+        response_size = 1;
     }
 
     // response buffer is only valid during the callback so it is copied so that
