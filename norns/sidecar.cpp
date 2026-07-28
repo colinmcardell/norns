@@ -10,7 +10,7 @@
 #include <nng/protocol/reqrep0/req.h>
 #include <nng/transport/ipc/ipc.h>
 
-#include "readerwriterqueue.h"
+#include "blockingconcurrentqueue.h"
 #include "sidecar.h"
 
 //---------------------------------
@@ -47,7 +47,7 @@ union request {
     struct request_run_cmd run_cmd;
 };
 
-static moodycamel::BlockingReaderWriterQueue<union request *> requests(32);
+static moodycamel::BlockingConcurrentQueue<union request *> requests(32);
 
 static union request *request_new(request_type type) {
     union request *req = (request *)calloc(1, sizeof(union request));
@@ -195,7 +195,7 @@ struct client_state {
 
 static pthread_t client_thread;
 static struct client_state cs;
-static pthread_mutex_t run_cmd_lock;
+static pthread_mutex_t run_cmd_lock = PTHREAD_MUTEX_INITIALIZER;
 
 static void handle_run_cmd(const char *cmd, void *ctx, client_cmd_completion_t completion) {
     static char empty_result[1] = {'\0'};

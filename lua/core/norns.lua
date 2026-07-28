@@ -263,5 +263,5 @@ end
 
 -- expand the filesystem after a fresh installation
 norns.expand_filesystem = function()
-  os.execute('sudo raspi-config --expand-rootfs')
+  norns.system_cmd('sudo raspi-config --expand-rootfs')
 end
