@@ -20,6 +20,10 @@
 // it did not, so a non-zero exit is an END and a command that never started is
 // an ERROR.
 
+#define SIDECAR_MSG_HEADER_BYTES 2
+#define SIDECAR_MSG_TIMEOUT_BYTES 4
+#define SIDECAR_MSG_STATUS_BYTES 2
+
 typedef enum {
     // sidecar -> norns
     SIDECAR_MSG_CHUNK = 0x01,
@@ -30,10 +34,6 @@ typedef enum {
     SIDECAR_MSG_DETACH = 0x11,
 } sidecar_msg_type_t;
 
-#define SIDECAR_MSG_HEADER_BYTES 2
-#define SIDECAR_MSG_TIMEOUT_BYTES 4
-#define SIDECAR_MSG_STATUS_BYTES 2
-
 typedef struct {
     sidecar_msg_type_t type;
     uint8_t req_id;
@@ -41,7 +41,7 @@ typedef struct {
     size_t payload_len;
     const char *unit;
     const char *cmd;
-    uint32_t timeout_ms; // CMD only, zero for no ceiling
+    uint32_t timeout_ms; // CMD only, longest quiet stretch between output, zero for no ceiling
     bool signalled;      // END only, true when code is a signal
     uint8_t code;        // END only
 } sidecar_frame_t;

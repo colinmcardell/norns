@@ -131,7 +131,8 @@ def build(bld):
         'main.cpp',
         'sidecar.cpp',
         'sidecar_lines.cpp',
-        'sidecar_msg.cpp'
+        'sidecar_msg.cpp',
+        'sidecar_shell.cpp'
     ]
 
     norns_libs = [

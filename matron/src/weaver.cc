@@ -48,7 +48,6 @@
 #include "screen.h"
 #include "screen_events.h"
 #include "screen_results.h"
-#include "sidecar.h"
 #include "snd_file.h"
 #include "system_cmd.h"
 #include "time_since.h"
@@ -2892,7 +2891,7 @@ void w_handle_softcut_position(int idx, float pos) {
 // handle system command capture
 void w_handle_system_cmd(char *capture, const int cb_ref) {
     lua_rawgeti(lvm, LUA_REGISTRYINDEX, cb_ref);
-    lua_pushstring(lvm, capture);
+    lua_pushstring(lvm, capture != NULL ? capture : "");
     l_report(lvm, l_docall(lvm, 1, 0));
     // free the callback ref created in _system_cmd
     luaL_unref(lvm, LUA_REGISTRYINDEX, cb_ref);
@@ -3460,7 +3459,12 @@ int _system_cmd(lua_State *l) {
     const char *cmd = luaL_checkstring(l, 1);
     // create a ref to callback to prevent prevent garbage collection
     const int cb_ref = luaL_ref(l, LUA_REGISTRYINDEX);
-    lua_pushboolean(l, system_cmd(cmd, cb_ref));
+    bool ok = system_cmd(cmd, cb_ref);
+    if (!ok) {
+        // no event will fire, so free the ref here
+        luaL_unref(l, LUA_REGISTRYINDEX, cb_ref);
+    }
+    lua_pushboolean(l, ok);
     return 1;
 }
 
@@ -3491,14 +3495,14 @@ int _system_glob(lua_State *l) {
     return 1;
 }
 
-static void _execute_completion(const char *cmd, void *ctx, const char *buf, size_t size) {
-    lua_pushstring((lua_State *)ctx, buf != NULL ? buf : "");
-}
-
 int _execute(lua_State *l) {
     lua_check_num_args(1);
     const char *cmd = luaL_checkstring(l, 1);
-    sidecar_client_cmd(cmd, l, _execute_completion);
+    char *capture = NULL;
+    size_t size = 0;
+    system_cmd_sync(cmd, &capture, &size);
+    lua_pushstring(l, capture ? capture : "");
+    free(capture);
     return 1;
 }
 

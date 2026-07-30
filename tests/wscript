@@ -730,8 +730,10 @@ def test(bld: BuildContext):
     # discover: group test files by directory
     tests_root, test_dirs = _discover_test_dirs(bld)
 
-    # common libs many tests require
+    # common libs many tests require. NNG is here so units that compile
+    # norns/sidecar.cpp link, the tests themselves never reach the transport.
     link_libs = ["pthread"]
+    uselibs = ["NNG"]
 
     # collect test units
     test_units: List[TestUnit] = []
@@ -768,6 +770,7 @@ def test(bld: BuildContext):
             cxxflags=build_config.cxxflags,
             defines=build_config.defines,
             lib=link_libs,
+            use=uselibs,
         )
 
     # store test units for validation hook
