@@ -17,12 +17,21 @@ void *g_last_ctx = nullptr;
 sidecar_chunk_cb_t g_last_on_chunk = nullptr;
 sidecar_done_cb_t g_last_on_done = nullptr;
 
+const char *g_last_unit = nullptr;
+
 static char *owned_cmd = nullptr;
+static char *owned_unit = nullptr;
 
 static void capture_cmd(const char *cmd) {
     free(owned_cmd);
     owned_cmd = strdup(cmd);
     g_last_cmd = owned_cmd;
+}
+
+static void capture_unit(const char *unit) {
+    free(owned_unit);
+    owned_unit = strdup(unit);
+    g_last_unit = owned_unit;
 }
 
 const char *g_sync_chunks[SYNC_SCRIPT_MAX_CHUNKS] = {};
@@ -42,10 +51,13 @@ int g_event_post_count = 0;
 void system_cmd_stubs_reset() {
     free(owned_cmd);
     owned_cmd = nullptr;
+    free(owned_unit);
+    owned_unit = nullptr;
     g_last_cmd = nullptr;
     g_last_ctx = nullptr;
     g_last_on_chunk = nullptr;
     g_last_on_done = nullptr;
+    g_last_unit = nullptr;
     for (int i = 0; i < SYNC_SCRIPT_MAX_CHUNKS; ++i) {
         g_sync_chunks[i] = nullptr;
     }
@@ -71,6 +83,14 @@ bool sidecar_client_cmd_async(const char *cmd, uint32_t timeout_ms, void *ctx, s
     g_last_on_chunk = on_chunk;
     g_last_on_done = on_done;
     return g_cmd_async_result;
+}
+
+bool sidecar_client_detach_async(const char *cmd, const char *unit, void *ctx, sidecar_done_cb_t on_done) {
+    capture_cmd(cmd);
+    capture_unit(unit);
+    g_last_ctx = ctx;
+    g_last_on_done = on_done;
+    return true;
 }
 
 void sidecar_client_cmd(const char *cmd, uint32_t timeout_ms, void *ctx, sidecar_chunk_cb_t on_chunk, sidecar_done_cb_t on_done) {

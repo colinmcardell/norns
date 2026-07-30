@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -113,6 +114,48 @@ static void finish_sync_capture(const char *cmd, void *ctx, const sidecar_status
     cap->status.err = NULL;
 }
 
+static void post_launch_done(const char *cmd, void *ctx, const sidecar_status_t *status) {
+    const int cb_ref = (int)(intptr_t)ctx;
+    const bool ok = (status->result == SIDECAR_OK);
+    const char *err = status->err;
+
+    if (status->result == SIDECAR_TRANSPORT_FAILED) {
+        err = "no answer from the sidecar, the action may still have started";
+    }
+
+    if (!ok) {
+        log_cmd_failure("system_cmd_detached", cmd, err);
+    }
+
+    union event_data *ev = event_data_new(EVENT_SYSTEM_CMD_DONE);
+    if (err != NULL) {
+        ev->system_cmd_done.err = strdup(err);
+    }
+    ev->system_cmd_done.cb_ref = cb_ref;
+    ev->system_cmd_done.ok = ok;
+    event_post(ev);
+}
+
+typedef struct {
+    const char *name;
+    const char *cmd;
+    const char *unit;
+} system_action_t;
+
+static const system_action_t system_actions[] = {
+    {"shutdown", "sleep 0.5; sudo shutdown now", "norns-shutdown"},
+    {"reset", "sudo systemctl restart norns-sclang.service norns-main.service", "norns-reset"},
+    {"update", NULL, "norns-update"},
+};
+
+static void build_update_cmd(char *buf, size_t len) {
+    const char *home = getenv("HOME");
+    if (home == NULL || home[0] == '\0') {
+        home = "/home/we";
+    }
+    snprintf(buf, len, "/bin/bash %s/norns/update/update.sh", home);
+}
+
 //-------------------------------
 //-- extern function definitions
 
@@ -144,4 +187,25 @@ bool system_cmd_sync(const char *cmd, char **out, size_t *size, sidecar_status_t
     *out = cap.buf;
     *size = cap.len;
     return true;
+}
+
+bool system_cmd_detached(const char *cmd, const char *unit, int cb_ref) {
+    return sidecar_client_detach_async(cmd, unit, (void *)(intptr_t)cb_ref, post_launch_done);
+}
+
+bool system_action(const char *action, int cb_ref) {
+    for (size_t i = 0; i < sizeof(system_actions) / sizeof(system_actions[0]); ++i) {
+        const system_action_t *a = &system_actions[i];
+        if (strcmp(a->name, action) != 0) {
+            continue;
+        }
+        if (a->cmd != NULL) {
+            return system_cmd_detached(a->cmd, a->unit, cb_ref);
+        }
+        char cmd[512];
+        build_update_cmd(cmd, sizeof(cmd));
+        return system_cmd_detached(cmd, a->unit, cb_ref);
+    }
+    fprintf(stderr, "system_action: unknown action (%s)\n", action);
+    return false;
 }

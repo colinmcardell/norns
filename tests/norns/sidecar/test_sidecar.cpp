@@ -55,3 +55,14 @@ TEST_CASE("sidecar_client_cmd_async: reports failure when the command cannot be 
 TEST_CASE("sidecar_client_cmd_async: enqueues and reports success when allocation works") {
     CHECK(sidecar_client_cmd_async("echo hi", 0, nullptr, ignore_chunk, ignore_done) == true);
 }
+
+TEST_CASE("sidecar_client_detach_async: reports failure when either copy fails") {
+    seam_guard guard;
+    sidecar_test_strdup = counting_strdup;
+
+    strdup_successes_left = 0;
+    CHECK(sidecar_client_detach_async("cmd", "unit", nullptr, ignore_done) == false);
+
+    strdup_successes_left = 1;
+    CHECK(sidecar_client_detach_async("cmd", "unit", nullptr, ignore_done) == false);
+}

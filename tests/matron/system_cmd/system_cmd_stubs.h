@@ -10,6 +10,8 @@ extern void *g_last_ctx;
 extern sidecar_chunk_cb_t g_last_on_chunk;
 extern sidecar_done_cb_t g_last_on_done;
 
+extern const char *g_last_unit;
+
 enum { SYNC_SCRIPT_MAX_CHUNKS = 8 };
 extern const char *g_sync_chunks[SYNC_SCRIPT_MAX_CHUNKS];
 extern int g_sync_chunk_count;

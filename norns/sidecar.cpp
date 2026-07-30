@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <errno.h>
+#include <grp.h>
 #include <pthread.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +30,8 @@ static const char *quit_cmd = "__quit__";
 #define SIDECAR_CLIENT_SENDTIMEO_MS 10000   // 10 s
 #define SIDECAR_SERVER_SENDTIMEO_MS 10000   // 10 s
 
+// bounds the error text captured from a failed launch
+#define SIDECAR_DETACH_OUTPUT_BYTES 4096
 // bounds what matron will buffer for one command, the server itself streams
 #define SIDECAR_CMD_MAX_OUTPUT_BYTES (1024 * 1024)
 // how long a dying command gets to run its cleanup traps before SIGKILL
@@ -78,6 +82,15 @@ static nng_msg *frame_build_cmd(uint8_t req_id, uint32_t timeout_ms, const char 
     return msg;
 }
 
+static nng_msg *frame_build_detach(uint8_t req_id, const char *unit, const char *cmd) {
+    size_t n = sidecar_msg_encode_detach(NULL, 0, req_id, unit, cmd);
+    nng_msg *msg = frame_alloc(n);
+    if (msg != NULL) {
+        sidecar_msg_encode_detach((uint8_t *)nng_msg_body(msg), n, req_id, unit, cmd);
+    }
+    return msg;
+}
+
 static int frame_send_chunk(nng_socket sock, uint8_t req_id, const char *payload, size_t len) {
     size_t n = sidecar_msg_encode_chunk(NULL, 0, req_id, payload, len);
     nng_msg *msg = frame_alloc(n);
@@ -112,6 +125,7 @@ static void frame_send_error(nng_socket sock, uint8_t req_id, const char *text) 
 typedef enum {
     REQUEST_FIRST_REQUEST = 0,
     REQUEST_CMD,
+    REQUEST_DETACH,
     REQUEST_QUIT,
 } request_type_t;
 
@@ -128,9 +142,18 @@ struct request_cmd {
     sidecar_done_cb_t on_done;
 };
 
+struct request_detach {
+    struct request_common common;
+    char *cmd;
+    char *unit;
+    void *ctx;
+    sidecar_done_cb_t on_done;
+};
+
 union request {
     request_type_t type;
     struct request_cmd cmd;
+    struct request_detach detach;
 };
 
 static moodycamel::BlockingConcurrentQueue<union request *> requests(32);
@@ -262,6 +285,107 @@ static void sidecar_server_stream_cmd(nng_socket sock, const char *cmd, uint8_t 
     }
 }
 
+static void sidecar_server_detach_cmd(nng_socket sock, const char *unit, const char *cmd, uint8_t req_id) {
+    char unit_arg[128];
+    char user_prop[96];
+    char group_prop[96];
+
+    if ((size_t)snprintf(unit_arg, sizeof(unit_arg), "--unit=%s", unit) >= sizeof(unit_arg)) {
+        frame_send_error(sock, req_id, "unit name too long");
+        return;
+    }
+
+    struct passwd *pw = getpwuid(getuid());
+    if (pw != NULL) {
+        snprintf(user_prop, sizeof(user_prop), "User=%s", pw->pw_name);
+    } else {
+        snprintf(user_prop, sizeof(user_prop), "User=%u", (unsigned)getuid());
+    }
+    struct group *gr = getgrgid(getgid());
+    if (gr != NULL) {
+        snprintf(group_prop, sizeof(group_prop), "Group=%s", gr->gr_name);
+    } else {
+        snprintf(group_prop, sizeof(group_prop), "Group=%u", (unsigned)getgid());
+    }
+
+    const char *argv[] = {
+        "/usr/bin/sudo", "-n", "/usr/bin/env", "SYSTEMD_LOG_COLOR=0",
+        "systemd-run", "--no-block", "--collect", unit_arg,
+        "-p", user_prop, "-p", group_prop, "--service-type=oneshot",
+        "/bin/sh", "-c", cmd, NULL};
+
+    int fds[2];
+    if (pipe(fds) != 0) {
+        frame_send_error(sock, req_id, "pipe() failed");
+        return;
+    }
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        close(fds[0]);
+        close(fds[1]);
+        frame_send_error(sock, req_id, "fork() failed");
+        return;
+    }
+
+    if (pid == 0) {
+        dup2(fds[1], STDOUT_FILENO);
+        dup2(fds[1], STDERR_FILENO);
+        close(fds[0]);
+        close(fds[1]);
+        execv(argv[0], (char *const *)argv);
+        fprintf(stderr, "exec of %s failed\n", argv[0]); // reaches the pipe
+        _exit(127);
+    }
+
+    close(fds[1]);
+    char output[SIDECAR_DETACH_OUTPUT_BYTES];
+    size_t out_len = 0;
+    for (;;) {
+        char scrap[256];
+        bool full = out_len >= sizeof(output) - 1;
+        ssize_t n = read(fds[0],
+                         full ? scrap : output + out_len,
+                         full ? sizeof(scrap) : sizeof(output) - 1 - out_len);
+        if (n < 0 && errno == EINTR) {
+            continue;
+        }
+        if (n <= 0) {
+            break;
+        }
+        if (!full) {
+            out_len += (size_t)n;
+        }
+    }
+    close(fds[0]);
+    output[out_len] = '\0';
+
+    int status = 0;
+    pid_t waited;
+    do {
+        waited = waitpid(pid, &status, 0);
+    } while (waited < 0 && errno == EINTR);
+    if (waited < 0) {
+        frame_send_error(sock, req_id, "waitpid() failed");
+        return;
+    }
+
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+        frame_send_end(sock, req_id, false, 0);
+        return;
+    }
+
+    fprintf(stderr, "sidecar: detach failed for unit %s\n", unit);
+    if (out_len == 0) {
+        if (WIFEXITED(status)) {
+            snprintf(output, sizeof(output), "systemd-run exit status %d", WEXITSTATUS(status));
+        } else {
+            snprintf(output, sizeof(output), "systemd-run killed by signal %d", WTERMSIG(status));
+        }
+    }
+    frame_send_error(sock, req_id, output);
+}
+
 int sidecar_server_main(int sync_fd) {
     nng_socket sock;
     nng_listener listener;
@@ -331,6 +455,10 @@ int sidecar_server_main(int sync_fd) {
 
             sidecar_server_stream_cmd(sock, cmd, req_id, timeout_ms);
             free(cmd);
+
+        } else if (frame.type == SIDECAR_MSG_DETACH) {
+            sidecar_server_detach_cmd(sock, frame.unit, frame.cmd, frame.req_id);
+            nng_msg_free(msg);
 
         } else {
             fprintf(stderr, "sidecar: unexpected msg type 0x%02x from client\n", (unsigned)frame.type);
@@ -454,7 +582,7 @@ static void transaction_send_recv(nng_msg *req, uint8_t req_id, const char *cmd,
             return;
 
         } else if (frame.type == SIDECAR_MSG_ERROR) {
-            char err_text[4096];
+            char err_text[SIDECAR_DETACH_OUTPUT_BYTES];
             snprintf(err_text, sizeof(err_text), "%s", frame.payload_len > 0 ? frame.payload : "unknown error");
             nng_msg_free(msg);
             const sidecar_status_t status = {SIDECAR_CMD_FAILED, false, 0, err_text};
@@ -489,11 +617,31 @@ static void cmd_transaction(const char *cmd, uint32_t timeout_ms, void *ctx, sid
     transaction_send_recv(req, req_id, cmd, ctx, on_chunk, on_done);
 }
 
+static void detach_transaction(const char *cmd, const char *unit, void *ctx, sidecar_done_cb_t on_done) {
+    transport_lock();
+    uint8_t req_id = ++next_req_id;
+
+    nng_msg *req = frame_build_detach(req_id, unit, cmd);
+    if (req == NULL) {
+        fprintf(stderr, "sidecar: failed to build DETACH frame\n");
+        transaction_out_of_memory(cmd, ctx, on_done);
+        return;
+    }
+
+    client_apply_recv_timeout(SIDECAR_CMD_TIMEOUT_DEFAULT_MS);
+    transaction_send_recv(req, req_id, cmd, ctx, NULL, on_done);
+}
+
 static void handle_request(union request *req) {
     switch (req->type) {
     case REQUEST_CMD:
         cmd_transaction(req->cmd.cmd, req->cmd.timeout_ms, req->cmd.ctx, req->cmd.on_chunk, req->cmd.on_done);
         free(req->cmd.cmd);
+        break;
+    case REQUEST_DETACH:
+        detach_transaction(req->detach.cmd, req->detach.unit, req->detach.ctx, req->detach.on_done);
+        free(req->detach.cmd);
+        free(req->detach.unit);
         break;
     default:
         fprintf(stderr, "sidecar: unhandled request type %d\n", req->type);
@@ -600,6 +748,25 @@ bool sidecar_client_cmd_async(const char *cmd, uint32_t timeout_ms, void *ctx, s
     req->cmd.ctx = ctx;
     req->cmd.on_chunk = on_chunk;
     req->cmd.on_done = on_done;
+    request_post(req);
+    return true;
+}
+
+bool sidecar_client_detach_async(const char *cmd, const char *unit, void *ctx, sidecar_done_cb_t on_done) {
+    union request *req = request_new(REQUEST_DETACH);
+    if (req == NULL) {
+        return false;
+    }
+    req->detach.cmd = REQUEST_STRDUP(cmd);
+    req->detach.unit = REQUEST_STRDUP(unit);
+    if (req->detach.cmd == NULL || req->detach.unit == NULL) {
+        free(req->detach.cmd);
+        free(req->detach.unit);
+        free(req);
+        return false;
+    }
+    req->detach.ctx = ctx;
+    req->detach.on_done = on_done;
     request_post(req);
     return true;
 }

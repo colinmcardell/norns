@@ -13,7 +13,6 @@
 // linux / posix
 #include <glob.h>
 #include <pthread.h>
-#include <signal.h>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -296,11 +295,11 @@ static int _sound_file_inspect(lua_State *l);
 // util
 /// run command in child process asynchronously (with callback)
 static int _system_cmd(lua_State *l);
+/// launch a named system action detached in a transient systemd unit
+static int _system_action(lua_State *l);
 static int _system_glob(lua_State *l);
 /// run command in child process, blocking (replaces `os.execute`)
 static int _execute(lua_State *l);
-/// self-terminate the process (for systemd restart)
-static int _terminate(lua_State *l);
 
 // clock
 static int _clock_schedule_sleep(lua_State *l);
@@ -497,9 +496,9 @@ void w_init(void) {
 
     // util
     lua_register_norns("system_cmd", &_system_cmd);
+    lua_register_norns("system_action", &_system_action);
     lua_register_norns("system_glob", &_system_glob);
     lua_register_norns("execute", &_execute);
-    lua_register_norns("terminate", &_terminate);
 
     // low-level monome grid control
     lua_register_norns("grid_set_led", &_grid_set_led);
@@ -2897,6 +2896,21 @@ void w_handle_system_cmd(char *capture, const int cb_ref) {
     luaL_unref(lvm, LUA_REGISTRYINDEX, cb_ref);
 }
 
+// handle detached system action launch result. ok reports the launch, not how
+// the action ended
+void w_handle_system_cmd_done(bool ok, char *err, const int cb_ref) {
+    lua_rawgeti(lvm, LUA_REGISTRYINDEX, cb_ref);
+    lua_pushboolean(lvm, ok);
+    if (err != NULL) {
+        lua_pushstring(lvm, err);
+    } else {
+        lua_pushnil(lvm);
+    }
+    l_report(lvm, l_docall(lvm, 2, 0));
+    // free the callback ref created in _system_action
+    luaL_unref(lvm, LUA_REGISTRYINDEX, cb_ref);
+}
+
 void w_handle_screen_refresh() {
     lua_getglobal(lvm, "refresh");
     l_report(lvm, l_docall(lvm, 0, 0));
@@ -3468,6 +3482,20 @@ int _system_cmd(lua_State *l) {
     return 1;
 }
 
+int _system_action(lua_State *l) {
+    lua_check_num_args(2);
+    const char *action = luaL_checkstring(l, 1);
+    // create a ref to callback to prevent garbage collection
+    const int cb_ref = luaL_ref(l, LUA_REGISTRYINDEX);
+    bool ok = system_action(action, cb_ref);
+    if (!ok) {
+        // unknown action, so no event will fire. free the ref here
+        luaL_unref(l, LUA_REGISTRYINDEX, cb_ref);
+    }
+    lua_pushboolean(l, ok);
+    return 1;
+}
+
 int _system_glob(lua_State *l) {
     lua_check_num_args(1);
     const char *pattern = luaL_checkstring(l, 1);
@@ -3504,13 +3532,6 @@ int _execute(lua_State *l) {
     lua_pushstring(l, capture ? capture : "");
     free(capture);
     return 1;
-}
-
-int _terminate(lua_State *l) {
-    lua_check_num_args(0);
-    fprintf(stderr, "norns: self-terminating for restart\n");
-    raise(SIGTERM);
-    return 0;
 }
 
 int _platform(lua_State *l) {

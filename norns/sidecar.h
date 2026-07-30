@@ -45,10 +45,14 @@ void sidecar_client_cmd(const char *cmd, uint32_t timeout_ms, void *ctx, sidecar
 // and calls the callbacks from a background thread as output arrives
 bool sidecar_client_cmd_async(const char *cmd, uint32_t timeout_ms, void *ctx, sidecar_chunk_cb_t on_chunk, sidecar_done_cb_t on_done);
 
+// request a command be launched detached in a transient systemd unit, so it
+// outlives norns. its output goes to the journal, so there is no on_chunk.
+// returns false when the request could not be allocated
+bool sidecar_client_detach_async(const char *cmd, const char *unit, void *ctx, sidecar_done_cb_t on_done);
+
 #ifdef NORNS_TEST
 extern void *(*sidecar_test_calloc)(size_t, size_t);
 extern char *(*sidecar_test_strdup)(const char *);
 #endif
-
 
 #endif // _NORNS_SIDECAR_H_
