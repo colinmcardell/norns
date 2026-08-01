@@ -40,6 +40,7 @@
 #include "i2c.h"
 #include "jack_client.h"
 #include "lua_eval.h"
+#include "lua_shell.h"
 #include "metro.h"
 #include "oracle.h"
 #include "osc.h"
@@ -404,6 +405,7 @@ void w_init(void) {
     lvm = luaL_newstate();
     luaL_openlibs(lvm);
     lua_pcall(lvm, 0, 0, 0);
+    lua_shell_install(lvm);
 
     // initialize embedded third-party modules
     lua_register_cjson();
